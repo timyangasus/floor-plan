@@ -41,7 +41,10 @@
 }
 
 .topology-empty-icon {
-  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
   margin-bottom: 10px;
 }
 

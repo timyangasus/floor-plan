@@ -30,6 +30,7 @@ import type { ViewMode } from './EditorPage.types'
 import { useObjectUrl } from '../lib/useObjectUrl'
 import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
 import { getRouterModel } from '../data/routerCatalog'
+import { RotateIcon, TrashIcon } from '../components/icons'
 import './EditorPage.css'
 
 interface HistoryState {
@@ -53,6 +54,7 @@ export default function EditorPage() {
   const [pendingModel, setPendingModel] = useState<RouterModel | null>(null)
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null)
   const [showHeatmap, setShowHeatmap] = useState(false)
+  const [showGrid, setShowGrid] = useState(false)
   const [band, setBand] = useState<Band>('2.4')
 
   const [menuOpen, setMenuOpen] = useState(false)
@@ -275,6 +277,7 @@ export default function EditorPage() {
             onDeviceDragEnd={handleDeviceDragEnd}
             selectedDeviceId={selectedDeviceId}
             showHeatmap={showHeatmap}
+            showGrid={showGrid}
             band={band}
             scalePxPerMeter={floor.scalePxPerMeter}
             onCalibratePoints={handleCalibratePoints}
@@ -310,10 +313,10 @@ export default function EditorPage() {
                 <span className="device-inspector-name">{selectedModel?.name ?? selectedDevice.modelId}</span>
                 <div className="device-inspector-actions">
                   <button className="icon-btn" onClick={handleRotateSelected} aria-label="旋轉">
-                    ⟳
+                    <RotateIcon />
                   </button>
                   <button className="icon-btn" onClick={handleDeleteSelected} aria-label="刪除">
-                    🗑
+                    <TrashIcon />
                   </button>
                 </div>
               </div>
@@ -340,6 +343,8 @@ export default function EditorPage() {
               setMode(m)
               if (m === 'place') setCatalogOpen(true)
             }}
+            showGrid={showGrid}
+            onToggleGrid={() => setShowGrid((v) => !v)}
             showHeatmap={showHeatmap}
             onToggleHeatmap={() => setShowHeatmap((v) => !v)}
             onOpenTopology={() => navigate(`/project/${projectId}/topology`)}

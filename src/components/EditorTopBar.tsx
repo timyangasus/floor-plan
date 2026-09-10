@@ -1,4 +1,5 @@
 import type { ViewMode } from '../pages/EditorPage.types'
+import { MenuIcon, EditIcon, LayersIcon } from './icons'
 import './EditorChrome.css'
 
 interface Props {
@@ -14,13 +15,13 @@ export default function EditorTopBar({ onMenu, onEditProject, onLayers, view, on
     <div className="editor-topbar">
       <div className="editor-topbar-group">
         <button className="icon-btn" onClick={onMenu} aria-label="選單">
-          ☰
+          <MenuIcon />
         </button>
         <button className="icon-btn" onClick={onEditProject} aria-label="專案設定">
-          ✎
+          <EditIcon />
         </button>
         <button className="icon-btn" onClick={onLayers} aria-label="樓層">
-          ⧉
+          <LayersIcon />
         </button>
       </div>
       <div className="view-toggle">

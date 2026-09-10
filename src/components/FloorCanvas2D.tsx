@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { Band, Device } from '../types'
 import { getRouterModel } from '../data/routerCatalog'
 import { bestSignalDbm, distanceInMeters, signalToStrength, strengthToColor } from '../lib/signalModel'
+import { RouterIcon } from './icons'
 import './FloorCanvas2D.css'
 
 export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate'
@@ -27,6 +28,7 @@ interface Props {
   onDeviceDragEnd: (id: string) => void
   selectedDeviceId: string | null
   showHeatmap: boolean
+  showGrid: boolean
   band: Band
   scalePxPerMeter: number | null
   onCalibratePoints: (a: { x: number; y: number }, b: { x: number; y: number }) => void
@@ -47,6 +49,7 @@ export default function FloorCanvas2D({
   onDeviceDragEnd,
   selectedDeviceId,
   showHeatmap,
+  showGrid,
   band,
   scalePxPerMeter,
   onCalibratePoints,
@@ -208,6 +211,15 @@ export default function FloorCanvas2D({
 
         {showHeatmap && <canvas ref={canvasRef} className="fc-heatmap" />}
 
+        {showGrid && naturalSize && (
+          <div
+            className="fc-grid"
+            style={{
+              backgroundSize: `${scalePxPerMeter ?? 50}px ${scalePxPerMeter ?? 50}px`,
+            }}
+          />
+        )}
+
         {calibrationFirstPoint && (
           <div
             className="fc-calibration-point"
@@ -230,7 +242,7 @@ export default function FloorCanvas2D({
               onPointerDown={(e) => handleDevicePointerDown(e, device.id)}
             >
               <div className="fc-device-dot" style={{ transform: `rotate(${device.rotation}deg)` }}>
-                📶
+                <RouterIcon size={16} />
               </div>
               <div className="fc-device-label">{model?.name ?? device.modelId}</div>
             </div>

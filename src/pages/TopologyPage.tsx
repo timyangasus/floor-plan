@@ -6,6 +6,7 @@ import { assignDeviceGroup, setDeviceCap } from '../db/repository'
 import type { Band, MeshGroupLabel, Project } from '../types'
 import { getRouterModel } from '../data/routerCatalog'
 import MeshTopologyGraph from '../components/MeshTopologyGraph'
+import { ArrowLeftIcon, NetworkIcon } from '../components/icons'
 import './TopologyPage.css'
 
 const GROUP_LABELS: MeshGroupLabel[] = ['A', 'B', 'C', 'D', 'E']
@@ -55,7 +56,7 @@ export default function TopologyPage() {
     <div className="topology-page">
       <header className="topology-header">
         <button className="icon-btn" onClick={() => navigate(-1)} aria-label="返回">
-          ←
+          <ArrowLeftIcon />
         </button>
         <div className="topology-title">
           <h2>Mesh 拓撲</h2>
@@ -73,7 +74,9 @@ export default function TopologyPage() {
       <main className="topology-main">
         {!hasAnyGroup && entries.length > 0 && (
           <div className="topology-empty">
-            <div className="topology-empty-icon">⇄</div>
+            <div className="topology-empty-icon">
+              <NetworkIcon size={28} />
+            </div>
             <p>尚未設定任何 Mesh 群組。</p>
             <p className="topology-empty-hint">
               請把下方裝置指派到 A–E 其中一組、每組指定一台 CAP。

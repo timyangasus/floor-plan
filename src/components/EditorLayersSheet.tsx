@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import type { Floor } from '../types'
+import { LayersIcon } from './icons'
 import './EditorChrome.css'
 
 interface Props {
@@ -42,7 +43,9 @@ export default function EditorLayersSheet({ floors, currentFloorId, projectId, o
                 navigate(`/project/${projectId}/floor/${floor.id}`)
               }}
             >
-              <span className="catalog-row-icon">⧉</span>
+              <span className="catalog-row-icon">
+                <LayersIcon />
+              </span>
               <span className="catalog-row-name">{floor.name}</span>
               {floor.id === currentFloorId && <span className="catalog-row-badge">目前</span>}
             </button>

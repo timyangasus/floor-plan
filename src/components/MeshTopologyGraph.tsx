@@ -73,9 +73,14 @@ export default function MeshTopologyGraph({ groupLabel, members, band, onSetCap 
           return (
             <g key={entry.device.id}>
               <circle cx={x} cy={y} r={16} fill="var(--surface)" stroke="var(--border)" strokeWidth={1.5} />
-              <text x={x} y={y + 4} textAnchor="middle" fontSize={13}>
-                📶
-              </text>
+              <svg x={x - 9} y={y - 9} width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <rect x="4" y="10" width="16" height="7" rx="1.5" />
+                <circle cx="8" cy="13.5" r="0.6" fill="var(--text-muted)" stroke="none" />
+                <circle cx="12" cy="13.5" r="0.6" fill="var(--text-muted)" stroke="none" />
+                <circle cx="16" cy="13.5" r="0.6" fill="var(--text-muted)" stroke="none" />
+                <path d="M8 10V7" />
+                <path d="M6 7a3 3 0 016 0" />
+              </svg>
             </g>
           )
         })}

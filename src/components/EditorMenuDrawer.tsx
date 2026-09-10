@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import type { ThemeMode } from '../lib/theme'
+import { HomeIcon, NetworkIcon } from './icons'
 import './EditorChrome.css'
 
 interface Props {
@@ -26,10 +27,10 @@ export default function EditorMenuDrawer({ onClose, projectId, theme, onToggleTh
         </div>
 
         <button className="drawer-item" onClick={() => navigate('/home')}>
-          🏠 專案列表
+          <HomeIcon size={16} /> 專案列表
         </button>
         <button className="drawer-item" onClick={() => navigate(`/project/${projectId}/topology`)}>
-          ⇄ 拓撲
+          <NetworkIcon size={16} /> 拓撲
         </button>
 
         <div className="drawer-divider" />

@@ -6,6 +6,7 @@ import type { Floor, Project } from '../types'
 import { timeGreeting } from '../lib/greeting'
 import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
 import { useNavigate } from 'react-router-dom'
+import { ArrowLeftIcon } from '../components/icons'
 import './HomePage.css'
 
 export default function HomePage() {
@@ -59,7 +60,7 @@ export default function HomePage() {
     <div className="home-page">
       <header className="home-header">
         <button className="icon-btn" onClick={() => navigate('/')} aria-label="返回">
-          ←
+          <ArrowLeftIcon />
         </button>
         <div className="home-header-title">
           <span className="home-logo">▲</span>

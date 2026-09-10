@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { routerCatalog, routerSeriesList, wifiGenerationList } from '../data/routerCatalog'
 import type { RouterModel } from '../types'
+import { RouterIcon } from './icons'
 import './EditorChrome.css'
 
 interface Props {
@@ -72,7 +73,9 @@ export default function DeviceCatalogSheet({ onClose, onPick }: Props) {
         <div className="catalog-list">
           {filtered.map((model) => (
             <button key={model.id} className="catalog-row" onClick={() => onPick(model)}>
-              <span className="catalog-row-icon">📶</span>
+              <span className="catalog-row-icon">
+                <RouterIcon />
+              </span>
               <span className="catalog-row-name">{model.name}</span>
               <span className="catalog-row-badge">{model.generation}</span>
             </button>
