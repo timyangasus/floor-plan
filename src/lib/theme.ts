@@ -5,7 +5,7 @@ const STORAGE_KEY = 'floor-plan:theme'
 export function loadTheme(): ThemeMode {
   const stored = localStorage.getItem(STORAGE_KEY)
   if (stored === 'light' || stored === 'dark' || stored === 'system') return stored
-  return 'system'
+  return 'light'
 }
 
 export function saveTheme(mode: ThemeMode): void {
