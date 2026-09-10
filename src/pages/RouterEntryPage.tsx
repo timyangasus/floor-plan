@@ -34,8 +34,6 @@ export default function RouterEntryPage() {
 
   return (
     <div className="re-page">
-      <div className="re-badge">DEMO 入口畫面（模擬 ASUS Router App）</div>
-
       <header className="re-header">
         <button className="re-avatar" onClick={() => setDrawerOpen(true)} aria-label="開啟選單">
           <GoogleGlyph />

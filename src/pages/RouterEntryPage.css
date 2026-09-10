@@ -7,21 +7,12 @@
   background: var(--bg);
 }
 
-.re-badge {
-  text-align: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-faint);
-  background: var(--surface-alt);
-  padding: 6px 8px;
-  padding-top: calc(6px + var(--safe-top));
-}
-
 .re-header {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 14px 16px;
+  padding-top: max(44px, calc(14px + var(--safe-top)));
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
@@ -222,7 +213,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: calc(20px + var(--safe-top)) 20px 16px;
+  padding: max(50px, calc(20px + var(--safe-top))) 20px 16px;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
 }
