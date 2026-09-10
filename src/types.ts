@@ -26,6 +26,8 @@ export interface Floor {
   imageBlob: Blob | null
   /** pixels per meter, measured against the stored floor plan image's natural size */
   scalePxPerMeter: number | null
+  /** Purely cosmetic look applied to the 2D floor plan image — see data/wallMaterials.ts */
+  wallMaterialId: string | null
 }
 
 export type Band = '2.4' | '5' | '6'

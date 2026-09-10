@@ -28,7 +28,7 @@ interface Props {
   onDeviceDragEnd: (id: string) => void
   selectedDeviceId: string | null
   showHeatmap: boolean
-  showGrid: boolean
+  wallMaterialFilter: string
   band: Band
   scalePxPerMeter: number | null
   onCalibratePoints: (a: { x: number; y: number }, b: { x: number; y: number }) => void
@@ -49,7 +49,7 @@ export default function FloorCanvas2D({
   onDeviceDragEnd,
   selectedDeviceId,
   showHeatmap,
-  showGrid,
+  wallMaterialFilter,
   band,
   scalePxPerMeter,
   onCalibratePoints,
@@ -202,6 +202,7 @@ export default function FloorCanvas2D({
             src={imageUrl}
             alt="floor plan"
             draggable={false}
+            style={{ filter: wallMaterialFilter }}
             onLoad={(e) => {
               const img = e.currentTarget
               onNaturalSize({ width: img.naturalWidth, height: img.naturalHeight })
@@ -210,15 +211,6 @@ export default function FloorCanvas2D({
         )}
 
         {showHeatmap && <canvas ref={canvasRef} className="fc-heatmap" />}
-
-        {showGrid && naturalSize && (
-          <div
-            className="fc-grid"
-            style={{
-              backgroundSize: `${scalePxPerMeter ?? 50}px ${scalePxPerMeter ?? 50}px`,
-            }}
-          />
-        )}
 
         {calibrationFirstPoint && (
           <div

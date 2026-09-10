@@ -5,8 +5,7 @@ import './EditorChrome.css'
 interface Props {
   mode: CanvasMode
   onModeChange: (m: CanvasMode) => void
-  showGrid: boolean
-  onToggleGrid: () => void
+  onOpenWallMaterial: () => void
   showHeatmap: boolean
   onToggleHeatmap: () => void
   onOpenTopology: () => void
@@ -15,8 +14,7 @@ interface Props {
 export default function EditorBottomToolbar({
   mode,
   onModeChange,
-  showGrid,
-  onToggleGrid,
+  onOpenWallMaterial,
   showHeatmap,
   onToggleHeatmap,
   onOpenTopology,
@@ -29,7 +27,7 @@ export default function EditorBottomToolbar({
       <button className={mode === 'pan' ? 'active' : ''} onClick={() => onModeChange('pan')} aria-label="平移">
         <PanIcon />
       </button>
-      <button className={showGrid ? 'active' : ''} onClick={onToggleGrid} aria-label="格線">
+      <button onClick={onOpenWallMaterial} aria-label="牆面材質">
         <GridIcon />
       </button>
       <button className={mode === 'place' ? 'active' : ''} onClick={() => onModeChange('place')} aria-label="放置裝置">

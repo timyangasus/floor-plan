@@ -12,6 +12,7 @@ import EditorMenuDrawer from '../components/EditorMenuDrawer'
 import EditorLayersSheet from '../components/EditorLayersSheet'
 import ProjectSettingsModal from '../components/ProjectSettingsModal'
 import ScaleCalibrationModal from '../components/ScaleCalibrationModal'
+import WallMaterialSheet from '../components/WallMaterialSheet'
 import {
   addFloor,
   deleteDevice,
@@ -24,12 +25,14 @@ import {
   replaceDevicesForFloor,
   updateDevice,
   updateFloorScale,
+  updateFloorWallMaterial,
 } from '../db/repository'
 import type { Band, Device, Floor, Project, RouterModel } from '../types'
 import type { ViewMode } from './EditorPage.types'
 import { useObjectUrl } from '../lib/useObjectUrl'
 import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
 import { getRouterModel } from '../data/routerCatalog'
+import { getWallMaterial } from '../data/wallMaterials'
 import { RotateIcon, TrashIcon } from '../components/icons'
 import './EditorPage.css'
 
@@ -54,13 +57,13 @@ export default function EditorPage() {
   const [pendingModel, setPendingModel] = useState<RouterModel | null>(null)
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null)
   const [showHeatmap, setShowHeatmap] = useState(false)
-  const [showGrid, setShowGrid] = useState(false)
   const [band, setBand] = useState<Band>('2.4')
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [layersOpen, setLayersOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [catalogOpen, setCatalogOpen] = useState(false)
+  const [wallMaterialOpen, setWallMaterialOpen] = useState(false)
   const [calibrationPending, setCalibrationPending] = useState<{
     a: { x: number; y: number }
     b: { x: number; y: number }
@@ -230,6 +233,13 @@ export default function EditorPage() {
     navigate(`/project/${projectId}/floor/${created.id}`)
   }
 
+  async function handlePickWallMaterial(materialId: string | null) {
+    if (!floorId) return
+    await updateFloorWallMaterial(floorId, materialId)
+    setFloor((prev) => (prev ? { ...prev, wallMaterialId: materialId } : prev))
+    setWallMaterialOpen(false)
+  }
+
   async function handleRenameProject(name: string) {
     if (!projectId) return
     await renameProject(projectId, name)
@@ -277,7 +287,7 @@ export default function EditorPage() {
             onDeviceDragEnd={handleDeviceDragEnd}
             selectedDeviceId={selectedDeviceId}
             showHeatmap={showHeatmap}
-            showGrid={showGrid}
+            wallMaterialFilter={getWallMaterial(floor.wallMaterialId).cssFilter}
             band={band}
             scalePxPerMeter={floor.scalePxPerMeter}
             onCalibratePoints={handleCalibratePoints}
@@ -343,8 +353,7 @@ export default function EditorPage() {
               setMode(m)
               if (m === 'place') setCatalogOpen(true)
             }}
-            showGrid={showGrid}
-            onToggleGrid={() => setShowGrid((v) => !v)}
+            onOpenWallMaterial={() => setWallMaterialOpen(true)}
             showHeatmap={showHeatmap}
             onToggleHeatmap={() => setShowHeatmap((v) => !v)}
             onOpenTopology={() => navigate(`/project/${projectId}/topology`)}
@@ -390,6 +399,14 @@ export default function EditorPage() {
           initialName={project.name}
           onClose={() => setSettingsOpen(false)}
           onSave={handleRenameProject}
+        />
+      )}
+
+      {wallMaterialOpen && (
+        <WallMaterialSheet
+          currentMaterialId={floor.wallMaterialId}
+          onClose={() => setWallMaterialOpen(false)}
+          onPick={handlePickWallMaterial}
         />
       )}
 

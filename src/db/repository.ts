@@ -28,6 +28,7 @@ export async function createProject(name: string, firstFloorImage: Blob | null):
     order: 0,
     imageBlob: firstFloorImage,
     scalePxPerMeter: null,
+    wallMaterialId: null,
   }
   await db.put('floors', floor)
 
@@ -89,6 +90,7 @@ export async function addFloor(projectId: string, name: string, imageBlob: Blob 
     order: existing.length,
     imageBlob,
     scalePxPerMeter: null,
+    wallMaterialId: null,
   }
   await db.put('floors', floor)
   await touchProject(projectId)
@@ -100,6 +102,14 @@ export async function updateFloorScale(floorId: string, scalePxPerMeter: number)
   const floor = await db.get('floors', floorId)
   if (!floor) return
   floor.scalePxPerMeter = scalePxPerMeter
+  await db.put('floors', floor)
+}
+
+export async function updateFloorWallMaterial(floorId: string, wallMaterialId: string | null): Promise<void> {
+  const db = await getDb()
+  const floor = await db.get('floors', floorId)
+  if (!floor) return
+  floor.wallMaterialId = wallMaterialId
   await db.put('floors', floor)
 }
 
