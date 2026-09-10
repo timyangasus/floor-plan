@@ -480,6 +480,7 @@ export default function EditorPage() {
           <div className="calibration-hint">拖曳平面圖以平移檢視畫面</div>
         )}
 
+
         {view === '2d' && (
           <div className="editor-bottom-panels">
             <WifiLegend band={band} onBandChange={setBand} />
@@ -523,6 +524,7 @@ export default function EditorPage() {
             onRedo={handleRedo}
             canUndo={history.past.length > 0}
             canRedo={history.future.length > 0}
+            onSetScale={() => setMode('calibrate')}
           />
         )}
 

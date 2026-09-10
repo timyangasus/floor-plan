@@ -199,6 +199,17 @@ export function HomeIcon({ size = 18 }: IconProps) {
   )
 }
 
+export function RulerIcon({ size = 18 }: IconProps) {
+  return (
+    <svg width={size} height={size} {...base}>
+      <rect x="2.5" y="7" width="19" height="10" rx="1.5" transform="rotate(-45 12 12)" />
+      <path d="M8.5 9.5l1.4 1.4" />
+      <path d="M11 7l1.4 1.4" />
+      <path d="M13.5 4.5l1.4 1.4" />
+    </svg>
+  )
+}
+
 export function PhoneIcon({ size = 18 }: IconProps) {
   return (
     <svg width={size} height={size} {...base}>

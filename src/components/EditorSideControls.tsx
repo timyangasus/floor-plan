@@ -1,4 +1,4 @@
-import { UndoIcon, RedoIcon, CenterIcon, ZoomInIcon, ZoomOutIcon } from './icons'
+import { UndoIcon, RedoIcon, CenterIcon, ZoomInIcon, ZoomOutIcon, RulerIcon } from './icons'
 import './EditorChrome.css'
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
   onRedo: () => void
   canUndo: boolean
   canRedo: boolean
+  onSetScale: () => void
 }
 
 export default function EditorSideControls({
@@ -19,6 +20,7 @@ export default function EditorSideControls({
   onRedo,
   canUndo,
   canRedo,
+  onSetScale,
 }: Props) {
   return (
     <div className="editor-side-controls">
@@ -39,6 +41,11 @@ export default function EditorSideControls({
         </button>
         <button className="icon-btn" onClick={onZoomOut} aria-label="縮小">
           <ZoomOutIcon />
+        </button>
+      </div>
+      <div className="side-group">
+        <button className="icon-btn" onClick={onSetScale} aria-label="設定比例尺">
+          <RulerIcon />
         </button>
       </div>
     </div>
