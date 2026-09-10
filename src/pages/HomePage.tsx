@@ -58,6 +58,9 @@ export default function HomePage() {
   return (
     <div className="home-page">
       <header className="home-header">
+        <button className="icon-btn" onClick={() => navigate('/')} aria-label="返回">
+          ←
+        </button>
         <div className="home-header-title">
           <span className="home-logo">▲</span>
           <span>ASUS WiFi Floorplaner</span>
