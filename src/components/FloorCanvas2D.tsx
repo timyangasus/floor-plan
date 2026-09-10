@@ -11,7 +11,7 @@ import {
   strengthToColor,
   wallAttenuationBetween,
 } from '../lib/signalModel'
-import { RouterIcon, PhoneIcon, CheckIcon, CloseIcon } from './icons'
+import { RouterIcon, PhoneIcon, CheckIcon, CloseIcon, UndoIcon } from './icons'
 import './FloorCanvas2D.css'
 
 export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate' | 'draw-wall'
@@ -264,6 +264,10 @@ export default function FloorCanvas2D({
     setWallDrawPoints([])
   }
 
+  function undoLastWallPoint() {
+    setWallDrawPoints((prev) => prev.slice(0, -1))
+  }
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas || !naturalSize) return
@@ -475,7 +479,7 @@ export default function FloorCanvas2D({
           )
         })}
 
-        {mode === 'draw-wall' && lastDrawPoint && wallDrawPoints.length >= 2 && (
+        {mode === 'draw-wall' && lastDrawPoint && wallDrawPoints.length >= 1 && (
           <div
             className="fc-wall-controls"
             style={{
@@ -485,8 +489,13 @@ export default function FloorCanvas2D({
               transformOrigin: 'left center',
             }}
           >
-            <button className="fc-wall-btn fc-wall-btn-confirm" onClick={finishWall} aria-label="完成">
-              <CheckIcon size={16} />
+            {wallDrawPoints.length >= 2 && (
+              <button className="fc-wall-btn fc-wall-btn-confirm" onClick={finishWall} aria-label="完成">
+                <CheckIcon size={16} />
+              </button>
+            )}
+            <button className="fc-wall-btn fc-wall-btn-undo" onClick={undoLastWallPoint} aria-label="上一步">
+              <UndoIcon size={16} />
             </button>
             <button className="fc-wall-btn fc-wall-btn-cancel" onClick={cancelWall} aria-label="取消">
               <CloseIcon size={16} />

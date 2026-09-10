@@ -149,6 +149,11 @@
   color: #fff;
 }
 
+.fc-wall-btn-undo {
+  background: var(--surface);
+  color: var(--text);
+}
+
 .fc-wall-btn-cancel {
   background: var(--surface);
   color: var(--text-muted);
