@@ -149,9 +149,12 @@ export default function EditorPage() {
     const created = await placeDevice(floorId, pendingModel.id, x, y)
     setDevices((prev) => [...prev, created])
     pushHistory(prevSnapshot)
+    setSelectedDeviceId(created.id)
+  }
+
+  function finishPlacing() {
     setPendingModel(null)
     setMode('select')
-    setSelectedDeviceId(created.id)
   }
 
   function handleMoveDevice(id: string, x: number, y: number) {
@@ -338,7 +341,7 @@ export default function EditorPage() {
           </Suspense>
         )}
 
-        {view === '2d' && floor.scalePxPerMeter === null && mode !== 'calibrate' && (
+        {view === '2d' && floor.scalePxPerMeter === null && mode === 'select' && (
           <div className="calibration-banner">
             <span>請先設定平面圖比例尺，覆蓋範圍才會準確。</span>
             <button onClick={() => setMode('calibrate')}>設定比例尺</button>
@@ -347,6 +350,13 @@ export default function EditorPage() {
 
         {view === '2d' && mode === 'calibrate' && (
           <div className="calibration-hint">在平面圖上點兩下，標記一段已知實際距離的兩個點</div>
+        )}
+
+        {view === '2d' && mode === 'place' && pendingModel && (
+          <div className="calibration-banner">
+            <span>在平面圖上放置「{pendingModel.name}」。</span>
+            <button onClick={finishPlacing}>完成</button>
+          </div>
         )}
 
         {view === '2d' && (showHeatmap || selectedDevice || selectedWall) && (
@@ -399,6 +409,7 @@ export default function EditorPage() {
           <EditorBottomToolbar
             mode={mode}
             onModeChange={(m) => {
+              if (mode === 'place' && m !== 'place') setPendingModel(null)
               setMode(m)
               if (m === 'place') setCatalogOpen(true)
             }}
