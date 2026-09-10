@@ -14,7 +14,7 @@ import {
 import { RouterIcon, PhoneIcon, CheckIcon, CloseIcon } from './icons'
 import './FloorCanvas2D.css'
 
-export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate' | 'draw-wall' | 'place-client'
+export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate' | 'draw-wall'
 
 interface Point {
   x: number
@@ -39,7 +39,9 @@ interface Props {
   clients: TestClient[]
   selectedClientId: string | null
   onSelectClient: (id: string | null) => void
-  onPlaceClient: (x: number, y: number) => void
+  onMoveClient: (id: string, x: number, y: number) => void
+  onClientDragStart: (id: string) => void
+  onClientDragEnd: (id: string) => void
   mode: CanvasMode
   transform: Transform
   onTransformChange: (t: Transform) => void
@@ -95,7 +97,9 @@ export default function FloorCanvas2D({
   clients,
   selectedClientId,
   onSelectClient,
-  onPlaceClient,
+  onMoveClient,
+  onClientDragStart,
+  onClientDragEnd,
   mode,
   transform,
   onTransformChange,
@@ -112,6 +116,7 @@ export default function FloorCanvas2D({
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const draggingDeviceId = useRef<string | null>(null)
+  const draggingClientId = useRef<string | null>(null)
   const panState = useRef<{ x: number; y: number } | null>(null)
   const dragMoved = useRef(false)
   const [calibrationFirstPoint, setCalibrationFirstPoint] = useState<Point | null>(null)
@@ -142,10 +147,6 @@ export default function FloorCanvas2D({
 
     if (mode === 'place') {
       onPlaceAt(point.x, point.y)
-      return
-    }
-    if (mode === 'place-client') {
-      onPlaceClient(point.x, point.y)
       return
     }
     if (mode === 'calibrate') {
@@ -200,6 +201,12 @@ export default function FloorCanvas2D({
       onMoveDevice(draggingDeviceId.current, point.x, point.y)
       return
     }
+    if (draggingClientId.current) {
+      dragMoved.current = true
+      const point = screenToContent(e.clientX, e.clientY)
+      onMoveClient(draggingClientId.current, point.x, point.y)
+      return
+    }
     if (panState.current) {
       const dx = e.clientX - panState.current.x
       const dy = e.clientY - panState.current.y
@@ -212,7 +219,15 @@ export default function FloorCanvas2D({
     if (draggingDeviceId.current && dragMoved.current) {
       onDeviceDragEnd(draggingDeviceId.current)
     }
+    if (draggingClientId.current) {
+      if (dragMoved.current) {
+        onClientDragEnd(draggingClientId.current)
+      } else {
+        onSelectClient(draggingClientId.current)
+      }
+    }
     draggingDeviceId.current = null
+    draggingClientId.current = null
     panState.current = null
     try {
       ;(e.target as HTMLElement).releasePointerCapture(e.pointerId)
@@ -234,7 +249,10 @@ export default function FloorCanvas2D({
   function handleClientPointerDown(e: React.PointerEvent, clientId: string) {
     if (mode !== 'select') return
     e.stopPropagation()
-    onSelectClient(clientId)
+    dragMoved.current = false
+    draggingClientId.current = clientId
+    onClientDragStart(clientId)
+    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
   }
 
   function finishWall() {

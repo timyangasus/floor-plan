@@ -6,10 +6,17 @@ interface Props {
   mode: CanvasMode
   onModeChange: (m: CanvasMode) => void
   onOpenWallMaterial: () => void
+  onAddClient: () => void
   onOpenTopology: () => void
 }
 
-export default function EditorBottomToolbar({ mode, onModeChange, onOpenWallMaterial, onOpenTopology }: Props) {
+export default function EditorBottomToolbar({
+  mode,
+  onModeChange,
+  onOpenWallMaterial,
+  onAddClient,
+  onOpenTopology,
+}: Props) {
   return (
     <div className="editor-bottom-toolbar">
       <button className={mode === 'select' ? 'active' : ''} onClick={() => onModeChange('select')} aria-label="選取">
@@ -28,11 +35,7 @@ export default function EditorBottomToolbar({ mode, onModeChange, onOpenWallMate
       <button className={mode === 'place' ? 'active' : ''} onClick={() => onModeChange('place')} aria-label="放置裝置">
         <RouterIcon />
       </button>
-      <button
-        className={mode === 'place-client' ? 'active' : ''}
-        onClick={() => onModeChange('place-client')}
-        aria-label="用戶端體驗"
-      >
+      <button onClick={onAddClient} aria-label="用戶端體驗">
         <WifiIcon />
       </button>
       <button onClick={onOpenTopology} aria-label="Mesh 拓撲">

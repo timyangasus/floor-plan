@@ -279,11 +279,32 @@ export default function EditorPage() {
     }
   }
 
-  async function handlePlaceClient(x: number, y: number) {
+  async function handleAddClient() {
     if (!floorId) return
-    const created = await createClient(floorId, x, y)
+    const rect = canvasAreaRef.current?.getBoundingClientRect()
+    const center =
+      rect && naturalSize
+        ? {
+            x: (rect.width / 2 - transform.tx) / transform.scale,
+            y: (rect.height / 2 - transform.ty) / transform.scale,
+          }
+        : { x: (naturalSize?.width ?? 0) / 2, y: (naturalSize?.height ?? 0) / 2 }
+    const created = await createClient(floorId, center.x, center.y)
     setClients((prev) => [...prev, created])
-    selectClient(created.id)
+    setMode('select')
+  }
+
+  function handleMoveClient(id: string, x: number, y: number) {
+    setClients((prev) => prev.map((c) => (c.id === id ? { ...c, x, y } : c)))
+  }
+
+  function handleClientDragStart(_id: string) {
+    // no undo history for test clients — dragging just repositions and re-persists on drop
+  }
+
+  async function handleClientDragEnd(id: string) {
+    const client = clients.find((c) => c.id === id)
+    if (client) await updateClient(client)
   }
 
   async function handleDeleteClient() {
@@ -307,10 +328,6 @@ export default function EditorPage() {
     const updated = { ...client, bandwidthMHz }
     await updateClient(updated)
     setClients((prev) => prev.map((c) => (c.id === updated.id ? updated : c)))
-  }
-
-  function finishPlacingClients() {
-    setMode('select')
   }
 
   function handlePickWallMaterial(materialId: string) {
@@ -410,7 +427,9 @@ export default function EditorPage() {
             clients={clients}
             selectedClientId={selectedClientId}
             onSelectClient={selectClient}
-            onPlaceClient={handlePlaceClient}
+            onMoveClient={handleMoveClient}
+            onClientDragStart={handleClientDragStart}
+            onClientDragEnd={handleClientDragEnd}
             mode={mode}
             transform={transform}
             onTransformChange={setTransform}
@@ -450,13 +469,6 @@ export default function EditorPage() {
           <div className="calibration-banner">
             <span>在平面圖上放置「{pendingModel.name}」。</span>
             <button onClick={finishPlacing}>完成</button>
-          </div>
-        )}
-
-        {view === '2d' && mode === 'place-client' && (
-          <div className="calibration-banner">
-            <span>在平面圖上放置測試用戶端。</span>
-            <button onClick={finishPlacingClients}>完成</button>
           </div>
         )}
 
@@ -515,6 +527,7 @@ export default function EditorPage() {
               if (m === 'place') setCatalogOpen(true)
             }}
             onOpenWallMaterial={() => setWallMaterialOpen(true)}
+            onAddClient={handleAddClient}
             onOpenTopology={() => navigate(`/project/${projectId}/topology`)}
           />
         )}
