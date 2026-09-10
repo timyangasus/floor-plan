@@ -130,8 +130,8 @@ export default function EditorPage() {
   function centerView() {
     if (!naturalSize || !canvasAreaRef.current) return
     const rect = canvasAreaRef.current.getBoundingClientRect()
-    const scale = Math.min(rect.width / naturalSize.width, rect.height / naturalSize.height) * 0.92
-    const tx = (rect.width - naturalSize.width * scale) / 2
+    const scale = rect.width / naturalSize.width
+    const tx = 0
     const ty = (rect.height - naturalSize.height * scale) / 2
     setTransform({ scale, tx, ty })
   }
@@ -459,34 +459,35 @@ export default function EditorPage() {
           </Suspense>
         )}
 
-        {view === '2d' && floor.scalePxPerMeter === null && mode === 'select' && (
-          <div className="calibration-hint">請先設定平面圖比例尺，覆蓋範圍才會準確。</div>
-        )}
+        {view === '2d' && (
+          <div className="editor-top-panels">
+            {mode !== 'calibrate' && mode !== 'pan' && <WifiLegend band={band} onBandChange={setBand} />}
 
-        {view === '2d' && mode === 'calibrate' && (
-          <div className="calibration-hint">在平面圖上點兩下，標記一段已知實際距離的兩個點</div>
-        )}
+            {floor.scalePxPerMeter === null && mode === 'select' && (
+              <div className="calibration-hint">請先設定平面圖比例尺，覆蓋範圍才會準確。</div>
+            )}
 
-        {view === '2d' && mode === 'place' && pendingModel && (
-          <div className="calibration-banner">
-            <span>在平面圖上放置「{pendingModel.name}」。</span>
-            <button onClick={finishPlacing}>完成</button>
+            {mode === 'calibrate' && (
+              <div className="calibration-hint">在平面圖上點兩下，標記一段已知實際距離的兩個點</div>
+            )}
+
+            {mode === 'place' && pendingModel && (
+              <div className="calibration-banner">
+                <span>在平面圖上放置「{pendingModel.name}」。</span>
+                <button onClick={finishPlacing}>完成</button>
+              </div>
+            )}
+
+            {mode === 'draw-wall' && (
+              <div className="calibration-hint">在平面圖上點擊新增頂點，繪製牆面路徑，畫好後點選 ✓ 確認</div>
+            )}
+
+            {mode === 'pan' && <div className="calibration-hint">拖曳平面圖以平移檢視畫面</div>}
           </div>
         )}
 
-        {view === '2d' && mode === 'draw-wall' && (
-          <div className="calibration-hint">在平面圖上點擊新增頂點，繪製牆面路徑，畫好後點選 ✓ 確認</div>
-        )}
-
-        {view === '2d' && mode === 'pan' && (
-          <div className="calibration-hint">拖曳平面圖以平移檢視畫面</div>
-        )}
-
-
         {view === '2d' && (
           <div className="editor-bottom-panels">
-            <WifiLegend band={band} onBandChange={setBand} />
-
             {selectedDevice && (
               <div className="device-inspector">
                 <span className="device-inspector-name">{selectedModel?.name ?? selectedDevice.modelId}</span>
@@ -514,19 +515,17 @@ export default function EditorPage() {
                 </div>
               </div>
             )}
-          </div>
-        )}
 
-        {view === '2d' && (
-          <EditorSideControls
-            onZoomIn={() => zoomBy(1.2)}
-            onZoomOut={() => zoomBy(1 / 1.2)}
-            onCenter={centerView}
-            onUndo={handleUndo}
-            onRedo={handleRedo}
-            canUndo={history.past.length > 0}
-            canRedo={history.future.length > 0}
-          />
+            <EditorSideControls
+              onZoomIn={() => zoomBy(1.2)}
+              onZoomOut={() => zoomBy(1 / 1.2)}
+              onCenter={centerView}
+              onUndo={handleUndo}
+              onRedo={handleRedo}
+              canUndo={history.past.length > 0}
+              canRedo={history.future.length > 0}
+            />
+          </div>
         )}
 
         {view === '2d' && (

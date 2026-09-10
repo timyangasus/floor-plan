@@ -71,19 +71,15 @@
 }
 
 .editor-side-controls {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: center;
   gap: 10px;
-  z-index: 20;
 }
 
 .side-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 6px;
   background: var(--surface);
   padding: 6px;
@@ -123,13 +119,24 @@
   color: var(--accent-contrast);
 }
 
+.editor-top-panels {
+  position: absolute;
+  top: 64px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 15;
+}
+
 .editor-bottom-panels {
   position: absolute;
   left: 12px;
   right: 12px;
   bottom: calc(78px + var(--safe-bottom));
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   gap: 10px;
   z-index: 15;
 }
@@ -189,10 +196,6 @@
 }
 
 .calibration-banner {
-  position: absolute;
-  top: 64px;
-  left: 12px;
-  right: 12px;
   background: var(--accent);
   color: var(--accent-contrast);
   border-radius: var(--radius-md);
@@ -203,7 +206,6 @@
   gap: 10px;
   font-size: 12px;
   box-shadow: var(--shadow);
-  z-index: 20;
 }
 
 .calibration-banner button {
@@ -219,17 +221,11 @@
 }
 
 .calibration-hint {
-  position: absolute;
-  top: 64px;
-  left: 12px;
-  right: 12px;
-  background: var(--surface);
-  border-radius: var(--radius-md);
-  padding: 10px 14px;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
   text-align: center;
-  box-shadow: var(--shadow);
-  z-index: 20;
+  color: var(--accent);
+  padding: 4px 6px;
 }
 
 .catalog-sheet {
