@@ -60,13 +60,6 @@ export default function HomePage() {
     <div className="home-page">
       <AppTopNav theme={theme} onToggleTheme={toggleTheme} />
 
-      <header className="home-header">
-        <div className="home-header-title">
-          <span className="home-logo">▲</span>
-          <span>ASUS WiFi Floorplaner</span>
-        </div>
-      </header>
-
       <main className="home-main">
         <h1 className="home-greeting">{timeGreeting()}</h1>
         <p className="home-subtitle">{projects.length} 個平面圖專案</p>
