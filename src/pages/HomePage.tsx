@@ -6,7 +6,6 @@ import type { Floor, Project } from '../types'
 import { timeGreeting } from '../lib/greeting'
 import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeftIcon } from '../components/icons'
 import AppTopNav from '../components/AppTopNav'
 import './HomePage.css'
 
@@ -62,14 +61,10 @@ export default function HomePage() {
       <AppTopNav theme={theme} onToggleTheme={toggleTheme} />
 
       <header className="home-header">
-        <button className="icon-btn" onClick={() => navigate('/')} aria-label="返回">
-          <ArrowLeftIcon />
-        </button>
         <div className="home-header-title">
           <span className="home-logo">▲</span>
           <span>ASUS WiFi Floorplaner</span>
         </div>
-        <span className="icon-btn-spacer" />
       </header>
 
       <main className="home-main">

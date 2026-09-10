@@ -4,15 +4,10 @@
   min-height: 100svh;
 }
 
-.icon-btn-spacer {
-  width: 36px;
-  height: 36px;
-}
-
 .home-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 14px 18px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);

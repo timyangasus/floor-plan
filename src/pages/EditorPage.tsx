@@ -37,6 +37,7 @@ import {
 import type { Band, Device, Floor, Project, RouterModel, TestClient, Wall } from '../types'
 import type { ViewMode } from './EditorPage.types'
 import { useObjectUrl } from '../lib/useObjectUrl'
+import { saveLastFloor } from '../lib/lastFloor'
 import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
 import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
@@ -107,6 +108,7 @@ export default function EditorPage() {
       navigate('/home')
       return
     }
+    saveLastFloor(projectId, floorId)
     setProject(p)
     setFloor(f)
     setFloors(fl)
