@@ -7,20 +7,32 @@ import type { Band, LinkQuality } from '../types'
  * similar in spirit to the reference tool's coverage map.
  */
 
+// Log-distance path loss (free-space-like falloff) plus a flat per-meter term that stands
+// in for the walls/furniture a real home has along the way — without it, distances typical
+// of a small apartment barely attenuate at all and the whole floor plan reads as "excellent".
+// Higher bands carry both a steeper exponent and heavier per-meter loss, matching how 6GHz
+// in particular struggles to clear even a couple of interior walls compared to 2.4GHz.
 const PATH_LOSS_EXPONENT: Record<Band, number> = {
-  '2.4': 2.0,
-  '5': 2.4,
-  '6': 2.8,
+  '2.4': 2.2,
+  '5': 2.6,
+  '6': 3.0,
+}
+
+const ATTENUATION_PER_METER_DB: Record<Band, number> = {
+  '2.4': 2.2,
+  '5': 3.2,
+  '6': 4.2,
 }
 
 export const SIGNAL_MIN_DBM = -95
-export const SIGNAL_MAX_DBM = -25
+export const SIGNAL_MAX_DBM = -20
 
 export function estimateSignalDbm(distanceMeters: number, txPowerTier: number, band: Band): number {
-  const baseAtOneMeter = -25 - (10 - txPowerTier) * 1.2
+  const baseAtOneMeter = -22 - (10 - txPowerTier) * 1.4
   const exponent = PATH_LOSS_EXPONENT[band]
+  const attenuationPerMeter = ATTENUATION_PER_METER_DB[band]
   const distance = Math.max(distanceMeters, 0.3)
-  const dbm = baseAtOneMeter - exponent * 10 * Math.log10(distance)
+  const dbm = baseAtOneMeter - exponent * 10 * Math.log10(distance) - attenuationPerMeter * distance
   return Math.min(SIGNAL_MAX_DBM, Math.max(SIGNAL_MIN_DBM, dbm))
 }
 
