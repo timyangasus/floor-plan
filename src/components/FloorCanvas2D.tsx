@@ -120,6 +120,7 @@ export default function FloorCanvas2D({
   const panState = useRef<{ x: number; y: number } | null>(null)
   const dragMoved = useRef(false)
   const activePointerIds = useRef<Set<number>>(new Set())
+  const activeDragPointerId = useRef<number | null>(null)
   const [calibrationFirstPoint, setCalibrationFirstPoint] = useState<Point | null>(null)
   const [wallDrawPoints, setWallDrawPoints] = useState<Point[]>([])
 
@@ -183,6 +184,10 @@ export default function FloorCanvas2D({
       return
     }
     if (mode === 'pan' || mode === 'select') {
+      // A drag or pan is already being driven by another finger — ignore
+      // this one instead of hijacking the transform with its coordinates.
+      if (activeDragPointerId.current !== null) return
+
       if (mode === 'select') {
         const toleranceContent = WALL_HIT_TOLERANCE_PX / transform.scale
         let closestId: string | null = null
@@ -206,11 +211,13 @@ export default function FloorCanvas2D({
       onSelectDevice(null)
       onSelectClient(null)
       panState.current = { x: e.clientX, y: e.clientY }
+      activeDragPointerId.current = e.pointerId
       ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
     }
   }
 
   function handlePointerMove(e: React.PointerEvent) {
+    if (activeDragPointerId.current !== null && e.pointerId !== activeDragPointerId.current) return
     if (draggingDeviceId.current) {
       dragMoved.current = true
       const point = screenToContent(e.clientX, e.clientY)
@@ -232,6 +239,8 @@ export default function FloorCanvas2D({
   }
 
   function handlePointerUp(e: React.PointerEvent) {
+    if (activeDragPointerId.current !== e.pointerId) return
+
     if (draggingDeviceId.current && dragMoved.current) {
       onDeviceDragEnd(draggingDeviceId.current)
     }
@@ -245,6 +254,7 @@ export default function FloorCanvas2D({
     draggingDeviceId.current = null
     draggingClientId.current = null
     panState.current = null
+    activeDragPointerId.current = null
     try {
       ;(e.target as HTMLElement).releasePointerCapture(e.pointerId)
     } catch {
@@ -254,9 +264,11 @@ export default function FloorCanvas2D({
 
   function handleDevicePointerDown(e: React.PointerEvent, deviceId: string) {
     if (mode !== 'select') return
+    if (activeDragPointerId.current !== null) return
     e.stopPropagation()
     dragMoved.current = false
     draggingDeviceId.current = deviceId
+    activeDragPointerId.current = e.pointerId
     onSelectDevice(deviceId)
     onDeviceDragStart(deviceId)
     ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
@@ -264,9 +276,11 @@ export default function FloorCanvas2D({
 
   function handleClientPointerDown(e: React.PointerEvent, clientId: string) {
     if (mode !== 'select') return
+    if (activeDragPointerId.current !== null) return
     e.stopPropagation()
     dragMoved.current = false
     draggingClientId.current = clientId
+    activeDragPointerId.current = e.pointerId
     onClientDragStart(clientId)
     ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
   }
@@ -349,6 +363,7 @@ export default function FloorCanvas2D({
       onPointerDown={handleBackgroundPointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
     >
       <div
         className="fc-content"
