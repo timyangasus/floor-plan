@@ -102,6 +102,30 @@
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.15);
 }
 
+.fc-client {
+  position: absolute;
+  transform-origin: center center;
+  touch-action: none;
+}
+
+.fc-client-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.35);
+}
+
+.fc-client-selected .fc-client-dot {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.25);
+}
+
 .fc-wall-controls {
   position: absolute;
   display: flex;

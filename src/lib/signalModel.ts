@@ -63,6 +63,50 @@ export function bestSignalDbm(
   )
 }
 
+export interface RouterCandidate {
+  id: string
+  x: number
+  y: number
+  txPowerTier: number
+}
+
+export interface RouterConnection {
+  routerId: string
+  distanceMeters: number
+  dbm: number
+}
+
+/** Picks the router a client would actually associate with: the strongest received signal. */
+export function bestRouterConnection(
+  point: { x: number; y: number },
+  candidates: RouterCandidate[],
+  walls: Wall[],
+  pxPerMeter: number,
+  band: Band,
+  sensitivityBonusDb = 0,
+): RouterConnection | null {
+  let best: RouterConnection | null = null
+  for (const candidate of candidates) {
+    const distanceMeters = distanceInMeters(point, candidate, pxPerMeter)
+    const wallDb = wallAttenuationBetween(point, candidate, walls, band)
+    const dbm = estimateSignalDbm(distanceMeters, candidate.txPowerTier, band, wallDb) + sensitivityBonusDb
+    if (!best || dbm > best.dbm) {
+      best = { routerId: candidate.id, distanceMeters, dbm }
+    }
+  }
+  return best
+}
+
+// Illustrative throughput estimate — not a real 802.11 PHY rate table, just a way to turn
+// dBm + bandwidth + antenna count into a plausible-looking Mbps number for the client panel.
+const RATE_MBPS_PER_MHZ_PER_STREAM = 6
+
+export function estimateRateMbps(dbm: number, bandwidthMHz: number, streams: number): number {
+  const maxRate = RATE_MBPS_PER_MHZ_PER_STREAM * bandwidthMHz * streams
+  const strength = signalToStrength(dbm)
+  return Math.max(1, Math.round(maxRate * strength * 10) / 10)
+}
+
 function segmentsIntersect(
   p1: { x: number; y: number },
   p2: { x: number; y: number },

@@ -52,3 +52,12 @@ export interface Wall {
   points: { x: number; y: number }[]
   materialId: string
 }
+
+export interface TestClient {
+  id: string
+  floorId: string
+  x: number
+  y: number
+  clientTypeId: string
+  bandwidthMHz: 20 | 40 | 80 | 160
+}

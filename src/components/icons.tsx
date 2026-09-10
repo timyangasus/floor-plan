@@ -199,6 +199,15 @@ export function HomeIcon({ size = 18 }: IconProps) {
   )
 }
 
+export function PhoneIcon({ size = 18 }: IconProps) {
+  return (
+    <svg width={size} height={size} {...base}>
+      <rect x="7" y="2" width="10" height="20" rx="2" />
+      <line x1="11" y1="18" x2="13" y2="18" />
+    </svg>
+  )
+}
+
 export function CheckIcon({ size = 18 }: IconProps) {
   return (
     <svg width={size} height={size} {...base}>

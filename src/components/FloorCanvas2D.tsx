@@ -1,12 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Band, Device, Wall } from '../types'
+import type { Band, Device, TestClient, Wall } from '../types'
 import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
-import { bestSignalDbm, distanceInMeters, signalToStrength, strengthToColor, wallAttenuationBetween } from '../lib/signalModel'
-import { RouterIcon, CheckIcon, CloseIcon } from './icons'
+import { getClientType } from '../data/clientTypes'
+import {
+  bestRouterConnection,
+  bestSignalDbm,
+  distanceInMeters,
+  signalToStrength,
+  strengthToColor,
+  wallAttenuationBetween,
+} from '../lib/signalModel'
+import { RouterIcon, PhoneIcon, CheckIcon, CloseIcon } from './icons'
 import './FloorCanvas2D.css'
 
-export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate' | 'draw-wall'
+export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate' | 'draw-wall' | 'place-client'
 
 interface Point {
   x: number
@@ -28,6 +36,10 @@ interface Props {
   selectedWallId: string | null
   onSelectWall: (id: string | null) => void
   onWallComplete: (points: Point[]) => void
+  clients: TestClient[]
+  selectedClientId: string | null
+  onSelectClient: (id: string | null) => void
+  onPlaceClient: (x: number, y: number) => void
   mode: CanvasMode
   transform: Transform
   onTransformChange: (t: Transform) => void
@@ -37,7 +49,6 @@ interface Props {
   onDeviceDragStart: (id: string) => void
   onDeviceDragEnd: (id: string) => void
   selectedDeviceId: string | null
-  showHeatmap: boolean
   band: Band
   scalePxPerMeter: number | null
   onCalibratePoints: (a: Point, b: Point) => void
@@ -81,6 +92,10 @@ export default function FloorCanvas2D({
   selectedWallId,
   onSelectWall,
   onWallComplete,
+  clients,
+  selectedClientId,
+  onSelectClient,
+  onPlaceClient,
   mode,
   transform,
   onTransformChange,
@@ -90,7 +105,6 @@ export default function FloorCanvas2D({
   onDeviceDragStart,
   onDeviceDragEnd,
   selectedDeviceId,
-  showHeatmap,
   band,
   scalePxPerMeter,
   onCalibratePoints,
@@ -118,11 +132,20 @@ export default function FloorCanvas2D({
   }
 
   function handleBackgroundPointerDown(e: React.PointerEvent) {
-    if ((e.target as HTMLElement).closest('.fc-device') || (e.target as HTMLElement).closest('.fc-wall-controls')) return
+    if (
+      (e.target as HTMLElement).closest('.fc-device') ||
+      (e.target as HTMLElement).closest('.fc-client') ||
+      (e.target as HTMLElement).closest('.fc-wall-controls')
+    )
+      return
     const point = screenToContent(e.clientX, e.clientY)
 
     if (mode === 'place') {
       onPlaceAt(point.x, point.y)
+      return
+    }
+    if (mode === 'place-client') {
+      onPlaceClient(point.x, point.y)
       return
     }
     if (mode === 'calibrate') {
@@ -164,6 +187,7 @@ export default function FloorCanvas2D({
         onSelectWall(null)
       }
       onSelectDevice(null)
+      onSelectClient(null)
       panState.current = { x: e.clientX, y: e.clientY }
       ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
     }
@@ -207,6 +231,12 @@ export default function FloorCanvas2D({
     ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
   }
 
+  function handleClientPointerDown(e: React.PointerEvent, clientId: string) {
+    if (mode !== 'select') return
+    e.stopPropagation()
+    onSelectClient(clientId)
+  }
+
   function finishWall() {
     if (wallDrawPoints.length >= 2) onWallComplete(wallDrawPoints)
     setWallDrawPoints([])
@@ -218,7 +248,7 @@ export default function FloorCanvas2D({
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas || !naturalSize || !showHeatmap) return
+    if (!canvas || !naturalSize) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     canvas.width = naturalSize.width
@@ -260,9 +290,16 @@ export default function FloorCanvas2D({
       }
     }
     ctx.putImageData(imageData, 0, 0)
-  }, [devices, walls, naturalSize, showHeatmap, band, scalePxPerMeter])
+  }, [devices, walls, naturalSize, band, scalePxPerMeter])
 
   const lastDrawPoint = wallDrawPoints[wallDrawPoints.length - 1]
+  const pxPerMeter = scalePxPerMeter ?? 60
+  const routerCandidates = devices
+    .map((d) => {
+      const model = getRouterModel(d.modelId)
+      return model ? { id: d.id, x: d.x, y: d.y, txPowerTier: model.txPowerTier } : null
+    })
+    .filter((c): c is { id: string; x: number; y: number; txPowerTier: number } => c !== null)
 
   return (
     <div
@@ -293,7 +330,7 @@ export default function FloorCanvas2D({
           />
         )}
 
-        {showHeatmap && <canvas ref={canvasRef} className="fc-heatmap" />}
+        <canvas ref={canvasRef} className="fc-heatmap" />
 
         {naturalSize && (
           <svg
@@ -334,6 +371,40 @@ export default function FloorCanvas2D({
                 ))}
               </>
             )}
+            {clients.map((client) => {
+              const clientType = getClientType(client.clientTypeId)
+              const connection = bestRouterConnection(
+                client,
+                routerCandidates,
+                walls,
+                pxPerMeter,
+                band,
+                clientType.sensitivityBonusDb,
+              )
+              const router = connection ? routerCandidates.find((r) => r.id === connection.routerId) : null
+              if (!connection || !router) return null
+              const midX = (client.x + router.x) / 2
+              const midY = (client.y + router.y) / 2
+              return (
+                <g key={client.id}>
+                  <line
+                    x1={client.x}
+                    y1={client.y}
+                    x2={router.x}
+                    y2={router.y}
+                    stroke="var(--accent)"
+                    strokeWidth={2}
+                    strokeOpacity={0.7}
+                  />
+                  <g transform={`translate(${midX - 30}, ${midY - 10})`}>
+                    <rect width={60} height={16} rx={4} fill="rgba(15,23,42,0.75)" />
+                    <text x={30} y={12} textAnchor="middle" fontSize={9} fill="#fff">
+                      {connection.distanceMeters.toFixed(1)}m {connection.dbm.toFixed(0)}dBm
+                    </text>
+                  </g>
+                </g>
+              )
+            })}
           </svg>
         )}
 
@@ -362,6 +433,26 @@ export default function FloorCanvas2D({
                 <RouterIcon size={16} />
               </div>
               <div className="fc-device-label">{model?.name ?? device.modelId}</div>
+            </div>
+          )
+        })}
+
+        {clients.map((client) => {
+          const selected = client.id === selectedClientId
+          return (
+            <div
+              key={client.id}
+              className={`fc-client ${selected ? 'fc-client-selected' : ''}`}
+              style={{
+                left: client.x,
+                top: client.y,
+                transform: `translate(-50%, -50%) scale(${1 / transform.scale})`,
+              }}
+              onPointerDown={(e) => handleClientPointerDown(e, client.id)}
+            >
+              <div className="fc-client-dot">
+                <PhoneIcon size={14} />
+              </div>
             </div>
           )
         })}

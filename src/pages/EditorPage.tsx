@@ -13,28 +13,35 @@ import EditorLayersSheet from '../components/EditorLayersSheet'
 import ProjectSettingsModal from '../components/ProjectSettingsModal'
 import ScaleCalibrationModal from '../components/ScaleCalibrationModal'
 import WallMaterialSheet from '../components/WallMaterialSheet'
+import ClientInspectorSheet from '../components/ClientInspectorSheet'
 import {
   addFloor,
+  createClient,
   createWall,
+  deleteClient,
   deleteDevice,
   deleteWall,
   getFloor,
   getProject,
+  listClients,
   listDevices,
   listFloors,
   listWalls,
   placeDevice,
   renameProject,
   replaceDevicesForFloor,
+  updateClient,
   updateDevice,
   updateFloorScale,
 } from '../db/repository'
-import type { Band, Device, Floor, Project, RouterModel, Wall } from '../types'
+import type { Band, Device, Floor, Project, RouterModel, TestClient, Wall } from '../types'
 import type { ViewMode } from './EditorPage.types'
 import { useObjectUrl } from '../lib/useObjectUrl'
 import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
 import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
+import { getClientType } from '../data/clientTypes'
+import { bestRouterConnection, estimateRateMbps } from '../lib/signalModel'
 import { RotateIcon, TrashIcon } from '../components/icons'
 import './EditorPage.css'
 
@@ -52,6 +59,7 @@ export default function EditorPage() {
   const [floors, setFloors] = useState<Floor[]>([])
   const [devices, setDevices] = useState<Device[]>([])
   const [walls, setWalls] = useState<Wall[]>([])
+  const [clients, setClients] = useState<TestClient[]>([])
   const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(null)
 
   const [view, setView] = useState<ViewMode>('2d')
@@ -60,8 +68,8 @@ export default function EditorPage() {
   const [pendingModel, setPendingModel] = useState<RouterModel | null>(null)
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null)
   const [selectedWallId, setSelectedWallId] = useState<string | null>(null)
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
   const [wallDrawMaterialId, setWallDrawMaterialId] = useState<string | null>(null)
-  const [showHeatmap, setShowHeatmap] = useState(false)
   const [band, setBand] = useState<Band>('2.4')
 
   const [menuOpen, setMenuOpen] = useState(false)
@@ -88,12 +96,13 @@ export default function EditorPage() {
 
   async function load() {
     if (!projectId || !floorId) return
-    const [p, f, fl, d, w] = await Promise.all([
+    const [p, f, fl, d, w, c] = await Promise.all([
       getProject(projectId),
       getFloor(floorId),
       listFloors(projectId),
       listDevices(floorId),
       listWalls(floorId),
+      listClients(floorId),
     ])
     if (!p || !f) {
       navigate('/home')
@@ -104,10 +113,12 @@ export default function EditorPage() {
     setFloors(fl)
     setDevices(d)
     setWalls(w)
+    setClients(c)
     setNaturalSize(null)
     setHistory({ past: [], future: [] })
     setSelectedDeviceId(null)
     setSelectedWallId(null)
+    setSelectedClientId(null)
     setMode('select')
   }
 
@@ -246,12 +257,60 @@ export default function EditorPage() {
 
   function selectDevice(id: string | null) {
     setSelectedDeviceId(id)
-    if (id) setSelectedWallId(null)
+    if (id) {
+      setSelectedWallId(null)
+      setSelectedClientId(null)
+    }
   }
 
   function selectWall(id: string | null) {
     setSelectedWallId(id)
-    if (id) setSelectedDeviceId(null)
+    if (id) {
+      setSelectedDeviceId(null)
+      setSelectedClientId(null)
+    }
+  }
+
+  function selectClient(id: string | null) {
+    setSelectedClientId(id)
+    if (id) {
+      setSelectedDeviceId(null)
+      setSelectedWallId(null)
+    }
+  }
+
+  async function handlePlaceClient(x: number, y: number) {
+    if (!floorId) return
+    const created = await createClient(floorId, x, y)
+    setClients((prev) => [...prev, created])
+    selectClient(created.id)
+  }
+
+  async function handleDeleteClient() {
+    if (!selectedClientId) return
+    await deleteClient(selectedClientId)
+    setClients((prev) => prev.filter((c) => c.id !== selectedClientId))
+    setSelectedClientId(null)
+  }
+
+  async function handleChangeClientType(clientTypeId: string) {
+    const client = clients.find((c) => c.id === selectedClientId)
+    if (!client) return
+    const updated = { ...client, clientTypeId }
+    await updateClient(updated)
+    setClients((prev) => prev.map((c) => (c.id === updated.id ? updated : c)))
+  }
+
+  async function handleChangeClientBandwidth(bandwidthMHz: 20 | 40 | 80 | 160) {
+    const client = clients.find((c) => c.id === selectedClientId)
+    if (!client) return
+    const updated = { ...client, bandwidthMHz }
+    await updateClient(updated)
+    setClients((prev) => prev.map((c) => (c.id === updated.id ? updated : c)))
+  }
+
+  function finishPlacingClients() {
+    setMode('select')
   }
 
   function handlePickWallMaterial(materialId: string) {
@@ -290,6 +349,38 @@ export default function EditorPage() {
   const selectedModel = selectedDevice ? getRouterModel(selectedDevice.modelId) : null
   const selectedWall = walls.find((w) => w.id === selectedWallId) ?? null
   const selectedWallMaterial = selectedWall ? getWallMaterial(selectedWall.materialId) : null
+  const selectedClient = clients.find((c) => c.id === selectedClientId) ?? null
+
+  const routerCandidates = devices
+    .map((d) => {
+      const model = getRouterModel(d.modelId)
+      return model ? { id: d.id, x: d.x, y: d.y, txPowerTier: model.txPowerTier } : null
+    })
+    .filter((c): c is { id: string; x: number; y: number; txPowerTier: number } => c !== null)
+
+  const selectedClientConnection = (() => {
+    if (!selectedClient || !floor) return null
+    const clientType = getClientType(selectedClient.clientTypeId)
+    const connection = bestRouterConnection(
+      selectedClient,
+      routerCandidates,
+      walls,
+      floor.scalePxPerMeter ?? 60,
+      band,
+      clientType.sensitivityBonusDb,
+    )
+    if (!connection) return null
+    const routerDevice = devices.find((d) => d.id === connection.routerId)
+    const routerModel = routerDevice ? getRouterModel(routerDevice.modelId) : null
+    return {
+      routerName: routerModel?.name ?? '未知裝置',
+      floorName: floor.name,
+      distanceMeters: connection.distanceMeters,
+      dbm: connection.dbm,
+      rateMbps: estimateRateMbps(connection.dbm, selectedClient.bandwidthMHz, clientType.mimo),
+      mimo: clientType.mimo,
+    }
+  })()
 
   if (!project || !floor) {
     return <div className="editor-loading">載入中…</div>
@@ -316,6 +407,10 @@ export default function EditorPage() {
             selectedWallId={selectedWallId}
             onSelectWall={selectWall}
             onWallComplete={handleWallComplete}
+            clients={clients}
+            selectedClientId={selectedClientId}
+            onSelectClient={selectClient}
+            onPlaceClient={handlePlaceClient}
             mode={mode}
             transform={transform}
             onTransformChange={setTransform}
@@ -325,7 +420,6 @@ export default function EditorPage() {
             onDeviceDragStart={handleDeviceDragStart}
             onDeviceDragEnd={handleDeviceDragEnd}
             selectedDeviceId={selectedDeviceId}
-            showHeatmap={showHeatmap}
             band={band}
             scalePxPerMeter={floor.scalePxPerMeter}
             onCalibratePoints={handleCalibratePoints}
@@ -359,9 +453,16 @@ export default function EditorPage() {
           </div>
         )}
 
-        {view === '2d' && (showHeatmap || selectedDevice || selectedWall) && (
+        {view === '2d' && mode === 'place-client' && (
+          <div className="calibration-banner">
+            <span>在平面圖上放置測試用戶端。</span>
+            <button onClick={finishPlacingClients}>完成</button>
+          </div>
+        )}
+
+        {view === '2d' && (
           <div className="editor-bottom-panels">
-            {showHeatmap && <WifiLegend band={band} onBandChange={setBand} visible={showHeatmap} />}
+            <WifiLegend band={band} onBandChange={setBand} />
 
             {selectedDevice && (
               <div className="device-inspector">
@@ -414,8 +515,6 @@ export default function EditorPage() {
               if (m === 'place') setCatalogOpen(true)
             }}
             onOpenWallMaterial={() => setWallMaterialOpen(true)}
-            showHeatmap={showHeatmap}
-            onToggleHeatmap={() => setShowHeatmap((v) => !v)}
             onOpenTopology={() => navigate(`/project/${projectId}/topology`)}
           />
         )}
@@ -464,6 +563,17 @@ export default function EditorPage() {
 
       {wallMaterialOpen && (
         <WallMaterialSheet onClose={() => setWallMaterialOpen(false)} onPick={handlePickWallMaterial} />
+      )}
+
+      {selectedClient && (
+        <ClientInspectorSheet
+          client={selectedClient}
+          connection={selectedClientConnection}
+          onClose={() => setSelectedClientId(null)}
+          onDelete={handleDeleteClient}
+          onChangeType={handleChangeClientType}
+          onChangeBandwidth={handleChangeClientBandwidth}
+        />
       )}
 
       {calibrationPending && (

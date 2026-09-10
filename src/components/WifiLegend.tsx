@@ -4,13 +4,11 @@ import './EditorChrome.css'
 interface Props {
   band: Band
   onBandChange: (b: Band) => void
-  visible: boolean
 }
 
 const BANDS: Band[] = ['2.4', '5', '6']
 
-export default function WifiLegend({ band, onBandChange, visible }: Props) {
-  if (!visible) return null
+export default function WifiLegend({ band, onBandChange }: Props) {
   return (
     <div className="wifi-legend">
       <div className="wifi-legend-header">

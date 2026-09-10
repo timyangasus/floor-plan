@@ -391,6 +391,58 @@
   flex-shrink: 0;
 }
 
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.client-connection-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text);
+  margin-top: 8px;
+}
+
+.client-connection-floor {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.client-quality-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.client-signal-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ef4444, #eab308, #22c55e);
+  margin-top: 8px;
+}
+
+.client-rate-bar {
+  background: var(--accent);
+  opacity: 0.25;
+}
+
+.client-signal-marker {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid var(--text);
+  transform: translate(-50%, -50%);
+}
+
 .device-inspector {
   background: var(--surface);
   border-radius: var(--radius-md);

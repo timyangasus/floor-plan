@@ -1,6 +1,6 @@
 import { getDb } from './db'
 import { createId } from '../lib/id'
-import type { Device, Floor, MeshGroupLabel, Project, Wall } from '../types'
+import type { Device, Floor, MeshGroupLabel, Project, TestClient, Wall } from '../types'
 
 // --- Projects ---
 
@@ -54,7 +54,7 @@ export async function touchProject(id: string): Promise<void> {
 export async function deleteProject(id: string): Promise<void> {
   const db = await getDb()
   const floors = await db.getAllFromIndex('floors', 'by-project', id)
-  const tx = db.transaction(['projects', 'floors', 'devices', 'walls'], 'readwrite')
+  const tx = db.transaction(['projects', 'floors', 'devices', 'walls', 'clients'], 'readwrite')
   for (const floor of floors) {
     const devices = await tx.objectStore('devices').index('by-floor').getAllKeys(floor.id)
     for (const deviceId of devices) {
@@ -63,6 +63,10 @@ export async function deleteProject(id: string): Promise<void> {
     const walls = await tx.objectStore('walls').index('by-floor').getAllKeys(floor.id)
     for (const wallId of walls) {
       await tx.objectStore('walls').delete(wallId)
+    }
+    const clients = await tx.objectStore('clients').index('by-floor').getAllKeys(floor.id)
+    for (const clientId of clients) {
+      await tx.objectStore('clients').delete(clientId)
     }
     await tx.objectStore('floors').delete(floor.id)
   }
@@ -209,4 +213,35 @@ export async function createWall(
 export async function deleteWall(id: string): Promise<void> {
   const db = await getDb()
   await db.delete('walls', id)
+}
+
+// --- Test clients ---
+
+export async function listClients(floorId: string): Promise<TestClient[]> {
+  const db = await getDb()
+  return db.getAllFromIndex('clients', 'by-floor', floorId)
+}
+
+export async function createClient(floorId: string, x: number, y: number): Promise<TestClient> {
+  const db = await getDb()
+  const client: TestClient = {
+    id: createId(),
+    floorId,
+    x,
+    y,
+    clientTypeId: 'wifi6-phone',
+    bandwidthMHz: 20,
+  }
+  await db.put('clients', client)
+  return client
+}
+
+export async function updateClient(client: TestClient): Promise<void> {
+  const db = await getDb()
+  await db.put('clients', client)
+}
+
+export async function deleteClient(id: string): Promise<void> {
+  const db = await getDb()
+  await db.delete('clients', id)
 }

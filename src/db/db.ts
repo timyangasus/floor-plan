@@ -1,5 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
-import type { Device, Floor, Project, Wall } from '../types'
+import type { Device, Floor, Project, TestClient, Wall } from '../types'
 
 interface FloorPlanDB extends DBSchema {
   projects: {
@@ -21,13 +21,18 @@ interface FloorPlanDB extends DBSchema {
     value: Wall
     indexes: { 'by-floor': string }
   }
+  clients: {
+    key: string
+    value: TestClient
+    indexes: { 'by-floor': string }
+  }
 }
 
 let dbPromise: Promise<IDBPDatabase<FloorPlanDB>> | null = null
 
 export function getDb(): Promise<IDBPDatabase<FloorPlanDB>> {
   if (!dbPromise) {
-    dbPromise = openDB<FloorPlanDB>('floor-plan-pwa', 2, {
+    dbPromise = openDB<FloorPlanDB>('floor-plan-pwa', 3, {
       upgrade(db, oldVersion) {
         if (oldVersion < 1) {
           db.createObjectStore('projects', { keyPath: 'id' })
@@ -39,6 +44,10 @@ export function getDb(): Promise<IDBPDatabase<FloorPlanDB>> {
         if (oldVersion < 2) {
           const walls = db.createObjectStore('walls', { keyPath: 'id' })
           walls.createIndex('by-floor', 'floorId')
+        }
+        if (oldVersion < 3) {
+          const clients = db.createObjectStore('clients', { keyPath: 'id' })
+          clients.createIndex('by-floor', 'floorId')
         }
       },
     })
