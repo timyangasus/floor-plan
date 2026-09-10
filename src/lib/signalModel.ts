@@ -1,4 +1,5 @@
-import type { Band, LinkQuality } from '../types'
+import type { Band, LinkQuality, Wall } from '../types'
+import { getWallMaterial } from '../data/wallMaterials'
 
 /**
  * Simplified geometric signal model — NOT a real RF measurement. Since the PWA has no
@@ -27,18 +28,77 @@ const ATTENUATION_PER_METER_DB: Record<Band, number> = {
 export const SIGNAL_MIN_DBM = -95
 export const SIGNAL_MAX_DBM = -20
 
-export function estimateSignalDbm(distanceMeters: number, txPowerTier: number, band: Band): number {
+/**
+ * Wall material dB ratings are labeled at 5GHz in the reference app; scale for other bands
+ * since higher frequencies are attenuated more by the same physical obstruction.
+ */
+const BAND_MATERIAL_SCALE: Record<Band, number> = {
+  '2.4': 0.7,
+  '5': 1.0,
+  '6': 1.3,
+}
+
+export function estimateSignalDbm(
+  distanceMeters: number,
+  txPowerTier: number,
+  band: Band,
+  wallAttenuationDb = 0,
+): number {
   const baseAtOneMeter = -22 - (10 - txPowerTier) * 1.4
   const exponent = PATH_LOSS_EXPONENT[band]
   const attenuationPerMeter = ATTENUATION_PER_METER_DB[band]
   const distance = Math.max(distanceMeters, 0.3)
-  const dbm = baseAtOneMeter - exponent * 10 * Math.log10(distance) - attenuationPerMeter * distance
+  const dbm =
+    baseAtOneMeter - exponent * 10 * Math.log10(distance) - attenuationPerMeter * distance - wallAttenuationDb
   return Math.min(SIGNAL_MAX_DBM, Math.max(SIGNAL_MIN_DBM, dbm))
 }
 
-export function bestSignalDbm(distancesWithTier: { distanceMeters: number; txPowerTier: number }[], band: Band): number {
+export function bestSignalDbm(
+  distancesWithTier: { distanceMeters: number; txPowerTier: number; wallAttenuationDb?: number }[],
+  band: Band,
+): number {
   if (distancesWithTier.length === 0) return SIGNAL_MIN_DBM
-  return Math.max(...distancesWithTier.map((d) => estimateSignalDbm(d.distanceMeters, d.txPowerTier, band)))
+  return Math.max(
+    ...distancesWithTier.map((d) => estimateSignalDbm(d.distanceMeters, d.txPowerTier, band, d.wallAttenuationDb)),
+  )
+}
+
+function segmentsIntersect(
+  p1: { x: number; y: number },
+  p2: { x: number; y: number },
+  p3: { x: number; y: number },
+  p4: { x: number; y: number },
+): boolean {
+  const d1x = p2.x - p1.x
+  const d1y = p2.y - p1.y
+  const d2x = p4.x - p3.x
+  const d2y = p4.y - p3.y
+  const denom = d1x * d2y - d1y * d2x
+  if (denom === 0) return false
+  const t = ((p3.x - p1.x) * d2y - (p3.y - p1.y) * d2x) / denom
+  const u = ((p3.x - p1.x) * d1y - (p3.y - p1.y) * d1x) / denom
+  return t > 0 && t < 1 && u > 0 && u < 1
+}
+
+/** Sums the dB loss of every wall segment the straight line between a and b crosses. */
+export function wallAttenuationBetween(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+  walls: Wall[],
+  band: Band,
+): number {
+  let total = 0
+  for (const wall of walls) {
+    const material = getWallMaterial(wall.materialId)
+    if (!material) continue
+    const dbForBand = material.dbAt5GHz * BAND_MATERIAL_SCALE[band]
+    for (let i = 0; i < wall.points.length - 1; i++) {
+      if (segmentsIntersect(a, b, wall.points[i], wall.points[i + 1])) {
+        total += dbForBand
+      }
+    }
+  }
+  return total
 }
 
 export function classifyLinkQuality(dbm: number): LinkQuality {

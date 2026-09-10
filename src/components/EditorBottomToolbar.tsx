@@ -27,7 +27,11 @@ export default function EditorBottomToolbar({
       <button className={mode === 'pan' ? 'active' : ''} onClick={() => onModeChange('pan')} aria-label="平移">
         <PanIcon />
       </button>
-      <button onClick={onOpenWallMaterial} aria-label="牆面材質">
+      <button
+        className={mode === 'draw-wall' ? 'active' : ''}
+        onClick={onOpenWallMaterial}
+        aria-label="牆面材質"
+      >
         <GridIcon />
       </button>
       <button className={mode === 'place' ? 'active' : ''} onClick={() => onModeChange('place')} aria-label="放置裝置">

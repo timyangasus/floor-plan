@@ -1,6 +1,13 @@
-import type { Band, MeshGroupLabel } from '../types'
+import type { Band, MeshGroupLabel, Wall } from '../types'
 import { getRouterModel } from '../data/routerCatalog'
-import { classifyLinkQuality, distanceInMeters, estimateSignalDbm, linkQualityColor, linkQualityLabel } from '../lib/signalModel'
+import {
+  classifyLinkQuality,
+  distanceInMeters,
+  estimateSignalDbm,
+  linkQualityColor,
+  linkQualityLabel,
+  wallAttenuationBetween,
+} from '../lib/signalModel'
 import type { ProjectDeviceEntry } from '../db/projectDevices'
 import './MeshTopologyGraph.css'
 
@@ -8,6 +15,7 @@ interface Props {
   groupLabel: MeshGroupLabel
   members: ProjectDeviceEntry[]
   band: Band
+  wallsByFloor: Record<string, Wall[]>
   onSetCap: (deviceId: string) => void
 }
 
@@ -15,7 +23,7 @@ const SIZE = 260
 const CENTER = SIZE / 2
 const RADIUS = 92
 
-export default function MeshTopologyGraph({ groupLabel, members, band, onSetCap }: Props) {
+export default function MeshTopologyGraph({ groupLabel, members, band, wallsByFloor, onSetCap }: Props) {
   const cap = members.find((m) => m.device.isCap) ?? members[0]
   const rest = members.filter((m) => m.device.id !== cap?.device.id)
 
@@ -27,7 +35,8 @@ export default function MeshTopologyGraph({ groupLabel, members, band, onSetCap 
       return { dbm: estimateSignalDbm(6, capModel.txPowerTier, band), sameFloor: false }
     }
     const distance = distanceInMeters(cap.device, memberEntry.device, cap.floor.scalePxPerMeter)
-    return { dbm: estimateSignalDbm(distance, capModel.txPowerTier, band), sameFloor: true }
+    const wallDb = wallAttenuationBetween(cap.device, memberEntry.device, wallsByFloor[cap.floor.id] ?? [], band)
+    return { dbm: estimateSignalDbm(distance, capModel.txPowerTier, band, wallDb), sameFloor: true }
   }
 
   return (

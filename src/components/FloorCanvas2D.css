@@ -11,8 +11,17 @@
 }
 
 .fc-mode-place,
-.fc-mode-calibrate {
+.fc-mode-calibrate,
+.fc-mode-draw-wall {
   cursor: crosshair;
+}
+
+.fc-walls-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  overflow: visible;
 }
 
 .fc-content {
@@ -91,4 +100,32 @@
   border-radius: 999px;
   white-space: nowrap;
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.15);
+}
+
+.fc-wall-controls {
+  position: absolute;
+  display: flex;
+  gap: 6px;
+}
+
+.fc-wall-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.3);
+}
+
+.fc-wall-btn-confirm {
+  background: var(--accent);
+  color: #fff;
+}
+
+.fc-wall-btn-cancel {
+  background: var(--surface);
+  color: var(--text-muted);
 }

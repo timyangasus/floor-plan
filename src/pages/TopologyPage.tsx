@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getProject } from '../db/repository'
+import { getProject, listWalls } from '../db/repository'
 import { listDevicesForProject, type ProjectDeviceEntry } from '../db/projectDevices'
 import { assignDeviceGroup, setDeviceCap } from '../db/repository'
-import type { Band, MeshGroupLabel, Project } from '../types'
+import type { Band, MeshGroupLabel, Project, Wall } from '../types'
 import { getRouterModel } from '../data/routerCatalog'
 import MeshTopologyGraph from '../components/MeshTopologyGraph'
 import { ArrowLeftIcon, NetworkIcon } from '../components/icons'
@@ -17,6 +17,7 @@ export default function TopologyPage() {
   const navigate = useNavigate()
   const [project, setProject] = useState<Project | null>(null)
   const [entries, setEntries] = useState<ProjectDeviceEntry[]>([])
+  const [wallsByFloor, setWallsByFloor] = useState<Record<string, Wall[]>>({})
   const [band, setBand] = useState<Band>('2.4')
 
   useEffect(() => {
@@ -28,6 +29,10 @@ export default function TopologyPage() {
     const [p, list] = await Promise.all([getProject(projectId), listDevicesForProject(projectId)])
     setProject(p ?? null)
     setEntries(list)
+
+    const floorIds = Array.from(new Set(list.map((entry) => entry.floor.id)))
+    const wallLists = await Promise.all(floorIds.map((id) => listWalls(id)))
+    setWallsByFloor(Object.fromEntries(floorIds.map((id, i) => [id, wallLists[i]])))
   }
 
   const grouped = useMemo(() => {
@@ -92,6 +97,7 @@ export default function TopologyPage() {
                 groupLabel={label}
                 members={grouped[label]}
                 band={band}
+                wallsByFloor={wallsByFloor}
                 onSetCap={handleSetCap}
               />
             ),

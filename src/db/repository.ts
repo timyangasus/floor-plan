@@ -1,6 +1,6 @@
 import { getDb } from './db'
 import { createId } from '../lib/id'
-import type { Device, Floor, MeshGroupLabel, Project } from '../types'
+import type { Device, Floor, MeshGroupLabel, Project, Wall } from '../types'
 
 // --- Projects ---
 
@@ -28,7 +28,6 @@ export async function createProject(name: string, firstFloorImage: Blob | null):
     order: 0,
     imageBlob: firstFloorImage,
     scalePxPerMeter: null,
-    wallMaterialId: null,
   }
   await db.put('floors', floor)
 
@@ -55,11 +54,15 @@ export async function touchProject(id: string): Promise<void> {
 export async function deleteProject(id: string): Promise<void> {
   const db = await getDb()
   const floors = await db.getAllFromIndex('floors', 'by-project', id)
-  const tx = db.transaction(['projects', 'floors', 'devices'], 'readwrite')
+  const tx = db.transaction(['projects', 'floors', 'devices', 'walls'], 'readwrite')
   for (const floor of floors) {
     const devices = await tx.objectStore('devices').index('by-floor').getAllKeys(floor.id)
     for (const deviceId of devices) {
       await tx.objectStore('devices').delete(deviceId)
+    }
+    const walls = await tx.objectStore('walls').index('by-floor').getAllKeys(floor.id)
+    for (const wallId of walls) {
+      await tx.objectStore('walls').delete(wallId)
     }
     await tx.objectStore('floors').delete(floor.id)
   }
@@ -90,7 +93,6 @@ export async function addFloor(projectId: string, name: string, imageBlob: Blob 
     order: existing.length,
     imageBlob,
     scalePxPerMeter: null,
-    wallMaterialId: null,
   }
   await db.put('floors', floor)
   await touchProject(projectId)
@@ -102,14 +104,6 @@ export async function updateFloorScale(floorId: string, scalePxPerMeter: number)
   const floor = await db.get('floors', floorId)
   if (!floor) return
   floor.scalePxPerMeter = scalePxPerMeter
-  await db.put('floors', floor)
-}
-
-export async function updateFloorWallMaterial(floorId: string, wallMaterialId: string | null): Promise<void> {
-  const db = await getDb()
-  const floor = await db.get('floors', floorId)
-  if (!floor) return
-  floor.wallMaterialId = wallMaterialId
   await db.put('floors', floor)
 }
 
@@ -192,4 +186,27 @@ export async function setDeviceCap(id: string, isCap: boolean): Promise<void> {
   }
   device.isCap = isCap
   await db.put('devices', device)
+}
+
+// --- Walls ---
+
+export async function listWalls(floorId: string): Promise<Wall[]> {
+  const db = await getDb()
+  return db.getAllFromIndex('walls', 'by-floor', floorId)
+}
+
+export async function createWall(
+  floorId: string,
+  points: { x: number; y: number }[],
+  materialId: string,
+): Promise<Wall> {
+  const db = await getDb()
+  const wall: Wall = { id: createId(), floorId, points, materialId }
+  await db.put('walls', wall)
+  return wall
+}
+
+export async function deleteWall(id: string): Promise<void> {
+  const db = await getDb()
+  await db.delete('walls', id)
 }

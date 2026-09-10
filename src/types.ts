@@ -26,8 +26,6 @@ export interface Floor {
   imageBlob: Blob | null
   /** pixels per meter, measured against the stored floor plan image's natural size */
   scalePxPerMeter: number | null
-  /** Purely cosmetic look applied to the 2D floor plan image — see data/wallMaterials.ts */
-  wallMaterialId: string | null
 }
 
 export type Band = '2.4' | '5' | '6'
@@ -46,3 +44,11 @@ export interface Device {
 }
 
 export type LinkQuality = 'excellent' | 'good' | 'poor'
+
+export interface Wall {
+  id: string
+  floorId: string
+  /** Polyline vertices in the floor image's pixel space, in drawing order (>= 2 points). */
+  points: { x: number; y: number }[]
+  materialId: string
+}

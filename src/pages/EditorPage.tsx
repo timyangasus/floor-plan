@@ -15,19 +15,21 @@ import ScaleCalibrationModal from '../components/ScaleCalibrationModal'
 import WallMaterialSheet from '../components/WallMaterialSheet'
 import {
   addFloor,
+  createWall,
   deleteDevice,
+  deleteWall,
   getFloor,
   getProject,
   listDevices,
   listFloors,
+  listWalls,
   placeDevice,
   renameProject,
   replaceDevicesForFloor,
   updateDevice,
   updateFloorScale,
-  updateFloorWallMaterial,
 } from '../db/repository'
-import type { Band, Device, Floor, Project, RouterModel } from '../types'
+import type { Band, Device, Floor, Project, RouterModel, Wall } from '../types'
 import type { ViewMode } from './EditorPage.types'
 import { useObjectUrl } from '../lib/useObjectUrl'
 import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
@@ -49,6 +51,7 @@ export default function EditorPage() {
   const [floor, setFloor] = useState<Floor | null>(null)
   const [floors, setFloors] = useState<Floor[]>([])
   const [devices, setDevices] = useState<Device[]>([])
+  const [walls, setWalls] = useState<Wall[]>([])
   const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(null)
 
   const [view, setView] = useState<ViewMode>('2d')
@@ -56,6 +59,8 @@ export default function EditorPage() {
   const [transform, setTransform] = useState({ scale: 1, tx: 0, ty: 0 })
   const [pendingModel, setPendingModel] = useState<RouterModel | null>(null)
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null)
+  const [selectedWallId, setSelectedWallId] = useState<string | null>(null)
+  const [wallDrawMaterialId, setWallDrawMaterialId] = useState<string | null>(null)
   const [showHeatmap, setShowHeatmap] = useState(false)
   const [band, setBand] = useState<Band>('2.4')
 
@@ -83,11 +88,12 @@ export default function EditorPage() {
 
   async function load() {
     if (!projectId || !floorId) return
-    const [p, f, fl, d] = await Promise.all([
+    const [p, f, fl, d, w] = await Promise.all([
       getProject(projectId),
       getFloor(floorId),
       listFloors(projectId),
       listDevices(floorId),
+      listWalls(floorId),
     ])
     if (!p || !f) {
       navigate('/home')
@@ -97,9 +103,11 @@ export default function EditorPage() {
     setFloor(f)
     setFloors(fl)
     setDevices(d)
+    setWalls(w)
     setNaturalSize(null)
     setHistory({ past: [], future: [] })
     setSelectedDeviceId(null)
+    setSelectedWallId(null)
     setMode('select')
   }
 
@@ -233,11 +241,33 @@ export default function EditorPage() {
     navigate(`/project/${projectId}/floor/${created.id}`)
   }
 
-  async function handlePickWallMaterial(materialId: string | null) {
-    if (!floorId) return
-    await updateFloorWallMaterial(floorId, materialId)
-    setFloor((prev) => (prev ? { ...prev, wallMaterialId: materialId } : prev))
+  function selectDevice(id: string | null) {
+    setSelectedDeviceId(id)
+    if (id) setSelectedWallId(null)
+  }
+
+  function selectWall(id: string | null) {
+    setSelectedWallId(id)
+    if (id) setSelectedDeviceId(null)
+  }
+
+  function handlePickWallMaterial(materialId: string) {
+    setWallDrawMaterialId(materialId)
     setWallMaterialOpen(false)
+    setMode('draw-wall')
+  }
+
+  async function handleWallComplete(points: { x: number; y: number }[]) {
+    if (!floorId || !wallDrawMaterialId) return
+    const created = await createWall(floorId, points, wallDrawMaterialId)
+    setWalls((prev) => [...prev, created])
+  }
+
+  async function handleDeleteWall() {
+    if (!selectedWallId) return
+    await deleteWall(selectedWallId)
+    setWalls((prev) => prev.filter((w) => w.id !== selectedWallId))
+    setSelectedWallId(null)
   }
 
   async function handleRenameProject(name: string) {
@@ -255,6 +285,8 @@ export default function EditorPage() {
 
   const selectedDevice = devices.find((d) => d.id === selectedDeviceId) ?? null
   const selectedModel = selectedDevice ? getRouterModel(selectedDevice.modelId) : null
+  const selectedWall = walls.find((w) => w.id === selectedWallId) ?? null
+  const selectedWallMaterial = selectedWall ? getWallMaterial(selectedWall.materialId) : null
 
   if (!project || !floor) {
     return <div className="editor-loading">載入中…</div>
@@ -277,17 +309,20 @@ export default function EditorPage() {
             naturalSize={naturalSize}
             onNaturalSize={setNaturalSize}
             devices={devices}
+            walls={walls}
+            selectedWallId={selectedWallId}
+            onSelectWall={selectWall}
+            onWallComplete={handleWallComplete}
             mode={mode}
             transform={transform}
             onTransformChange={setTransform}
             onPlaceAt={handlePlaceAt}
-            onSelectDevice={setSelectedDeviceId}
+            onSelectDevice={selectDevice}
             onMoveDevice={handleMoveDevice}
             onDeviceDragStart={handleDeviceDragStart}
             onDeviceDragEnd={handleDeviceDragEnd}
             selectedDeviceId={selectedDeviceId}
             showHeatmap={showHeatmap}
-            wallMaterialFilter={getWallMaterial(floor.wallMaterialId).cssFilter}
             band={band}
             scalePxPerMeter={floor.scalePxPerMeter}
             onCalibratePoints={handleCalibratePoints}
@@ -314,7 +349,7 @@ export default function EditorPage() {
           <div className="calibration-hint">在平面圖上點兩下，標記一段已知實際距離的兩個點</div>
         )}
 
-        {view === '2d' && (showHeatmap || selectedDevice) && (
+        {view === '2d' && (showHeatmap || selectedDevice || selectedWall) && (
           <div className="editor-bottom-panels">
             {showHeatmap && <WifiLegend band={band} onBandChange={setBand} visible={showHeatmap} />}
 
@@ -326,6 +361,20 @@ export default function EditorPage() {
                     <RotateIcon />
                   </button>
                   <button className="icon-btn" onClick={handleDeleteSelected} aria-label="刪除">
+                    <TrashIcon />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {selectedWall && (
+              <div className="device-inspector">
+                <span className="device-inspector-name">
+                  {selectedWallMaterial?.name ?? selectedWall.materialId}
+                  {selectedWallMaterial && `・${selectedWallMaterial.dbAt5GHz} dB`}
+                </span>
+                <div className="device-inspector-actions">
+                  <button className="icon-btn" onClick={handleDeleteWall} aria-label="刪除">
                     <TrashIcon />
                   </button>
                 </div>
@@ -403,11 +452,7 @@ export default function EditorPage() {
       )}
 
       {wallMaterialOpen && (
-        <WallMaterialSheet
-          currentMaterialId={floor.wallMaterialId}
-          onClose={() => setWallMaterialOpen(false)}
-          onPick={handlePickWallMaterial}
-        />
+        <WallMaterialSheet onClose={() => setWallMaterialOpen(false)} onPick={handlePickWallMaterial} />
       )}
 
       {calibrationPending && (

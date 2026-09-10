@@ -1,11 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Band, Device } from '../types'
+import type { Band, Device, Wall } from '../types'
 import { getRouterModel } from '../data/routerCatalog'
-import { bestSignalDbm, distanceInMeters, signalToStrength, strengthToColor } from '../lib/signalModel'
-import { RouterIcon } from './icons'
+import { getWallMaterial } from '../data/wallMaterials'
+import { bestSignalDbm, distanceInMeters, signalToStrength, strengthToColor, wallAttenuationBetween } from '../lib/signalModel'
+import { RouterIcon, CheckIcon, CloseIcon } from './icons'
 import './FloorCanvas2D.css'
 
-export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate'
+export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate' | 'draw-wall'
+
+interface Point {
+  x: number
+  y: number
+}
 
 interface Transform {
   scale: number
@@ -18,6 +24,10 @@ interface Props {
   naturalSize: { width: number; height: number } | null
   onNaturalSize: (size: { width: number; height: number }) => void
   devices: Device[]
+  walls: Wall[]
+  selectedWallId: string | null
+  onSelectWall: (id: string | null) => void
+  onWallComplete: (points: Point[]) => void
   mode: CanvasMode
   transform: Transform
   onTransformChange: (t: Transform) => void
@@ -28,10 +38,38 @@ interface Props {
   onDeviceDragEnd: (id: string) => void
   selectedDeviceId: string | null
   showHeatmap: boolean
-  wallMaterialFilter: string
   band: Band
   scalePxPerMeter: number | null
-  onCalibratePoints: (a: { x: number; y: number }, b: { x: number; y: number }) => void
+  onCalibratePoints: (a: Point, b: Point) => void
+}
+
+const ANGLE_SNAP_DEG = 15
+const WALL_HIT_TOLERANCE_PX = 10
+
+function snapPoint(from: Point, to: Point): Point {
+  const dx = to.x - from.x
+  const dy = to.y - from.y
+  const distance = Math.sqrt(dx * dx + dy * dy)
+  if (distance < 1) return to
+  const angle = Math.atan2(dy, dx)
+  const snapRad = (ANGLE_SNAP_DEG * Math.PI) / 180
+  const snappedAngle = Math.round(angle / snapRad) * snapRad
+  return {
+    x: from.x + Math.cos(snappedAngle) * distance,
+    y: from.y + Math.sin(snappedAngle) * distance,
+  }
+}
+
+function distanceToSegment(p: Point, a: Point, b: Point): number {
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const lengthSq = dx * dx + dy * dy
+  if (lengthSq === 0) return Math.hypot(p.x - a.x, p.y - a.y)
+  let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / lengthSq
+  t = Math.max(0, Math.min(1, t))
+  const projX = a.x + t * dx
+  const projY = a.y + t * dy
+  return Math.hypot(p.x - projX, p.y - projY)
 }
 
 export default function FloorCanvas2D({
@@ -39,6 +77,10 @@ export default function FloorCanvas2D({
   naturalSize,
   onNaturalSize,
   devices,
+  walls,
+  selectedWallId,
+  onSelectWall,
+  onWallComplete,
   mode,
   transform,
   onTransformChange,
@@ -49,7 +91,6 @@ export default function FloorCanvas2D({
   onDeviceDragEnd,
   selectedDeviceId,
   showHeatmap,
-  wallMaterialFilter,
   band,
   scalePxPerMeter,
   onCalibratePoints,
@@ -59,9 +100,12 @@ export default function FloorCanvas2D({
   const draggingDeviceId = useRef<string | null>(null)
   const panState = useRef<{ x: number; y: number } | null>(null)
   const dragMoved = useRef(false)
-  const [calibrationFirstPoint, setCalibrationFirstPoint] = useState<{ x: number; y: number } | null>(
-    null,
-  )
+  const [calibrationFirstPoint, setCalibrationFirstPoint] = useState<Point | null>(null)
+  const [wallDrawPoints, setWallDrawPoints] = useState<Point[]>([])
+
+  useEffect(() => {
+    if (mode !== 'draw-wall') setWallDrawPoints([])
+  }, [mode])
 
   function screenToContent(clientX: number, clientY: number) {
     const rect = containerRef.current!.getBoundingClientRect()
@@ -74,7 +118,7 @@ export default function FloorCanvas2D({
   }
 
   function handleBackgroundPointerDown(e: React.PointerEvent) {
-    if ((e.target as HTMLElement).closest('.fc-device')) return
+    if ((e.target as HTMLElement).closest('.fc-device') || (e.target as HTMLElement).closest('.fc-wall-controls')) return
     const point = screenToContent(e.clientX, e.clientY)
 
     if (mode === 'place') {
@@ -90,7 +134,35 @@ export default function FloorCanvas2D({
       }
       return
     }
+    if (mode === 'draw-wall') {
+      setWallDrawPoints((prev) => {
+        if (prev.length === 0) return [point]
+        const last = prev[prev.length - 1]
+        return [...prev, snapPoint(last, point)]
+      })
+      return
+    }
     if (mode === 'pan' || mode === 'select') {
+      if (mode === 'select') {
+        const toleranceContent = WALL_HIT_TOLERANCE_PX / transform.scale
+        let closestId: string | null = null
+        let closestDist = toleranceContent
+        for (const wall of walls) {
+          for (let i = 0; i < wall.points.length - 1; i++) {
+            const d = distanceToSegment(point, wall.points[i], wall.points[i + 1])
+            if (d < closestDist) {
+              closestDist = d
+              closestId = wall.id
+            }
+          }
+        }
+        if (closestId) {
+          onSelectWall(closestId)
+          onSelectDevice(null)
+          return
+        }
+        onSelectWall(null)
+      }
       onSelectDevice(null)
       panState.current = { x: e.clientX, y: e.clientY }
       ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
@@ -135,6 +207,15 @@ export default function FloorCanvas2D({
     ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
   }
 
+  function finishWall() {
+    if (wallDrawPoints.length >= 2) onWallComplete(wallDrawPoints)
+    setWallDrawPoints([])
+  }
+
+  function cancelWall() {
+    setWallDrawPoints([])
+  }
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas || !naturalSize || !showHeatmap) return
@@ -158,6 +239,7 @@ export default function FloorCanvas2D({
             withModels.map(({ d, model }) => ({
               distanceMeters: distanceInMeters({ x, y }, d, pxPerMeter),
               txPowerTier: model!.txPowerTier,
+              wallAttenuationDb: wallAttenuationBetween(d, { x, y }, walls, band),
             })),
             band,
           )
@@ -178,7 +260,9 @@ export default function FloorCanvas2D({
       }
     }
     ctx.putImageData(imageData, 0, 0)
-  }, [devices, naturalSize, showHeatmap, band, scalePxPerMeter])
+  }, [devices, walls, naturalSize, showHeatmap, band, scalePxPerMeter])
+
+  const lastDrawPoint = wallDrawPoints[wallDrawPoints.length - 1]
 
   return (
     <div
@@ -202,7 +286,6 @@ export default function FloorCanvas2D({
             src={imageUrl}
             alt="floor plan"
             draggable={false}
-            style={{ filter: wallMaterialFilter }}
             onLoad={(e) => {
               const img = e.currentTarget
               onNaturalSize({ width: img.naturalWidth, height: img.naturalHeight })
@@ -211,6 +294,48 @@ export default function FloorCanvas2D({
         )}
 
         {showHeatmap && <canvas ref={canvasRef} className="fc-heatmap" />}
+
+        {naturalSize && (
+          <svg
+            className="fc-walls-svg"
+            width={naturalSize.width}
+            height={naturalSize.height}
+            viewBox={`0 0 ${naturalSize.width} ${naturalSize.height}`}
+          >
+            {walls.map((wall) => {
+              const material = getWallMaterial(wall.materialId)
+              const points = wall.points.map((p) => `${p.x},${p.y}`).join(' ')
+              const selected = wall.id === selectedWallId
+              return (
+                <polyline
+                  key={wall.id}
+                  points={points}
+                  fill="none"
+                  stroke={selected ? '#ef4444' : material?.color ?? '#888'}
+                  strokeWidth={selected ? 6 : 4}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )
+            })}
+            {wallDrawPoints.length > 0 && (
+              <>
+                <polyline
+                  points={wallDrawPoints.map((p) => `${p.x},${p.y}`).join(' ')}
+                  fill="none"
+                  stroke="var(--accent)"
+                  strokeWidth={4}
+                  strokeDasharray="10 6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                {wallDrawPoints.map((p, i) => (
+                  <circle key={i} cx={p.x} cy={p.y} r={5} fill="var(--accent)" />
+                ))}
+              </>
+            )}
+          </svg>
+        )}
 
         {calibrationFirstPoint && (
           <div
@@ -240,6 +365,25 @@ export default function FloorCanvas2D({
             </div>
           )
         })}
+
+        {mode === 'draw-wall' && lastDrawPoint && wallDrawPoints.length >= 2 && (
+          <div
+            className="fc-wall-controls"
+            style={{
+              left: lastDrawPoint.x,
+              top: lastDrawPoint.y,
+              transform: `translate(12px, -50%) scale(${1 / transform.scale})`,
+              transformOrigin: 'left center',
+            }}
+          >
+            <button className="fc-wall-btn fc-wall-btn-confirm" onClick={finishWall} aria-label="完成">
+              <CheckIcon size={16} />
+            </button>
+            <button className="fc-wall-btn fc-wall-btn-cancel" onClick={cancelWall} aria-label="取消">
+              <CloseIcon size={16} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -199,6 +199,14 @@ export function HomeIcon({ size = 18 }: IconProps) {
   )
 }
 
+export function CheckIcon({ size = 18 }: IconProps) {
+  return (
+    <svg width={size} height={size} {...base}>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  )
+}
+
 export function CloseIcon({ size = 18 }: IconProps) {
   return (
     <svg width={size} height={size} {...base}>
