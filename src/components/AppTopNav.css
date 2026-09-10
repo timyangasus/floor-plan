@@ -6,7 +6,7 @@
   gap: 8px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: max(48px, calc(8px + var(--safe-top))) 10px 8px;
+  padding: max(53px, calc(8px + var(--safe-top))) 10px 8px;
   z-index: 30;
 }
 
