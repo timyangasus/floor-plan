@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useObjectUrl } from '../lib/useObjectUrl'
 import './NewProjectModal.css'
 
 interface Props {
@@ -6,14 +7,38 @@ interface Props {
   onCreate: (name: string, image: File | null) => void
 }
 
+async function loadSampleFloorPlan(): Promise<File> {
+  const res = await fetch('/sample-floorplan.png')
+  const blob = await res.blob()
+  return new File([blob], 'sample-floorplan.png', { type: 'image/png' })
+}
+
 export default function NewProjectModal({ onClose, onCreate }: Props) {
   const [name, setName] = useState('')
   const [image, setImage] = useState<File | null>(null)
+  const [isSample, setIsSample] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const previewUrl = useObjectUrl(image)
+
+  useEffect(() => {
+    let cancelled = false
+    loadSampleFloorPlan().then((file) => {
+      if (!cancelled) {
+        setImage(file)
+        setIsSample(true)
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
-    if (file) setImage(file)
+    if (file) {
+      setImage(file)
+      setIsSample(false)
+    }
   }
 
   function handleCreate() {
@@ -41,8 +66,9 @@ export default function NewProjectModal({ onClose, onCreate }: Props) {
 
         <label className="modal-label">平面圖檔案</label>
         <div className="modal-dropzone" onClick={() => fileRef.current?.click()}>
+          {previewUrl && <img className="modal-dropzone-preview" src={previewUrl} alt="平面圖預覽" />}
           {image ? (
-            <span>{image.name}</span>
+            <span>{isSample ? '已使用範例平面圖（點擊更換）' : image.name}</span>
           ) : (
             <>
               <span>點擊選擇平面圖圖片</span>
