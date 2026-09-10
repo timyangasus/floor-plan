@@ -58,6 +58,8 @@ interface Props {
 
 const ANGLE_SNAP_DEG = 15
 const WALL_HIT_TOLERANCE_PX = 10
+const MIN_SCALE = 0.15
+const MAX_SCALE = 4
 
 function snapPoint(from: Point, to: Point): Point {
   const dx = to.x - from.x
@@ -121,6 +123,15 @@ export default function FloorCanvas2D({
   const dragMoved = useRef(false)
   const activePointerIds = useRef<Set<number>>(new Set())
   const activeDragPointerId = useRef<number | null>(null)
+  const pinchState = useRef<{
+    pointerAId: number
+    pointerBId: number
+    posA: { x: number; y: number }
+    posB: { x: number; y: number }
+    startDistance: number
+    startScale: number
+    anchorContent: { x: number; y: number }
+  } | null>(null)
   const [calibrationFirstPoint, setCalibrationFirstPoint] = useState<Point | null>(null)
   const [wallDrawPoints, setWallDrawPoints] = useState<Point[]>([])
 
@@ -128,10 +139,13 @@ export default function FloorCanvas2D({
     if (mode !== 'draw-wall') setWallDrawPoints([])
   }, [mode])
 
-  function screenToContent(clientX: number, clientY: number) {
+  function toContainerPoint(clientX: number, clientY: number) {
     const rect = containerRef.current!.getBoundingClientRect()
-    const sx = clientX - rect.left
-    const sy = clientY - rect.top
+    return { x: clientX - rect.left, y: clientY - rect.top }
+  }
+
+  function screenToContent(clientX: number, clientY: number) {
+    const { x: sx, y: sy } = toContainerPoint(clientX, clientY)
     return {
       x: (sx - transform.tx) / transform.scale,
       y: (sy - transform.ty) / transform.scale,
@@ -184,9 +198,33 @@ export default function FloorCanvas2D({
       return
     }
     if (mode === 'pan' || mode === 'select') {
-      // A drag or pan is already being driven by another finger — ignore
-      // this one instead of hijacking the transform with its coordinates.
-      if (activeDragPointerId.current !== null) return
+      // A second finger landing while the canvas is already being panned
+      // starts a pinch-to-zoom instead of hijacking the pan with its own
+      // coordinates (which caused huge, spurious jumps).
+      if (activeDragPointerId.current !== null) {
+        if (panState.current && pinchState.current === null && e.pointerId !== activeDragPointerId.current) {
+          const posA = { x: panState.current.x, y: panState.current.y }
+          const posB = { x: e.clientX, y: e.clientY }
+          const posACR = toContainerPoint(posA.x, posA.y)
+          const posBCR = toContainerPoint(posB.x, posB.y)
+          const startDistance = Math.max(Math.hypot(posBCR.x - posACR.x, posBCR.y - posACR.y), 1)
+          const midX = (posACR.x + posBCR.x) / 2
+          const midY = (posACR.y + posBCR.y) / 2
+          pinchState.current = {
+            pointerAId: activeDragPointerId.current,
+            pointerBId: e.pointerId,
+            posA,
+            posB,
+            startDistance,
+            startScale: transform.scale,
+            anchorContent: {
+              x: (midX - transform.tx) / transform.scale,
+              y: (midY - transform.ty) / transform.scale,
+            },
+          }
+        }
+        return
+      }
 
       if (mode === 'select') {
         const toleranceContent = WALL_HIT_TOLERANCE_PX / transform.scale
@@ -217,6 +255,28 @@ export default function FloorCanvas2D({
   }
 
   function handlePointerMove(e: React.PointerEvent) {
+    if (pinchState.current) {
+      const ps = pinchState.current
+      if (e.pointerId === ps.pointerAId) {
+        ps.posA = { x: e.clientX, y: e.clientY }
+      } else if (e.pointerId === ps.pointerBId) {
+        ps.posB = { x: e.clientX, y: e.clientY }
+      } else {
+        return
+      }
+      const posACR = toContainerPoint(ps.posA.x, ps.posA.y)
+      const posBCR = toContainerPoint(ps.posB.x, ps.posB.y)
+      const newDistance = Math.max(Math.hypot(posBCR.x - posACR.x, posBCR.y - posACR.y), 1)
+      const newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, ps.startScale * (newDistance / ps.startDistance)))
+      const midX = (posACR.x + posBCR.x) / 2
+      const midY = (posACR.y + posBCR.y) / 2
+      onTransformChange({
+        scale: newScale,
+        tx: midX - ps.anchorContent.x * newScale,
+        ty: midY - ps.anchorContent.y * newScale,
+      })
+      return
+    }
     if (activeDragPointerId.current !== null && e.pointerId !== activeDragPointerId.current) return
     if (draggingDeviceId.current) {
       dragMoved.current = true
@@ -239,6 +299,30 @@ export default function FloorCanvas2D({
   }
 
   function handlePointerUp(e: React.PointerEvent) {
+    if (pinchState.current) {
+      const ps = pinchState.current
+      if (e.pointerId === ps.pointerAId || e.pointerId === ps.pointerBId) {
+        const remainingId = e.pointerId === ps.pointerAId ? ps.pointerBId : ps.pointerAId
+        const remainingPos = e.pointerId === ps.pointerAId ? ps.posB : ps.posA
+        pinchState.current = null
+        if (activePointerIds.current.has(remainingId)) {
+          // The other finger is still down — resume a normal single-finger
+          // pan from its current position instead of ending the gesture.
+          activeDragPointerId.current = remainingId
+          panState.current = remainingPos
+        } else {
+          activeDragPointerId.current = null
+          panState.current = null
+        }
+        try {
+          ;(e.target as HTMLElement).releasePointerCapture(e.pointerId)
+        } catch {
+          /* no-op */
+        }
+        return
+      }
+    }
+
     if (activeDragPointerId.current !== e.pointerId) return
 
     if (draggingDeviceId.current && dragMoved.current) {
@@ -405,7 +489,7 @@ export default function FloorCanvas2D({
                   points={points}
                   fill="none"
                   stroke={selected ? '#ef4444' : material?.color ?? '#888'}
-                  strokeWidth={selected ? 6 : 4}
+                  strokeWidth={selected ? 10 : 7}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -417,13 +501,13 @@ export default function FloorCanvas2D({
                   points={wallDrawPoints.map((p) => `${p.x},${p.y}`).join(' ')}
                   fill="none"
                   stroke="var(--accent)"
-                  strokeWidth={4}
-                  strokeDasharray="10 6"
+                  strokeWidth={7}
+                  strokeDasharray="14 8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 {wallDrawPoints.map((p, i) => (
-                  <circle key={i} cx={p.x} cy={p.y} r={5} fill="var(--accent)" />
+                  <circle key={i} cx={p.x} cy={p.y} r={8} fill="var(--accent)" />
                 ))}
               </>
             )}
