@@ -472,6 +472,14 @@ export default function EditorPage() {
           </div>
         )}
 
+        {view === '2d' && mode === 'draw-wall' && (
+          <div className="calibration-hint">在平面圖上點擊新增頂點，繪製牆面路徑，畫好後點選 ✓ 確認</div>
+        )}
+
+        {view === '2d' && mode === 'pan' && (
+          <div className="calibration-hint">拖曳平面圖以平移檢視畫面</div>
+        )}
+
         {view === '2d' && (
           <div className="editor-bottom-panels">
             <WifiLegend band={band} onBandChange={setBand} />
