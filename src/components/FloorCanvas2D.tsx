@@ -390,7 +390,10 @@ export default function FloorCanvas2D({
           />
         )}
 
-        <canvas ref={canvasRef} className="fc-heatmap" />
+        <canvas
+          ref={canvasRef}
+          className={`fc-heatmap${mode === 'calibrate' || mode === 'pan' ? ' fc-heatmap-hidden' : ''}`}
+        />
 
         {naturalSize && (
           <svg

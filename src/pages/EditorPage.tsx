@@ -140,6 +140,10 @@ export default function EditorPage() {
     if (naturalSize) centerView()
   }, [naturalSize])
 
+  useEffect(() => {
+    if (mode === 'calibrate') centerView()
+  }, [mode])
+
   function zoomBy(factor: number) {
     if (!canvasAreaRef.current) return
     const rect = canvasAreaRef.current.getBoundingClientRect()

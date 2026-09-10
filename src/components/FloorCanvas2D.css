@@ -52,6 +52,10 @@
   mix-blend-mode: multiply;
 }
 
+.fc-heatmap-hidden {
+  opacity: 0;
+}
+
 .fc-calibration-point {
   position: absolute;
   width: 10px;
