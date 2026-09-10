@@ -22,11 +22,13 @@ export default function AppTopNav({ projectId, theme, onToggleTheme }: Props) {
     <>
       <nav className="app-top-nav">
         <div className="app-top-nav-left">
-          <span className="app-top-nav-logo">▲</span>
+          <button className="app-top-nav-btn app-top-nav-logo" onClick={() => navigate('/')} aria-label="首頁">
+            ▲
+          </button>
           <button
             className={`app-top-nav-btn ${onFloorplan ? 'active' : ''}`}
             onClick={() => navigate('/home')}
-            aria-label="平面圖規劃"
+            aria-label="平面規劃圖"
           >
             <GridIcon />
           </button>
