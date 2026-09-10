@@ -4,8 +4,10 @@ import { HashRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 import { initViewportHeightFix } from './lib/viewportHeight'
+import { preventNativeZoom } from './lib/preventNativeZoom'
 
 initViewportHeightFix()
+preventNativeZoom()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
