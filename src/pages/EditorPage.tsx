@@ -8,7 +8,7 @@ import EditorSideControls from '../components/EditorSideControls'
 import EditorBottomToolbar from '../components/EditorBottomToolbar'
 import WifiLegend from '../components/WifiLegend'
 import DeviceCatalogSheet from '../components/DeviceCatalogSheet'
-import AppSideNav from '../components/AppSideNav'
+import AppTopNav from '../components/AppTopNav'
 import EditorLayersSheet from '../components/EditorLayersSheet'
 import ProjectSettingsModal from '../components/ProjectSettingsModal'
 import ScaleCalibrationModal from '../components/ScaleCalibrationModal'
@@ -404,7 +404,7 @@ export default function EditorPage() {
 
   return (
     <div className="editor-page">
-      <AppSideNav projectId={project.id} theme={theme} onToggleTheme={toggleTheme} />
+      <AppTopNav projectId={project.id} theme={theme} onToggleTheme={toggleTheme} />
 
       <div className="editor-body">
       <EditorTopBar

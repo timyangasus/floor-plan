@@ -1,6 +1,6 @@
 .editor-topbar {
   position: absolute;
-  top: calc(12px + var(--safe-top));
+  top: 12px;
   left: 12px;
   right: 12px;
   display: flex;
@@ -173,7 +173,7 @@
 
 .calibration-banner {
   position: absolute;
-  top: calc(64px + var(--safe-top));
+  top: 64px;
   left: 12px;
   right: 12px;
   background: var(--accent);
@@ -203,7 +203,7 @@
 
 .calibration-hint {
   position: absolute;
-  top: calc(64px + var(--safe-top));
+  top: 64px;
   left: 12px;
   right: 12px;
   background: var(--surface);

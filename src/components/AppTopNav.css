@@ -1,40 +1,31 @@
-.app-side-nav {
-  width: 56px;
+.app-top-nav {
   flex-shrink: 0;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: calc(14px + var(--safe-top)) 0 calc(14px + var(--safe-bottom));
-  gap: 10px;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: calc(8px + var(--safe-top)) 10px 8px;
   z-index: 30;
 }
 
-.app-side-nav-top {
+.app-top-nav-left,
+.app-top-nav-right {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
 }
 
-.app-side-nav-logo {
+.app-top-nav-logo {
   color: var(--accent);
-  font-size: 20px;
-  margin-bottom: 6px;
+  font-size: 18px;
+  margin-right: 4px;
 }
 
-.app-side-nav-bottom {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.app-side-nav-btn {
-  width: 38px;
-  height: 38px;
+.app-top-nav-btn {
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-sm);
   border: none;
   background: transparent;
@@ -43,38 +34,39 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 15px;
 }
 
-.app-side-nav-btn.active {
+.app-top-nav-btn.active {
   background: var(--accent);
   color: var(--accent-contrast);
 }
 
-.app-side-nav-btn:disabled {
+.app-top-nav-btn:disabled {
   opacity: 0.3;
   cursor: default;
 }
 
-.app-side-nav-lang {
+.app-top-nav-lang {
   font-size: 11px;
   color: var(--text-faint);
+  padding: 0 2px;
 }
 
-.app-side-nav-avatar {
-  width: 26px;
-  height: 26px;
+.app-top-nav-avatar {
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
   background: var(--accent);
   color: var(--accent-contrast);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.app-side-nav-about {
+.app-top-nav-about {
   width: 100%;
   max-width: 380px;
   background: var(--surface);
@@ -83,7 +75,7 @@
   box-shadow: var(--shadow);
 }
 
-.app-side-nav-about-text {
+.app-top-nav-about-text {
   font-size: 13px;
   color: var(--text-muted);
   line-height: 1.6;
