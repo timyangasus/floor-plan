@@ -1,5 +1,6 @@
 .topology-page {
-  min-height: 100svh;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -31,6 +32,8 @@
 
 .topology-main {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   padding: 16px;
 }
 
