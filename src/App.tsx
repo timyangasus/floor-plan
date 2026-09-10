@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import EditorPage from './pages/EditorPage'
 import TopologyPage from './pages/TopologyPage'
+import RouterEntryPage from './pages/RouterEntryPage'
 import { applyTheme, loadTheme } from './lib/theme'
 import './App.css'
 
@@ -14,7 +15,8 @@ export default function App() {
   return (
     <div className="app-shell">
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<RouterEntryPage />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/project/:projectId/floor/:floorId" element={<EditorPage />} />
         <Route path="/project/:projectId/topology" element={<TopologyPage />} />
       </Routes>

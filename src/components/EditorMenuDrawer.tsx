@@ -25,7 +25,7 @@ export default function EditorMenuDrawer({ onClose, projectId, theme, onToggleTh
           </button>
         </div>
 
-        <button className="drawer-item" onClick={() => navigate('/')}>
+        <button className="drawer-item" onClick={() => navigate('/home')}>
           🏠 專案列表
         </button>
         <button className="drawer-item" onClick={() => navigate(`/project/${projectId}/topology`)}>

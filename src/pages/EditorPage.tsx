@@ -85,7 +85,7 @@ export default function EditorPage() {
       listDevices(floorId),
     ])
     if (!p || !f) {
-      navigate('/')
+      navigate('/home')
       return
     }
     setProject(p)
