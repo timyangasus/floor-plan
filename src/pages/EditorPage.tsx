@@ -414,6 +414,8 @@ export default function EditorPage() {
         onLayers={() => setLayersOpen(true)}
         view={view}
         onViewChange={setView}
+        showScaleButton={mode === 'select'}
+        onSetScale={() => setMode('calibrate')}
       />
 
       <div className="editor-canvas-area" ref={canvasAreaRef}>
@@ -458,10 +460,7 @@ export default function EditorPage() {
         )}
 
         {view === '2d' && floor.scalePxPerMeter === null && mode === 'select' && (
-          <div className="calibration-banner">
-            <span>請先設定平面圖比例尺，覆蓋範圍才會準確。</span>
-            <button onClick={() => setMode('calibrate')}>設定比例尺</button>
-          </div>
+          <div className="calibration-hint">請先設定平面圖比例尺，覆蓋範圍才會準確。</div>
         )}
 
         {view === '2d' && mode === 'calibrate' && (
@@ -527,7 +526,6 @@ export default function EditorPage() {
             onRedo={handleRedo}
             canUndo={history.past.length > 0}
             canRedo={history.future.length > 0}
-            onSetScale={() => setMode('calibrate')}
           />
         )}
 
