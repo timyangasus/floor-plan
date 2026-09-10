@@ -119,6 +119,7 @@ export default function FloorCanvas2D({
   const draggingClientId = useRef<string | null>(null)
   const panState = useRef<{ x: number; y: number } | null>(null)
   const dragMoved = useRef(false)
+  const activePointerIds = useRef<Set<number>>(new Set())
   const [calibrationFirstPoint, setCalibrationFirstPoint] = useState<Point | null>(null)
   const [wallDrawPoints, setWallDrawPoints] = useState<Point[]>([])
 
@@ -136,6 +137,14 @@ export default function FloorCanvas2D({
     }
   }
 
+  function handlePointerDownCapture(e: React.PointerEvent) {
+    activePointerIds.current.add(e.pointerId)
+  }
+
+  function handlePointerUpOrCancelCapture(e: React.PointerEvent) {
+    activePointerIds.current.delete(e.pointerId)
+  }
+
   function handleBackgroundPointerDown(e: React.PointerEvent) {
     if (
       (e.target as HTMLElement).closest('.fc-device') ||
@@ -143,6 +152,13 @@ export default function FloorCanvas2D({
       (e.target as HTMLElement).closest('.fc-wall-controls')
     )
       return
+
+    // A second finger touching down mid-gesture means this is a pinch, not a
+    // tap — ignore it so it doesn't get misread as a point/vertex placement.
+    if (activePointerIds.current.size > 1 && (mode === 'place' || mode === 'calibrate' || mode === 'draw-wall')) {
+      return
+    }
+
     const point = screenToContent(e.clientX, e.clientY)
 
     if (mode === 'place') {
@@ -327,6 +343,9 @@ export default function FloorCanvas2D({
     <div
       ref={containerRef}
       className={`fc-container fc-mode-${mode}`}
+      onPointerDownCapture={handlePointerDownCapture}
+      onPointerUpCapture={handlePointerUpOrCancelCapture}
+      onPointerCancelCapture={handlePointerUpOrCancelCapture}
       onPointerDown={handleBackgroundPointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
