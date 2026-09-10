@@ -7,6 +7,7 @@ import { timeGreeting } from '../lib/greeting'
 import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeftIcon } from '../components/icons'
+import AppSideNav from '../components/AppSideNav'
 import './HomePage.css'
 
 export default function HomePage() {
@@ -58,50 +59,52 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
-      <header className="home-header">
-        <button className="icon-btn" onClick={() => navigate('/')} aria-label="返回">
-          <ArrowLeftIcon />
-        </button>
-        <div className="home-header-title">
-          <span className="home-logo">▲</span>
-          <span>ASUS WiFi Floorplaner</span>
-        </div>
-        <button className="icon-btn" onClick={toggleTheme} aria-label="切換主題">
-          {theme === 'dark' ? '🌙' : theme === 'light' ? '☀️' : '🌓'}
-        </button>
-      </header>
+      <AppSideNav theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="home-main">
-        <h1 className="home-greeting">{timeGreeting()}</h1>
-        <p className="home-subtitle">{projects.length} 個平面圖專案</p>
-
-        <input
-          className="home-search"
-          placeholder="搜尋專案…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-        <div className="home-grid">
-          {filtered.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              floors={floorsByProject[project.id] ?? []}
-              onDelete={handleDelete}
-            />
-          ))}
-
-          <button className="home-add-tile" onClick={() => setShowNewProject(true)}>
-            <span className="home-add-icon">+</span>
-            <span>新增專案</span>
+      <div className="home-content">
+        <header className="home-header">
+          <button className="icon-btn" onClick={() => navigate('/')} aria-label="返回">
+            <ArrowLeftIcon />
           </button>
-        </div>
+          <div className="home-header-title">
+            <span className="home-logo">▲</span>
+            <span>ASUS WiFi Floorplaner</span>
+          </div>
+          <span className="icon-btn-spacer" />
+        </header>
 
-        {filtered.length === 0 && projects.length > 0 && (
-          <p className="home-empty">沒有符合搜尋條件的專案。</p>
-        )}
-      </main>
+        <main className="home-main">
+          <h1 className="home-greeting">{timeGreeting()}</h1>
+          <p className="home-subtitle">{projects.length} 個平面圖專案</p>
+
+          <input
+            className="home-search"
+            placeholder="搜尋專案…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          <div className="home-grid">
+            {filtered.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                floors={floorsByProject[project.id] ?? []}
+                onDelete={handleDelete}
+              />
+            ))}
+
+            <button className="home-add-tile" onClick={() => setShowNewProject(true)}>
+              <span className="home-add-icon">+</span>
+              <span>新增專案</span>
+            </button>
+          </div>
+
+          {filtered.length === 0 && projects.length > 0 && (
+            <p className="home-empty">沒有符合搜尋條件的專案。</p>
+          )}
+        </main>
+      </div>
 
       {showNewProject && (
         <NewProjectModal onClose={() => setShowNewProject(false)} onCreate={handleCreate} />

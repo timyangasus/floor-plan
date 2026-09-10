@@ -314,41 +314,6 @@
   border-radius: 999px;
 }
 
-.drawer-backdrop {
-  align-items: stretch;
-  justify-content: flex-start;
-}
-
-.drawer-panel {
-  width: 78%;
-  max-width: 320px;
-  height: 100%;
-  background: var(--surface);
-  padding: calc(16px + var(--safe-top)) 16px 16px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.drawer-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-align: left;
-  border: none;
-  background: transparent;
-  padding: 12px 8px;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  color: var(--text);
-  cursor: pointer;
-}
-
-.drawer-item:hover {
-  background: var(--surface-alt);
-}
-
 .drawer-divider {
   height: 1px;
   background: var(--border);

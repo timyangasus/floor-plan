@@ -1,22 +1,18 @@
 import type { ViewMode } from '../pages/EditorPage.types'
-import { MenuIcon, EditIcon, LayersIcon } from './icons'
+import { EditIcon, LayersIcon } from './icons'
 import './EditorChrome.css'
 
 interface Props {
-  onMenu: () => void
   onEditProject: () => void
   onLayers: () => void
   view: ViewMode
   onViewChange: (v: ViewMode) => void
 }
 
-export default function EditorTopBar({ onMenu, onEditProject, onLayers, view, onViewChange }: Props) {
+export default function EditorTopBar({ onEditProject, onLayers, view, onViewChange }: Props) {
   return (
     <div className="editor-topbar">
       <div className="editor-topbar-group">
-        <button className="icon-btn" onClick={onMenu} aria-label="選單">
-          <MenuIcon />
-        </button>
         <button className="icon-btn" onClick={onEditProject} aria-label="專案設定">
           <EditIcon />
         </button>

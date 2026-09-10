@@ -227,6 +227,16 @@ export function CheckIcon({ size = 18 }: IconProps) {
   )
 }
 
+export function HelpIcon({ size = 18 }: IconProps) {
+  return (
+    <svg width={size} height={size} {...base}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9a2.5 2.5 0 014.7 1.2c0 1.7-2.5 2-2.5 3.3" />
+      <line x1="12" y1="17" x2="12.01" y2="17" strokeWidth={2.4} />
+    </svg>
+  )
+}
+
 export function CloseIcon({ size = 18 }: IconProps) {
   return (
     <svg width={size} height={size} {...base}>

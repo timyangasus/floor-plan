@@ -1,0 +1,91 @@
+.app-side-nav {
+  width: 56px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(14px + var(--safe-top)) 0 calc(14px + var(--safe-bottom));
+  gap: 10px;
+  z-index: 30;
+}
+
+.app-side-nav-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-side-nav-logo {
+  color: var(--accent);
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+.app-side-nav-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-side-nav-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.app-side-nav-btn.active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.app-side-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.app-side-nav-lang {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.app-side-nav-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-side-nav-about {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.app-side-nav-about-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}

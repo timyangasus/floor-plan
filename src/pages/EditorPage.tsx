@@ -8,7 +8,7 @@ import EditorSideControls from '../components/EditorSideControls'
 import EditorBottomToolbar from '../components/EditorBottomToolbar'
 import WifiLegend from '../components/WifiLegend'
 import DeviceCatalogSheet from '../components/DeviceCatalogSheet'
-import EditorMenuDrawer from '../components/EditorMenuDrawer'
+import AppSideNav from '../components/AppSideNav'
 import EditorLayersSheet from '../components/EditorLayersSheet'
 import ProjectSettingsModal from '../components/ProjectSettingsModal'
 import ScaleCalibrationModal from '../components/ScaleCalibrationModal'
@@ -72,7 +72,6 @@ export default function EditorPage() {
   const [wallDrawMaterialId, setWallDrawMaterialId] = useState<string | null>(null)
   const [band, setBand] = useState<Band>('2.4')
 
-  const [menuOpen, setMenuOpen] = useState(false)
   const [layersOpen, setLayersOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [catalogOpen, setCatalogOpen] = useState(false)
@@ -405,8 +404,10 @@ export default function EditorPage() {
 
   return (
     <div className="editor-page">
+      <AppSideNav projectId={project.id} theme={theme} onToggleTheme={toggleTheme} />
+
+      <div className="editor-body">
       <EditorTopBar
-        onMenu={() => setMenuOpen(true)}
         onEditProject={() => setSettingsOpen(true)}
         onLayers={() => setLayersOpen(true)}
         view={view}
@@ -556,15 +557,7 @@ export default function EditorPage() {
           }}
         />
       )}
-
-      {menuOpen && (
-        <EditorMenuDrawer
-          onClose={() => setMenuOpen(false)}
-          projectId={project.id}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-        />
-      )}
+      </div>
 
       {layersOpen && (
         <EditorLayersSheet
