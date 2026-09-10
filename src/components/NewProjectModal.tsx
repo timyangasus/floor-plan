@@ -8,9 +8,9 @@ interface Props {
 }
 
 async function loadSampleFloorPlan(): Promise<File> {
-  const res = await fetch('/sample-floorplan.png')
+  const res = await fetch('/sample-floorplan.jpg')
   const blob = await res.blob()
-  return new File([blob], 'sample-floorplan.png', { type: 'image/png' })
+  return new File([blob], 'sample-floorplan.jpg', { type: 'image/jpeg' })
 }
 
 export default function NewProjectModal({ onClose, onCreate }: Props) {
