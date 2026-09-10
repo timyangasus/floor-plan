@@ -19,10 +19,4 @@ export function applyTheme(mode: ThemeMode): void {
   } else {
     root.setAttribute('data-theme', mode)
   }
-
-  const isDark =
-    mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-  document
-    .querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')
-    ?.setAttribute('content', isDark ? 'black-translucent' : 'default')
 }

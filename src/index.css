@@ -65,7 +65,7 @@ body {
 }
 
 #root {
-  height: 100dvh;
+  height: var(--app-vh, 100dvh);
   display: flex;
   flex-direction: column;
 }
