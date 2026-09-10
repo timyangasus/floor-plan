@@ -1,0 +1,82 @@
+.mesh-group-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.mesh-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.mesh-group-badge {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.mesh-group-count {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.mesh-graph-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mesh-member-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mesh-member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-alt);
+}
+
+.mesh-member-cap {
+  font-weight: 700;
+}
+
+.mesh-member-tag {
+  font-size: 10px;
+  background: var(--accent);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.mesh-member-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mesh-quality-chip {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mesh-set-cap {
+  border: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+}

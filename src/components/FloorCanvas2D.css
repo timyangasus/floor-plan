@@ -1,0 +1,93 @@
+.fc-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--surface-alt);
+  touch-action: none;
+}
+
+.fc-mode-pan {
+  cursor: grab;
+}
+
+.fc-mode-place,
+.fc-mode-calibrate {
+  cursor: crosshair;
+}
+
+.fc-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+.fc-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+.fc-heatmap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.fc-calibration-point {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px;
+  border-radius: 999px;
+  background: var(--accent);
+  border: 2px solid #fff;
+}
+
+.fc-device {
+  position: absolute;
+  transform-origin: center center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  touch-action: none;
+}
+
+.fc-device-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
+}
+
+.fc-device-selected .fc-device-dot {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+}
+
+.fc-device-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  padding: 1px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.15);
+}

@@ -1,0 +1,90 @@
+.topology-page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topology-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(14px + var(--safe-top)) 16px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.topology-title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topology-title h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.topology-title span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.topology-main {
+  flex: 1;
+  padding: 16px;
+}
+
+.topology-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px 20px;
+}
+
+.topology-empty-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.topology-empty-hint {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.topology-ungrouped {
+  margin-top: 16px;
+}
+
+.topology-ungrouped h3 {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
+.ungrouped-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  font-size: 13px;
+  gap: 10px;
+}
+
+.group-picker {
+  display: flex;
+  gap: 4px;
+}
+
+.group-picker button {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text);
+  font-size: 11px;
+  cursor: pointer;
+}
