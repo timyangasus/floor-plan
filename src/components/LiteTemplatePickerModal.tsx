@@ -44,7 +44,7 @@ export default function LiteTemplatePickerModal({ onClose, onCreate }: Props) {
               onClick={() => setSelectedId(t.id)}
             >
               <div className="lite-template-preview">
-                <LiteFloorPlanSvg template={t} />
+                <LiteFloorPlanSvg template={t} showLabel={false} />
               </div>
               <span className="lite-template-label">{t.label}</span>
             </button>

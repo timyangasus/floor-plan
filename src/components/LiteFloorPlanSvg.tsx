@@ -4,6 +4,9 @@ import { LITE_PX_PER_METER, getLiteCanvasSize } from '../data/liteTemplates'
 interface Props {
   template: LiteTemplate
   className?: string
+  showLabel?: boolean
+  labelAlign?: 'center' | 'left'
+  labelScale?: number
 }
 
 const WALL_COLOR = '#111827'
@@ -69,7 +72,13 @@ function tableIcon(x: number, y: number, w: number, h: number, stroke: number, k
   )
 }
 
-export default function LiteFloorPlanSvg({ template, className }: Props) {
+export default function LiteFloorPlanSvg({
+  template,
+  className,
+  showLabel = true,
+  labelAlign = 'center',
+  labelScale = 1,
+}: Props) {
   const w = template.widthMeters * LITE_PX_PER_METER
   const h = template.depthMeters * LITE_PX_PER_METER
   const strokeWidth = Math.max(4, Math.round(Math.min(w, h) * 0.012))
@@ -139,16 +148,23 @@ export default function LiteFloorPlanSvg({ template, className }: Props) {
       height="100%"
       preserveAspectRatio="xMidYMid meet"
     >
-      <text
-        x={w / 2}
-        y={labelMarginTop * 0.62}
-        textAnchor="middle"
-        fontSize={labelFontSize}
-        fontWeight="600"
-        fill="var(--text-muted)"
-      >
-        {template.rangeLabel} 坪
-      </text>
+      {showLabel &&
+        (() => {
+          const fontSize = labelFontSize * labelScale
+          const x = labelAlign === 'left' ? strokeWidth * 2 : w / 2
+          return (
+            <text
+              x={x}
+              y={labelMarginTop * 0.62}
+              textAnchor={labelAlign === 'left' ? 'start' : 'middle'}
+              fontSize={fontSize}
+              fontWeight="600"
+              fill="var(--text-muted)"
+            >
+              {template.rangeLabel} 坪
+            </text>
+          )
+        })()}
 
       <g transform={`translate(0, ${labelMarginTop})`}>
         <rect

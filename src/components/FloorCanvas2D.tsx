@@ -426,7 +426,7 @@ export default function FloorCanvas2D({
         }}
       >
         {template ? (
-          <LiteFloorPlanSvg className="fc-image" template={template} />
+          <LiteFloorPlanSvg className="fc-image" template={template} labelAlign="left" labelScale={0.6} />
         ) : (
           imageUrl && (
             <img
