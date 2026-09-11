@@ -68,6 +68,7 @@ export default function EditorPage() {
   const [walls, setWalls] = useState<Wall[]>([])
   const [clients, setClients] = useState<TestClient[]>([])
   const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(null)
+  const [liveSignal, setLiveSignal] = useState<{ distanceMeters: number; dbm: number; color: string } | null>(null)
 
   const [view, setView] = useState<ViewMode>('2d')
   const [mode, setMode] = useState<CanvasMode>('select')
@@ -500,6 +501,7 @@ export default function EditorPage() {
             scalePxPerMeter={floor.scalePxPerMeter}
             onCalibratePoints={handleCalibratePoints}
             calibrationPending={calibrationPending !== null}
+            onLiveSignalChange={setLiveSignal}
           />
         ) : (
           <Suspense fallback={<div className="editor-loading">載入 3D 檢視…</div>}>
@@ -533,6 +535,15 @@ export default function EditorPage() {
             )}
 
             {mode === 'pan' && <div className="calibration-hint">拖曳平面圖以平移檢視畫面</div>}
+
+            {liveSignal && (
+              <div className="fc-signal-readout" style={{ borderColor: liveSignal.color }}>
+                <span className="fc-signal-readout-dot" style={{ background: liveSignal.color }} />
+                <span className="fc-signal-readout-text">
+                  {liveSignal.distanceMeters.toFixed(1)} m · {liveSignal.dbm.toFixed(0)} dBm
+                </span>
+              </div>
+            )}
           </div>
         )}
 

@@ -59,6 +59,7 @@ interface Props {
   scalePxPerMeter: number | null
   onCalibratePoints: (a: Point, b: Point) => void
   calibrationPending: boolean
+  onLiveSignalChange?: (info: { distanceMeters: number; dbm: number; color: string } | null) => void
 }
 
 const ANGLE_SNAP_DEG = 15
@@ -119,6 +120,7 @@ export default function FloorCanvas2D({
   scalePxPerMeter,
   onCalibratePoints,
   calibrationPending,
+  onLiveSignalChange,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -420,6 +422,18 @@ export default function FloorCanvas2D({
   const liveDragClient = liveDragClientId ? clients.find((c) => c.id === liveDragClientId) ?? null : null
   const liveDragResult = liveDragClient ? getClientConnection(liveDragClient) : null
 
+  useEffect(() => {
+    onLiveSignalChange?.(
+      liveDragResult
+        ? {
+            distanceMeters: liveDragResult.connection.distanceMeters,
+            dbm: liveDragResult.connection.dbm,
+            color: liveDragResult.color,
+          }
+        : null,
+    )
+  }, [liveDragResult?.connection.distanceMeters, liveDragResult?.connection.dbm, liveDragResult?.color])
+
   return (
     <div
       ref={containerRef}
@@ -606,15 +620,6 @@ export default function FloorCanvas2D({
           </div>
         )}
       </div>
-
-      {liveDragResult && (
-        <div className="fc-signal-readout" style={{ borderColor: liveDragResult.color }}>
-          <span className="fc-signal-readout-dot" style={{ background: liveDragResult.color }} />
-          <span className="fc-signal-readout-text">
-            {liveDragResult.connection.distanceMeters.toFixed(1)} m · {liveDragResult.connection.dbm.toFixed(0)} dBm
-          </span>
-        </div>
-      )}
     </div>
   )
 }
