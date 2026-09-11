@@ -174,7 +174,6 @@ export default function EditorPage() {
   function finishPlacing() {
     setPendingModel(null)
     setSelectedDeviceId(null)
-    setMode('select')
   }
 
   function handleMoveDevice(id: string, x: number, y: number) {
@@ -329,7 +328,6 @@ export default function EditorPage() {
         : { x: (naturalSize?.width ?? 0) / 2, y: (naturalSize?.height ?? 0) / 2 }
     const created = await createClient(floorId, center.x, center.y)
     setClients((prev) => [...prev, created])
-    setMode('select')
   }
 
   function handleMoveClient(id: string, x: number, y: number) {
