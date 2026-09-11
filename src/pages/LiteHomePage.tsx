@@ -5,16 +5,29 @@ import LiteTemplatePickerModal from '../components/LiteTemplatePickerModal'
 import { createLiteProject, deleteProject, listFloors, listProjects } from '../db/repository'
 import type { Floor, Project } from '../types'
 import { timeGreeting } from '../lib/greeting'
-import { ArrowLeftIcon, CheckIcon } from '../components/icons'
+import { ArrowLeftIcon } from '../components/icons'
 import '../pages/HomePage.css'
 import './LiteHomePage.css'
 
-const FULL_VERSION_BENEFITS = [
-  '上傳你自己的實際平面圖，不受限於預設格局',
-  '手繪牆體、選擇建材，模擬更準確的訊號穿牆狀況',
-  'Mesh 群組與拓撲圖，管理多台路由器的網狀架構',
-  '多樓層管理、3D 檢視',
-]
+const FULL_VERSION_TAGS = ['📷 自己的照片', '🧱 手繪牆體', '🕸️ Mesh 拓撲', '🧊 3D 檢視']
+
+function RocketIllustration() {
+  return (
+    <svg className="lite-promo-illustration" viewBox="0 0 120 90" width="88" height="66">
+      <circle cx="14" cy="16" r="2" fill="var(--accent)" opacity="0.6" />
+      <circle cx="100" cy="12" r="1.6" fill="var(--accent)" opacity="0.5" />
+      <circle cx="106" cy="36" r="2.2" fill="var(--accent)" opacity="0.4" />
+      <circle cx="16" cy="54" r="1.8" fill="var(--accent)" opacity="0.5" />
+      <g transform="translate(60 48) rotate(-18)">
+        <path d="M-5 20 C-5 32 5 32 5 20 L4 36 L-4 36 Z" fill="#f97316" />
+        <path d="M0 -34 C11 -20 11 6 0 22 C-11 6 -11 -20 0 -34 Z" fill="var(--accent)" />
+        <path d="M-9 8 L-21 25 L-4 19 Z" fill="var(--accent)" opacity="0.75" />
+        <path d="M9 8 L21 25 L4 19 Z" fill="var(--accent)" opacity="0.75" />
+        <circle cx="0" cy="-10" r="6" fill="var(--surface)" />
+      </g>
+    </svg>
+  )
+}
 
 export default function LiteHomePage() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -92,20 +105,18 @@ export default function LiteHomePage() {
           <p className="home-empty">沒有符合搜尋條件的專案。</p>
         )}
 
-        <div className="lite-promo-banner">
-          <div className="lite-promo-title">需要更完整的規劃工具？</div>
-          <ul className="lite-promo-list">
-            {FULL_VERSION_BENEFITS.map((benefit) => (
-              <li key={benefit}>
-                <CheckIcon size={14} />
-                <span>{benefit}</span>
-              </li>
+        <button className="lite-promo-banner" onClick={() => navigate('/home')}>
+          <RocketIllustration />
+          <div className="lite-promo-title">解鎖完整版，玩出更多花樣</div>
+          <div className="lite-promo-tags">
+            {FULL_VERSION_TAGS.map((tag) => (
+              <span key={tag} className="lite-promo-tag">
+                {tag}
+              </span>
             ))}
-          </ul>
-          <button className="lite-promo-cta" onClick={() => navigate('/home')}>
-            前往完整版 →
-          </button>
-        </div>
+          </div>
+          <span className="lite-promo-cta">前往完整版 →</span>
+        </button>
       </main>
 
       {showNewProject && (
