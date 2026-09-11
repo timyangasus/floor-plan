@@ -21,12 +21,16 @@ export default function EditorBottomToolbar({
 }: Props) {
   return (
     <div className="editor-bottom-toolbar">
-      <button className={mode === 'select' ? 'active' : ''} onClick={() => onModeChange('select')} aria-label="選取">
-        <SelectIcon />
-      </button>
-      <button className={mode === 'pan' ? 'active' : ''} onClick={() => onModeChange('pan')} aria-label="平移">
-        <PanIcon />
-      </button>
+      {!liteMode && (
+        <button className={mode === 'select' ? 'active' : ''} onClick={() => onModeChange('select')} aria-label="選取">
+          <SelectIcon />
+        </button>
+      )}
+      {!liteMode && (
+        <button className={mode === 'pan' ? 'active' : ''} onClick={() => onModeChange('pan')} aria-label="平移">
+          <PanIcon />
+        </button>
+      )}
       {!liteMode && (
         <button
           className={mode === 'draw-wall' ? 'active' : ''}

@@ -177,6 +177,9 @@ export default function EditorPage() {
   function finishPlacing() {
     setPendingModel(null)
     setSelectedDeviceId(null)
+    // Lite mode has no visible "select" tool to switch back to manually, so
+    // placement must return to the idle/select state on its own.
+    if (liteMode) setMode('select')
   }
 
   function handleMoveDevice(id: string, x: number, y: number) {
