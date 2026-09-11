@@ -287,10 +287,15 @@ export default function EditorPage() {
     const dy = calibrationPending.a.y - calibrationPending.b.y
     const pixelDistance = Math.sqrt(dx * dx + dy * dy)
     const scalePxPerMeter = pixelDistance / meters
-    await updateFloorScale(floorId, scalePxPerMeter)
-    setFloor((prev) => (prev ? { ...prev, scalePxPerMeter } : prev))
+    await updateFloorScale(floorId, scalePxPerMeter, calibrationPending)
+    setFloor((prev) => (prev ? { ...prev, scalePxPerMeter, calibrationLine: calibrationPending } : prev))
     setCalibrationPending(null)
     setMode('select')
+  }
+
+  function handleEditCalibration() {
+    if (!floor?.calibrationLine) return
+    setCalibrationPending(floor.calibrationLine)
   }
 
   function calibrationPixelDistance() {
@@ -506,6 +511,8 @@ export default function EditorPage() {
             scalePxPerMeter={floor.scalePxPerMeter}
             onCalibratePoints={handleCalibratePoints}
             calibrationPending={calibrationPending !== null}
+            calibrationLine={floor.calibrationLine}
+            onEditCalibration={handleEditCalibration}
             onLiveSignalChange={setLiveSignal}
           />
         ) : (
@@ -563,7 +570,7 @@ export default function EditorPage() {
 
         {view === '2d' && (
           <div className="editor-bottom-panels">
-            {mode === 'select' && floor.scalePxPerMeter === null && (
+            {mode === 'select' && !liteMode && (
               <button className="scale-pill-btn" onClick={() => setMode('calibrate')}>
                 <RulerIcon size={16} />
                 設定比例尺

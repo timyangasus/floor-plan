@@ -59,6 +59,8 @@ interface Props {
   scalePxPerMeter: number | null
   onCalibratePoints: (a: Point, b: Point) => void
   calibrationPending: boolean
+  calibrationLine?: { a: Point; b: Point } | null
+  onEditCalibration?: () => void
   onLiveSignalChange?: (info: { distanceMeters: number; dbm: number; color: string } | null) => void
 }
 
@@ -120,6 +122,8 @@ export default function FloorCanvas2D({
   scalePxPerMeter,
   onCalibratePoints,
   calibrationPending,
+  calibrationLine = null,
+  onEditCalibration,
   onLiveSignalChange,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -531,6 +535,25 @@ export default function FloorCanvas2D({
             )}
             {calibrationSecondPoint && (
               <circle cx={calibrationSecondPoint.x} cy={calibrationSecondPoint.y} r={9} fill="#2563eb" stroke="#fff" strokeWidth={2.5} />
+            )}
+            {mode === 'select' && calibrationLine && (
+              <g
+                style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={onEditCalibration}
+              >
+                <line
+                  x1={calibrationLine.a.x}
+                  y1={calibrationLine.a.y}
+                  x2={calibrationLine.b.x}
+                  y2={calibrationLine.b.y}
+                  stroke="#2563eb"
+                  strokeWidth={10}
+                  strokeLinecap="round"
+                />
+                <circle cx={calibrationLine.a.x} cy={calibrationLine.a.y} r={9} fill="#2563eb" stroke="#fff" strokeWidth={2.5} />
+                <circle cx={calibrationLine.b.x} cy={calibrationLine.b.y} r={9} fill="#2563eb" stroke="#fff" strokeWidth={2.5} />
+              </g>
             )}
             {clients.map((client) => {
               const result = getClientConnection(client)

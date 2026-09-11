@@ -29,6 +29,7 @@ export async function createProject(name: string, firstFloorImage: Blob | null):
     order: 0,
     imageBlob: firstFloorImage,
     scalePxPerMeter: null,
+    calibrationLine: null,
     templateId: null,
   }
   await db.put('floors', floor)
@@ -49,6 +50,7 @@ export async function createLiteProject(name: string, templateId: string): Promi
     order: 0,
     imageBlob: null,
     scalePxPerMeter: LITE_PX_PER_METER,
+    calibrationLine: null,
     templateId,
   }
   await db.put('floors', floor)
@@ -119,6 +121,7 @@ export async function addFloor(projectId: string, name: string, imageBlob: Blob 
     order: existing.length,
     imageBlob,
     scalePxPerMeter: null,
+    calibrationLine: null,
     templateId: null,
   }
   await db.put('floors', floor)
@@ -126,11 +129,16 @@ export async function addFloor(projectId: string, name: string, imageBlob: Blob 
   return floor
 }
 
-export async function updateFloorScale(floorId: string, scalePxPerMeter: number): Promise<void> {
+export async function updateFloorScale(
+  floorId: string,
+  scalePxPerMeter: number,
+  calibrationLine: { a: { x: number; y: number }; b: { x: number; y: number } } | null,
+): Promise<void> {
   const db = await getDb()
   const floor = await db.get('floors', floorId)
   if (!floor) return
   floor.scalePxPerMeter = scalePxPerMeter
+  floor.calibrationLine = calibrationLine
   await db.put('floors', floor)
 }
 

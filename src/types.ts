@@ -28,6 +28,8 @@ export interface Floor {
   imageBlob: Blob | null
   /** pixels per meter, measured against the stored floor plan image's natural size */
   scalePxPerMeter: number | null
+  /** The two points last used to derive scalePxPerMeter, kept so the calibration line can be redrawn and re-edited. */
+  calibrationLine: { a: { x: number; y: number }; b: { x: number; y: number } } | null
   /** Set for lite floors: id of the preset LiteTemplate this floor renders instead of imageBlob. */
   templateId: string | null
 }
