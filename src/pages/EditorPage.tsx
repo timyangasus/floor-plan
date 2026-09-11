@@ -482,6 +482,7 @@ export default function EditorPage() {
             band={band}
             scalePxPerMeter={floor.scalePxPerMeter}
             onCalibratePoints={handleCalibratePoints}
+            calibrationPending={calibrationPending !== null}
           />
         ) : (
           <Suspense fallback={<div className="editor-loading">載入 3D 檢視…</div>}>

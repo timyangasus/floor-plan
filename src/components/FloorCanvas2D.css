@@ -56,16 +56,6 @@
   opacity: 0;
 }
 
-.fc-calibration-point {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  margin: -5px;
-  border-radius: 999px;
-  background: var(--accent);
-  border: 2px solid #fff;
-}
-
 .fc-device {
   position: absolute;
   transform-origin: center center;

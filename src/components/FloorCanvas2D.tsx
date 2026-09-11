@@ -54,6 +54,7 @@ interface Props {
   band: Band
   scalePxPerMeter: number | null
   onCalibratePoints: (a: Point, b: Point) => void
+  calibrationPending: boolean
 }
 
 const ANGLE_SNAP_DEG = 15
@@ -112,6 +113,7 @@ export default function FloorCanvas2D({
   band,
   scalePxPerMeter,
   onCalibratePoints,
+  calibrationPending,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -122,11 +124,23 @@ export default function FloorCanvas2D({
   const activePointerIds = useRef<Set<number>>(new Set())
   const activeDragPointerId = useRef<number | null>(null)
   const [calibrationFirstPoint, setCalibrationFirstPoint] = useState<Point | null>(null)
+  const [calibrationSecondPoint, setCalibrationSecondPoint] = useState<Point | null>(null)
   const [wallDrawPoints, setWallDrawPoints] = useState<Point[]>([])
 
   useEffect(() => {
     if (mode !== 'draw-wall') setWallDrawPoints([])
+    if (mode !== 'calibrate') {
+      setCalibrationFirstPoint(null)
+      setCalibrationSecondPoint(null)
+    }
   }, [mode])
+
+  useEffect(() => {
+    if (!calibrationPending) {
+      setCalibrationFirstPoint(null)
+      setCalibrationSecondPoint(null)
+    }
+  }, [calibrationPending])
 
   function toContainerPoint(clientX: number, clientY: number) {
     const rect = containerRef.current!.getBoundingClientRect()
@@ -172,9 +186,9 @@ export default function FloorCanvas2D({
     if (mode === 'calibrate') {
       if (!calibrationFirstPoint) {
         setCalibrationFirstPoint(point)
-      } else {
+      } else if (!calibrationSecondPoint) {
+        setCalibrationSecondPoint(point)
         onCalibratePoints(calibrationFirstPoint, point)
-        setCalibrationFirstPoint(null)
       }
       return
     }
@@ -434,6 +448,23 @@ export default function FloorCanvas2D({
                 ))}
               </>
             )}
+            {calibrationFirstPoint && calibrationSecondPoint && (
+              <line
+                x1={calibrationFirstPoint.x}
+                y1={calibrationFirstPoint.y}
+                x2={calibrationSecondPoint.x}
+                y2={calibrationSecondPoint.y}
+                stroke="#1e3a8a"
+                strokeWidth={7}
+                strokeLinecap="round"
+              />
+            )}
+            {calibrationFirstPoint && (
+              <circle cx={calibrationFirstPoint.x} cy={calibrationFirstPoint.y} r={8} fill="#1e3a8a" stroke="#fff" strokeWidth={2} />
+            )}
+            {calibrationSecondPoint && (
+              <circle cx={calibrationSecondPoint.x} cy={calibrationSecondPoint.y} r={8} fill="#1e3a8a" stroke="#fff" strokeWidth={2} />
+            )}
             {clients.map((client) => {
               const clientType = getClientType(client.clientTypeId)
               const connection = bestRouterConnection(
@@ -469,13 +500,6 @@ export default function FloorCanvas2D({
               )
             })}
           </svg>
-        )}
-
-        {calibrationFirstPoint && (
-          <div
-            className="fc-calibration-point"
-            style={{ left: calibrationFirstPoint.x, top: calibrationFirstPoint.y }}
-          />
         )}
 
         {devices.map((device) => {
