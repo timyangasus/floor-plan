@@ -490,6 +490,7 @@ export default function FloorCanvas2D({
             viewBox={`0 0 ${naturalSize.width} ${naturalSize.height}`}
           >
             {mode !== 'calibrate' &&
+              !(mode === 'select' && calibrationLines.length > 0) &&
               walls.map((wall) => {
                 const material = getWallMaterial(wall.materialId)
                 const points = wall.points.map((p) => `${p.x},${p.y}`).join(' ')
