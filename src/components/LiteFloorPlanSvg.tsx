@@ -1,5 +1,5 @@
 import type { LiteTemplate } from '../data/liteTemplates'
-import { LITE_PX_PER_METER } from '../data/liteTemplates'
+import { LITE_PX_PER_METER, getLiteCanvasSize } from '../data/liteTemplates'
 
 interface Props {
   template: LiteTemplate
@@ -129,87 +129,73 @@ export default function LiteFloorPlanSvg({ template, className }: Props) {
     }
   }
 
+  const { height: totalH, labelFontSize, labelMarginTop } = getLiteCanvasSize(template)
+
   return (
-    <svg className={className} viewBox={`0 0 ${w} ${h}`} width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
-      <rect
-        x={strokeWidth / 2}
-        y={strokeWidth / 2}
-        width={w - strokeWidth}
-        height={h - strokeWidth}
-        fill="var(--surface-alt)"
-        stroke="none"
-      />
+    <svg
+      className={className}
+      viewBox={`0 0 ${w} ${totalH}`}
+      width="100%"
+      height="100%"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <text
+        x={w / 2}
+        y={labelMarginTop * 0.62}
+        textAnchor="middle"
+        fontSize={labelFontSize}
+        fontWeight="600"
+        fill="var(--text-muted)"
+      >
+        {template.rangeLabel} 坪
+      </text>
 
-      {furniture}
-
-      <line x1={0} y1={0} x2={w} y2={0} stroke={WALL_COLOR} strokeWidth={strokeWidth} strokeLinecap="round" />
-      <line x1={0} y1={0} x2={0} y2={h} stroke={WALL_COLOR} strokeWidth={strokeWidth} strokeLinecap="round" />
-      <line x1={w} y1={0} x2={w} y2={h} stroke={WALL_COLOR} strokeWidth={strokeWidth} strokeLinecap="round" />
-      {bottomWalls.map((l, i) => (
-        <line
-          key={`bw-${i}`}
-          x1={l.x1}
-          y1={l.y1}
-          x2={l.x2}
-          y2={l.y2}
-          stroke={WALL_COLOR}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
+      <g transform={`translate(0, ${labelMarginTop})`}>
+        <rect
+          x={strokeWidth / 2}
+          y={strokeWidth / 2}
+          width={w - strokeWidth}
+          height={h - strokeWidth}
+          fill="var(--surface-alt)"
+          stroke="none"
         />
-      ))}
 
-      {walls.map((l, i) => (
-        <line
-          key={i}
-          x1={l.x1}
-          y1={l.y1}
-          x2={l.x2}
-          y2={l.y2}
-          stroke={WALL_COLOR}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-        />
-      ))}
+        {furniture}
 
-      {doorPaths.map((d, i) => (
-        <path key={`d-${i}`} d={d} stroke={WALL_COLOR} strokeWidth={strokeWidth * 0.5} fill="none" />
-      ))}
-      <path d={entranceDoorPath} stroke={WALL_COLOR} strokeWidth={strokeWidth * 0.5} fill="none" />
+        <line x1={0} y1={0} x2={w} y2={0} stroke={WALL_COLOR} strokeWidth={strokeWidth} strokeLinecap="round" />
+        <line x1={0} y1={0} x2={0} y2={h} stroke={WALL_COLOR} strokeWidth={strokeWidth} strokeLinecap="round" />
+        <line x1={w} y1={0} x2={w} y2={h} stroke={WALL_COLOR} strokeWidth={strokeWidth} strokeLinecap="round" />
+        {bottomWalls.map((l, i) => (
+          <line
+            key={`bw-${i}`}
+            x1={l.x1}
+            y1={l.y1}
+            x2={l.x2}
+            y2={l.y2}
+            stroke={WALL_COLOR}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+          />
+        ))}
 
-      {(() => {
-        const text = `${template.rangeLabel} 坪`
-        const fontSize = Math.max(13, Math.round(Math.min(w, h) * 0.07))
-        const padX = fontSize * 0.5
-        const padY = fontSize * 0.32
-        const labelW = text.length * fontSize * 0.62 + padX * 2
-        const labelH = fontSize + padY * 2
-        const labelX = strokeWidth * 2.5
-        const labelY = strokeWidth * 2.5
-        return (
-          <g>
-            <rect
-              x={labelX}
-              y={labelY}
-              width={labelW}
-              height={labelH}
-              rx={labelH / 2}
-              fill="var(--surface)"
-              stroke={WALL_COLOR}
-              strokeWidth={strokeWidth * 0.4}
-            />
-            <text
-              x={labelX + labelW / 2}
-              y={labelY + labelH / 2 + fontSize * 0.35}
-              textAnchor="middle"
-              fontSize={fontSize}
-              fontWeight="700"
-              fill={WALL_COLOR}
-            >
-              {text}
-            </text>
-          </g>
-        )
-      })()}
+        {walls.map((l, i) => (
+          <line
+            key={i}
+            x1={l.x1}
+            y1={l.y1}
+            x2={l.x2}
+            y2={l.y2}
+            stroke={WALL_COLOR}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+          />
+        ))}
+
+        {doorPaths.map((d, i) => (
+          <path key={`d-${i}`} d={d} stroke={WALL_COLOR} strokeWidth={strokeWidth * 0.5} fill="none" />
+        ))}
+        <path d={entranceDoorPath} stroke={WALL_COLOR} strokeWidth={strokeWidth * 0.5} fill="none" />
+      </g>
     </svg>
   )
 }

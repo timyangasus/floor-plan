@@ -89,3 +89,22 @@ export const LITE_TEMPLATES: LiteTemplate[] = [
 export function getLiteTemplate(id: string): LiteTemplate | undefined {
   return LITE_TEMPLATES.find((t) => t.id === id)
 }
+
+/**
+ * Reserves a small strip above the drawn floor plan for the ping-range caption, so the
+ * label never overlaps the plan itself. Both LiteFloorPlanSvg and FloorCanvas2D (for the
+ * editor's naturalSize) must agree on this size, or device placement will misalign with
+ * the rendered plan.
+ */
+export function getLiteCanvasSize(template: LiteTemplate): {
+  width: number
+  height: number
+  labelFontSize: number
+  labelMarginTop: number
+} {
+  const width = template.widthMeters * LITE_PX_PER_METER
+  const planHeight = template.depthMeters * LITE_PX_PER_METER
+  const labelFontSize = Math.max(11, Math.round(Math.min(width, planHeight) * 0.05))
+  const labelMarginTop = labelFontSize * 1.9
+  return { width, height: planHeight + labelMarginTop, labelFontSize, labelMarginTop }
+}

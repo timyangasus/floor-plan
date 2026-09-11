@@ -4,7 +4,7 @@ import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
 import { getClientType } from '../data/clientTypes'
 import type { LiteTemplate } from '../data/liteTemplates'
-import { LITE_PX_PER_METER } from '../data/liteTemplates'
+import { getLiteCanvasSize } from '../data/liteTemplates'
 import LiteFloorPlanSvg from './LiteFloorPlanSvg'
 import {
   bestRouterConnection,
@@ -135,10 +135,8 @@ export default function FloorCanvas2D({
 
   useEffect(() => {
     if (template) {
-      onNaturalSize({
-        width: template.widthMeters * LITE_PX_PER_METER,
-        height: template.depthMeters * LITE_PX_PER_METER,
-      })
+      const { width, height } = getLiteCanvasSize(template)
+      onNaturalSize({ width, height })
     }
   }, [template])
 
