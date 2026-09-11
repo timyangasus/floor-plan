@@ -47,12 +47,21 @@
   line-height: 1;
 }
 
+.lite-home-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.lite-home-content {
+  margin-bottom: 24px;
+}
+
 .lite-promo-banner {
   display: flex;
   align-items: center;
   gap: 14px;
   width: 100%;
-  margin-top: 24px;
+  margin-top: auto;
   background: linear-gradient(135deg, var(--accent), #1d4ed8);
   border: none;
   border-radius: var(--radius-lg);

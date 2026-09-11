@@ -85,33 +85,35 @@ export default function LiteHomePage() {
         </button>
       </header>
 
-      <main className="home-main">
-        <h1 className="home-greeting">{timeGreeting()}</h1>
-        <p className="home-subtitle">{projects.length} 個簡易專案</p>
+      <main className="home-main lite-home-main">
+        <div className="lite-home-content">
+          <h1 className="home-greeting">{timeGreeting()}</h1>
+          <p className="home-subtitle">{projects.length} 個簡易專案</p>
 
-        <input
-          className="home-search"
-          placeholder="搜尋專案…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+          <input
+            className="home-search"
+            placeholder="搜尋專案…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-        <div className="home-grid">
-          {filtered.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              floors={floorsByProject[project.id] ?? []}
-              onDelete={handleDelete}
-            />
-          ))}
+          <div className="home-grid">
+            {filtered.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                floors={floorsByProject[project.id] ?? []}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+
+          {filtered.length === 0 && projects.length > 0 && (
+            <p className="home-empty">沒有符合搜尋條件的專案。</p>
+          )}
+
+          {projects.length === 0 && <p className="home-empty">還沒有簡易專案，點右上角「新增專案」開始。</p>}
         </div>
-
-        {filtered.length === 0 && projects.length > 0 && (
-          <p className="home-empty">沒有符合搜尋條件的專案。</p>
-        )}
-
-        {projects.length === 0 && <p className="home-empty">還沒有簡易專案，點右上角「新增專案」開始。</p>}
 
         <button className="lite-promo-banner" onClick={() => navigate('/home')}>
           <WifiHouseIllustration />

@@ -128,6 +128,7 @@ export default function FloorCanvas2D({
   const dragMoved = useRef(false)
   const activePointerIds = useRef<Set<number>>(new Set())
   const activeDragPointerId = useRef<number | null>(null)
+  const lastDeviceTap = useRef<{ id: string; time: number } | null>(null)
   const [calibrationFirstPoint, setCalibrationFirstPoint] = useState<Point | null>(null)
   const [calibrationSecondPoint, setCalibrationSecondPoint] = useState<Point | null>(null)
   const [wallDrawPoints, setWallDrawPoints] = useState<Point[]>([])
@@ -272,8 +273,20 @@ export default function FloorCanvas2D({
   function handlePointerUp(e: React.PointerEvent) {
     if (activeDragPointerId.current !== e.pointerId) return
 
-    if (draggingDeviceId.current && dragMoved.current) {
-      onDeviceDragEnd(draggingDeviceId.current)
+    if (draggingDeviceId.current) {
+      if (dragMoved.current) {
+        onDeviceDragEnd(draggingDeviceId.current)
+      } else {
+        const id = draggingDeviceId.current
+        const now = Date.now()
+        const last = lastDeviceTap.current
+        if (last && last.id === id && now - last.time < 350) {
+          onSelectDevice(id)
+          lastDeviceTap.current = null
+        } else {
+          lastDeviceTap.current = { id, time: now }
+        }
+      }
     }
     if (draggingClientId.current) {
       if (dragMoved.current) {
@@ -301,7 +314,6 @@ export default function FloorCanvas2D({
     dragMoved.current = false
     draggingDeviceId.current = deviceId
     activeDragPointerId.current = e.pointerId
-    onSelectDevice(deviceId)
     onDeviceDragStart(deviceId)
     ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
   }
