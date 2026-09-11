@@ -48,7 +48,7 @@ import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
 import { getClientType } from '../data/clientTypes'
 import { getLiteTemplate, LITE_PX_PER_METER } from '../data/liteTemplates'
-import { bestRouterConnection, estimateRateMbps } from '../lib/signalModel'
+import { bestRouterConnection, clientSignalQualityLabel, estimateRateMbps } from '../lib/signalModel'
 import { RulerIcon, TrashIcon } from '../components/icons'
 import './EditorPage.css'
 
@@ -540,7 +540,8 @@ export default function EditorPage() {
               <div className="fc-signal-readout" style={{ borderColor: liveSignal.color }}>
                 <span className="fc-signal-readout-dot" style={{ background: liveSignal.color }} />
                 <span className="fc-signal-readout-text">
-                  {liveSignal.distanceMeters.toFixed(1)} m · {liveSignal.dbm.toFixed(0)} dBm
+                  {liveSignal.distanceMeters.toFixed(1)} m · {liveSignal.dbm.toFixed(0)} dBm ·{' '}
+                  {clientSignalQualityLabel(liveSignal.dbm)}
                 </span>
               </div>
             )}
