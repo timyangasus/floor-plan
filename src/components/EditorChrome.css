@@ -442,3 +442,66 @@
   display: flex;
   gap: 8px;
 }
+
+.device-model-display {
+  color: var(--text-muted);
+}
+
+.device-model-spec {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.device-height-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.device-height-row input[type='range'] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.device-height-number {
+  width: 72px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.device-mesh-row {
+  display: flex;
+  gap: 8px;
+}
+
+.device-mesh-row select {
+  flex: 1;
+}
+
+.antenna-band-tabs {
+  display: inline-flex;
+  margin: 4px 0 12px;
+}
+
+.antenna-chart-row {
+  display: flex;
+  justify-content: space-around;
+  gap: 12px;
+}
+
+.antenna-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.antenna-chart-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+}

@@ -134,6 +134,8 @@ export async function placeDevice(
     rotation: 0,
     groupLabel: null,
     isCap: false,
+    name: null,
+    heightMeters: 0,
   }
   await db.put('devices', device)
   return device

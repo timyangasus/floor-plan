@@ -1,4 +1,4 @@
-import type { RouterModel } from '../types'
+import type { Band, RouterModel } from '../types'
 
 export const routerCatalog: RouterModel[] = [
   { id: 'gt-be98pro', name: 'GT-BE98 Pro', series: 'ROG', generation: 'WiFi 7', txPowerTier: 10 },
@@ -19,6 +19,18 @@ export const routerCatalog: RouterModel[] = [
 
 export function getRouterModel(modelId: string): RouterModel | undefined {
   return routerCatalog.find((m) => m.id === modelId)
+}
+
+/** Supported bands by WiFi generation (illustrative, not per-model data). */
+export function getSupportedBands(model: RouterModel): Band[] {
+  return model.generation === 'WiFi 6' ? ['2.4', '5'] : ['2.4', '5', '6']
+}
+
+/** Illustrative antenna-chain spec string, e.g. "2.4G: 2x2 / 5G: 4x4". */
+export function getChainSpec(model: RouterModel): string {
+  const chains = model.txPowerTier >= 8 ? 4 : 2
+  const parts = getSupportedBands(model).map((b) => `${b}G: ${chains}x${chains}`)
+  return parts.join(' / ')
 }
 
 export const routerSeriesList: RouterModel['series'][] = [

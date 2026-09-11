@@ -41,6 +41,9 @@ export interface Device {
   rotation: number
   groupLabel: MeshGroupLabel | null
   isCap: boolean
+  /** Custom nickname; falls back to the router model's name when unset. */
+  name: string | null
+  heightMeters: number
 }
 
 export type LinkQuality = 'excellent' | 'good' | 'poor'

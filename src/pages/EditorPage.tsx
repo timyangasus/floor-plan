@@ -14,8 +14,10 @@ import ProjectSettingsModal from '../components/ProjectSettingsModal'
 import ScaleCalibrationModal from '../components/ScaleCalibrationModal'
 import WallMaterialSheet from '../components/WallMaterialSheet'
 import ClientInspectorSheet from '../components/ClientInspectorSheet'
+import DeviceInspectorSheet from '../components/DeviceInspectorSheet'
 import {
   addFloor,
+  assignDeviceGroup,
   createClient,
   createWall,
   deleteClient,
@@ -30,11 +32,12 @@ import {
   placeDevice,
   renameProject,
   replaceDevicesForFloor,
+  setDeviceCap,
   updateClient,
   updateDevice,
   updateFloorScale,
 } from '../db/repository'
-import type { Band, Device, Floor, Project, RouterModel, TestClient, Wall } from '../types'
+import type { Band, Device, Floor, MeshGroupLabel, Project, RouterModel, TestClient, Wall } from '../types'
 import type { ViewMode } from './EditorPage.types'
 import { useObjectUrl } from '../lib/useObjectUrl'
 import { saveLastFloor } from '../lib/lastFloor'
@@ -43,7 +46,7 @@ import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
 import { getClientType } from '../data/clientTypes'
 import { bestRouterConnection, estimateRateMbps } from '../lib/signalModel'
-import { RotateIcon, TrashIcon } from '../components/icons'
+import { TrashIcon } from '../components/icons'
 import './EditorPage.css'
 
 interface HistoryState {
@@ -170,6 +173,7 @@ export default function EditorPage() {
 
   function finishPlacing() {
     setPendingModel(null)
+    setSelectedDeviceId(null)
     setMode('select')
   }
 
@@ -209,6 +213,46 @@ export default function EditorPage() {
     setDevices((prev) => prev.filter((d) => d.id !== selectedDeviceId))
     pushHistory(prevSnapshot)
     setSelectedDeviceId(null)
+  }
+
+  async function handleRenameDevice(name: string) {
+    if (!selectedDeviceId) return
+    const device = devices.find((d) => d.id === selectedDeviceId)
+    if (!device) return
+    const updated = { ...device, name }
+    await updateDevice(updated)
+    setDevices((prev) => prev.map((d) => (d.id === updated.id ? updated : d)))
+  }
+
+  async function handleChangeDeviceHeight(heightMeters: number) {
+    if (!selectedDeviceId) return
+    const device = devices.find((d) => d.id === selectedDeviceId)
+    if (!device) return
+    const updated = { ...device, heightMeters }
+    await updateDevice(updated)
+    setDevices((prev) => prev.map((d) => (d.id === updated.id ? updated : d)))
+  }
+
+  async function handleChangeDeviceGroup(groupLabel: MeshGroupLabel | null) {
+    if (!selectedDeviceId) return
+    await assignDeviceGroup(selectedDeviceId, groupLabel)
+    setDevices((prev) =>
+      prev.map((d) => (d.id === selectedDeviceId ? { ...d, groupLabel, isCap: groupLabel ? d.isCap : false } : d)),
+    )
+  }
+
+  async function handleChangeDeviceCap(isCap: boolean) {
+    if (!selectedDeviceId) return
+    await setDeviceCap(selectedDeviceId, isCap)
+    setDevices((prev) =>
+      prev.map((d) => {
+        if (d.id === selectedDeviceId) return { ...d, isCap }
+        if (isCap && d.groupLabel === devices.find((x) => x.id === selectedDeviceId)?.groupLabel) {
+          return { ...d, isCap: false }
+        }
+        return d
+      }),
+    )
   }
 
   async function handleUndo() {
@@ -476,10 +520,7 @@ export default function EditorPage() {
             )}
 
             {mode === 'place' && pendingModel && (
-              <div className="calibration-banner">
-                <span>在平面圖上放置「{pendingModel.name}」。</span>
-                <button onClick={finishPlacing}>完成</button>
-              </div>
+              <div className="calibration-hint">在平面圖上點擊放置「{pendingModel.name}」</div>
             )}
 
             {mode === 'draw-wall' && (
@@ -492,15 +533,17 @@ export default function EditorPage() {
 
         {view === '2d' && (
           <div className="editor-bottom-panels">
-            {selectedDevice && (
+            {selectedDevice && mode === 'place' && (
               <div className="device-inspector">
-                <span className="device-inspector-name">{selectedModel?.name ?? selectedDevice.modelId}</span>
+                <span className="device-inspector-name">
+                  {selectedDevice.name ?? selectedModel?.name ?? selectedDevice.modelId}
+                </span>
                 <div className="device-inspector-actions">
-                  <button className="icon-btn" onClick={handleRotateSelected} aria-label="旋轉">
-                    <RotateIcon />
-                  </button>
                   <button className="icon-btn" onClick={handleDeleteSelected} aria-label="刪除">
                     <TrashIcon />
+                  </button>
+                  <button className="btn btn-primary" onClick={finishPlacing}>
+                    完成
                   </button>
                 </div>
               </div>
@@ -592,6 +635,20 @@ export default function EditorPage() {
           onDelete={handleDeleteClient}
           onChangeType={handleChangeClientType}
           onChangeBandwidth={handleChangeClientBandwidth}
+        />
+      )}
+
+      {selectedDevice && mode !== 'place' && (
+        <DeviceInspectorSheet
+          device={selectedDevice}
+          model={selectedModel}
+          onClose={() => setSelectedDeviceId(null)}
+          onDelete={handleDeleteSelected}
+          onRotate={handleRotateSelected}
+          onRename={handleRenameDevice}
+          onChangeHeight={handleChangeDeviceHeight}
+          onChangeGroup={handleChangeDeviceGroup}
+          onChangeCap={handleChangeDeviceCap}
         />
       )}
 
