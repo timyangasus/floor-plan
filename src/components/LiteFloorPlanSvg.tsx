@@ -175,6 +175,41 @@ export default function LiteFloorPlanSvg({ template, className }: Props) {
         <path key={`d-${i}`} d={d} stroke={WALL_COLOR} strokeWidth={strokeWidth * 0.5} fill="none" />
       ))}
       <path d={entranceDoorPath} stroke={WALL_COLOR} strokeWidth={strokeWidth * 0.5} fill="none" />
+
+      {(() => {
+        const text = `${template.rangeLabel} 坪`
+        const fontSize = Math.max(13, Math.round(Math.min(w, h) * 0.07))
+        const padX = fontSize * 0.5
+        const padY = fontSize * 0.32
+        const labelW = text.length * fontSize * 0.62 + padX * 2
+        const labelH = fontSize + padY * 2
+        const labelX = strokeWidth * 2.5
+        const labelY = strokeWidth * 2.5
+        return (
+          <g>
+            <rect
+              x={labelX}
+              y={labelY}
+              width={labelW}
+              height={labelH}
+              rx={labelH / 2}
+              fill="var(--surface)"
+              stroke={WALL_COLOR}
+              strokeWidth={strokeWidth * 0.4}
+            />
+            <text
+              x={labelX + labelW / 2}
+              y={labelY + labelH / 2 + fontSize * 0.35}
+              textAnchor="middle"
+              fontSize={fontSize}
+              fontWeight="700"
+              fill={WALL_COLOR}
+            >
+              {text}
+            </text>
+          </g>
+        )
+      })()}
     </svg>
   )
 }

@@ -3,6 +3,7 @@ export type TemplateShape = 'square' | 'rect'
 export interface LiteTemplate {
   id: string
   label: string
+  rangeLabel: string
   pings: number
   shape: TemplateShape
   widthMeters: number
@@ -64,6 +65,7 @@ function buildTemplate(
   return {
     id,
     label: `${rangeLabel} 坪 · ${shapeLabel}`,
+    rangeLabel,
     pings: representativePings,
     shape,
     widthMeters: Math.round(widthMeters * 10) / 10,
