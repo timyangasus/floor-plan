@@ -476,7 +476,7 @@ const BASELINE_Y = 104
 const PEAK_Y = 14
 
 function nextTrafficValue(prev: number): number {
-  const drift = (Math.random() - 0.45) * 55
+  const drift = (Math.random() - 0.45) * 80
   return Math.max(4, Math.min(96, prev + drift))
 }
 
