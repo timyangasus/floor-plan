@@ -310,7 +310,7 @@ export default function FloorCanvas2D({
   }
 
   function handleDevicePointerDown(e: React.PointerEvent, deviceId: string) {
-    if (mode !== 'select') return
+    if (mode !== 'select' && mode !== 'place') return
     if (activeDragPointerId.current !== null) return
     e.stopPropagation()
     dragMoved.current = false
@@ -321,7 +321,7 @@ export default function FloorCanvas2D({
   }
 
   function handleClientPointerDown(e: React.PointerEvent, clientId: string) {
-    if (mode !== 'select') return
+    if (mode !== 'select' && mode !== 'place') return
     if (activeDragPointerId.current !== null) return
     e.stopPropagation()
     dragMoved.current = false
