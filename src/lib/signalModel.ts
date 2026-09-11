@@ -176,8 +176,15 @@ export function linkQualityColor(quality: LinkQuality): string {
 /** Short quality tag for the client (phone) signal readout -- same thresholds as classifyLinkQuality. */
 export function clientSignalQualityLabel(dbm: number): string {
   if (dbm >= -67) return '佳'
-  if (dbm >= -77) return '中等'
+  if (dbm >= -77) return '正常'
   return '弱'
+}
+
+/** Text color for the client signal readout's quality tag. */
+export function clientSignalQualityColor(dbm: number): string {
+  if (dbm >= -67) return 'var(--success)'
+  if (dbm >= -77) return 'var(--accent)'
+  return 'var(--warning)'
 }
 
 /** Maps a dBm reading to a 0..1 strength value for heatmap color ramps. */
