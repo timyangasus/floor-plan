@@ -9,22 +9,29 @@ import { ArrowLeftIcon } from '../components/icons'
 import '../pages/HomePage.css'
 import './LiteHomePage.css'
 
-const FULL_VERSION_TAGS = ['📷 自己的照片', '🧱 手繪牆體', '🕸️ Mesh 拓撲', '🧊 3D 檢視']
-
-function RocketIllustration() {
+function WifiHouseIllustration() {
   return (
-    <svg className="lite-promo-illustration" viewBox="0 0 120 90" width="88" height="66">
-      <circle cx="14" cy="16" r="2" fill="var(--accent)" opacity="0.6" />
-      <circle cx="100" cy="12" r="1.6" fill="var(--accent)" opacity="0.5" />
-      <circle cx="106" cy="36" r="2.2" fill="var(--accent)" opacity="0.4" />
-      <circle cx="16" cy="54" r="1.8" fill="var(--accent)" opacity="0.5" />
-      <g transform="translate(60 48) rotate(-18)">
-        <path d="M-5 20 C-5 32 5 32 5 20 L4 36 L-4 36 Z" fill="#f97316" />
-        <path d="M0 -34 C11 -20 11 6 0 22 C-11 6 -11 -20 0 -34 Z" fill="var(--accent)" />
-        <path d="M-9 8 L-21 25 L-4 19 Z" fill="var(--accent)" opacity="0.75" />
-        <path d="M9 8 L21 25 L4 19 Z" fill="var(--accent)" opacity="0.75" />
-        <circle cx="0" cy="-10" r="6" fill="var(--surface)" />
-      </g>
+    <svg className="lite-promo-illustration" viewBox="0 0 100 90" width="72" height="65">
+      <path d="M30 40 a28 28 0 0 1 40 0" stroke="#fff" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.9" />
+      <path d="M38 48 a16 16 0 0 1 24 0" stroke="#fff" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.9" />
+      <circle cx="50" cy="56" r="3.5" fill="#fff" />
+      <path
+        d="M16 66 L50 40 L84 66"
+        stroke="#fff"
+        strokeWidth="5"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M24 62 L24 84 L76 84 L76 62"
+        stroke="#fff"
+        strokeWidth="5"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <rect x="43" y="68" width="14" height="16" fill="#fff" opacity="0.9" />
     </svg>
   )
 }
@@ -72,6 +79,10 @@ export default function LiteHomePage() {
           <ArrowLeftIcon />
         </button>
         <div className="lite-header-title">Floor Plan Lite</div>
+        <button className="lite-header-add" onClick={() => setShowNewProject(true)}>
+          <span className="lite-header-add-icon">+</span>
+          新增專案
+        </button>
       </header>
 
       <main className="home-main">
@@ -94,28 +105,21 @@ export default function LiteHomePage() {
               onDelete={handleDelete}
             />
           ))}
-
-          <button className="home-add-tile" onClick={() => setShowNewProject(true)}>
-            <span className="home-add-icon">+</span>
-            <span>新增專案</span>
-          </button>
         </div>
 
         {filtered.length === 0 && projects.length > 0 && (
           <p className="home-empty">沒有符合搜尋條件的專案。</p>
         )}
 
+        {projects.length === 0 && <p className="home-empty">還沒有簡易專案，點右上角「新增專案」開始。</p>}
+
         <button className="lite-promo-banner" onClick={() => navigate('/home')}>
-          <RocketIllustration />
-          <div className="lite-promo-title">解鎖完整版，玩出更多花樣</div>
-          <div className="lite-promo-tags">
-            {FULL_VERSION_TAGS.map((tag) => (
-              <span key={tag} className="lite-promo-tag">
-                {tag}
-              </span>
-            ))}
+          <WifiHouseIllustration />
+          <div className="lite-promo-text">
+            <div className="lite-promo-title">格局訊號，一眼就懂</div>
+            <div className="lite-promo-subtitle">選擇坪數與格局，立即找到適合你的 Mesh 配置</div>
+            <div className="lite-promo-cta">更多設定請至 Web 版 →</div>
           </div>
-          <span className="lite-promo-cta">前往完整版 →</span>
         </button>
       </main>
 
