@@ -542,8 +542,14 @@ export default function EditorPage() {
             {mode === 'pan' && <div className="calibration-hint">拖曳平面圖以平移檢視畫面</div>}
 
             {liveSignal && (
-              <div className="fc-signal-readout" style={{ borderColor: liveSignal.color }}>
-                <span className="fc-signal-readout-dot" style={{ background: liveSignal.color }} />
+              <div
+                className="fc-signal-readout"
+                style={{ borderColor: clientSignalQualityColor(liveSignal.dbm) }}
+              >
+                <span
+                  className="fc-signal-readout-dot"
+                  style={{ background: clientSignalQualityColor(liveSignal.dbm) }}
+                />
                 <span className="fc-signal-readout-text">
                   {liveSignal.distanceMeters.toFixed(1)} m · {liveSignal.dbm.toFixed(0)} dBm ·{' '}
                   <span style={{ color: clientSignalQualityColor(liveSignal.dbm) }}>
