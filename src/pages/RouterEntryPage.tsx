@@ -50,60 +50,89 @@ export default function RouterEntryPage() {
           </span>
           <span className="re-icon-btn">
             <BellGlyph />
+            <span className="re-notif-dot" />
+          </span>
+          <span className="re-icon-btn">
+            <PlusGlyph />
           </span>
         </div>
       </header>
 
       <main className="re-main">
         <div className="re-status-card">
-          <div className="re-status-icon">
-            <RouterGlyph />
+          <div className="re-status-photo">
+            <RouterProductGlyph />
           </div>
           <div className="re-status-text">
-            <div className="re-status-name">ZenWiFi BT8</div>
-            <div className="re-status-row">
-              區域網路 IP <span className="re-status-value">192.168.50.1</span>
+            <div className="re-status-link">
+              狀態 <ChevronGlyph size={12} />
             </div>
-            <div className="re-status-row">
-              無線網路名稱 <span className="re-status-value">timmmbt8</span>
-            </div>
+            <div className="re-status-secure">安全連線</div>
+            <div className="re-status-label">無線網路名稱</div>
+            <div className="re-status-ssids">ASUS/ASUS_5G/ASUS_6G</div>
           </div>
+          <div className="re-status-divider" />
           <span className="re-icon-btn re-speed">
             <SpeedGlyph />
           </span>
         </div>
 
-        <div className="re-ssid-block">
-          <div className="re-ssid-label">無線網路名稱</div>
-          <div className="re-ssid-icon">
-            <WifiGlyph />
+        <div className="re-traffic-block">
+          <div className="re-traffic-title">即時流量</div>
+          <TrafficChart />
+          <div className="re-traffic-stats">
+            <div className="re-traffic-stat">
+              <span className="re-traffic-icon re-traffic-icon-down">
+                <DownloadGlyph />
+              </span>
+              <span className="re-traffic-label">下載</span>
+              <span className="re-traffic-value">
+                13.6<small>Kbps</small>
+              </span>
+            </div>
+            <div className="re-traffic-stat">
+              <span className="re-traffic-icon re-traffic-icon-up">
+                <UploadGlyph />
+              </span>
+              <span className="re-traffic-label">上傳</span>
+              <span className="re-traffic-value">
+                26.5<small>Kbps</small>
+              </span>
+            </div>
           </div>
-          <div className="re-band-row">
-            <span className="re-band-chip">2.4</span>
-            <span className="re-band-chip">5</span>
-            <span className="re-band-chip">6</span>
+          <div className="re-dots">
+            <span className="re-dot re-dot-active" />
+            <span className="re-dot" />
+            <span className="re-dot" />
+            <span className="re-dot" />
           </div>
-          <div className="re-action-row">
-            <span className="re-icon-btn">
-              <GlobeGlyph />
-            </span>
-            <span className="re-icon-btn">
-              <HomeGlyph />
-            </span>
-            <span className="re-icon-btn">
-              <WifiSmallGlyph />
-            </span>
-          </div>
+        </div>
+
+        <div className="re-action-row">
+          <span className="re-icon-btn re-icon-btn-lg">
+            <GlobeGlyph />
+          </span>
+          <span className="re-icon-btn re-icon-btn-lg">
+            <HomeGlyph />
+          </span>
+          <span className="re-icon-btn re-icon-btn-lg">
+            <WifiSmallGlyph />
+          </span>
         </div>
       </main>
 
       <nav className="re-tabbar">
         <div className="re-tab re-tab-active">
-          <HomeGlyph />
+          <span className="re-tab-pill">
+            <HomeGlyph />
+          </span>
           <span>首頁</span>
         </div>
         <div className="re-tab">
-          <DevicesGlyph />
+          <span className="re-tab-icon-wrap">
+            <DevicesGlyph />
+            <span className="re-tab-badge">7</span>
+          </span>
           <span>裝置</span>
         </div>
         <div className="re-tab">
@@ -265,17 +294,6 @@ function SpeedGlyph() {
   )
 }
 
-function WifiGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" width="56" height="56" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-      <path d="M2 8.82a15 15 0 0120 0" />
-      <path d="M5 12.86a10 10 0 0114 0" />
-      <path d="M8.5 16.9a5 5 0 017 0" />
-      <line x1="12" y1="20" x2="12.01" y2="20" strokeWidth="2.4" />
-    </svg>
-  )
-}
-
 function GlobeGlyph() {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -404,10 +422,73 @@ function ExternalLinkGlyph() {
   )
 }
 
-function ChevronGlyph() {
+function ChevronGlyph({ size = 13 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="9 18 15 12 9 6" />
+    </svg>
+  )
+}
+
+function PlusGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  )
+}
+
+function DownloadGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="4" x2="12" y2="15" />
+      <polyline points="7 10 12 15 17 10" />
+    </svg>
+  )
+}
+
+function UploadGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="15" x2="12" y2="4" />
+      <polyline points="7 9 12 4 17 9" />
+    </svg>
+  )
+}
+
+function RouterProductGlyph() {
+  return (
+    <svg viewBox="0 0 48 60" width="34" height="42" fill="none">
+      <rect x="4" y="6" width="40" height="50" rx="14" fill="#fff" stroke="#d7dbe3" strokeWidth="1.5" />
+      <circle cx="24" cy="18" r="2.4" fill="#22c55e" />
+      <rect x="14" y="32" width="20" height="3" rx="1.5" fill="#e3e5ea" />
+      <rect x="14" y="40" width="20" height="3" rx="1.5" fill="#e3e5ea" />
+    </svg>
+  )
+}
+
+function TrafficChart() {
+  return (
+    <svg className="re-traffic-chart" viewBox="0 0 320 110" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="re-traffic-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#5eead4" stopOpacity="0.85" />
+          <stop offset="100%" stopColor="#5eead4" stopOpacity="0.05" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M0,104 L210,104 L222,20 L236,20 L248,78 L256,70 L264,86 L276,60 L288,74 L296,66 L320,58 L320,110 L0,110 Z"
+        fill="url(#re-traffic-fill)"
+      />
+      <path
+        d="M0,104 L210,104 L222,20 L236,20 L248,78 L256,70 L264,86 L276,60 L288,74 L296,66 L320,58"
+        fill="none"
+        stroke="#14b8a6"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
