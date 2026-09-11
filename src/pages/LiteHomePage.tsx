@@ -5,9 +5,16 @@ import LiteTemplatePickerModal from '../components/LiteTemplatePickerModal'
 import { createLiteProject, deleteProject, listFloors, listProjects } from '../db/repository'
 import type { Floor, Project } from '../types'
 import { timeGreeting } from '../lib/greeting'
-import { ArrowLeftIcon } from '../components/icons'
+import { ArrowLeftIcon, CheckIcon } from '../components/icons'
 import '../pages/HomePage.css'
 import './LiteHomePage.css'
+
+const FULL_VERSION_BENEFITS = [
+  '上傳你自己的實際平面圖，不受限於預設格局',
+  '手繪牆體、選擇建材，模擬更準確的訊號穿牆狀況',
+  'Mesh 群組與拓撲圖，管理多台路由器的網狀架構',
+  '多樓層管理、3D 檢視',
+]
 
 export default function LiteHomePage() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -85,9 +92,20 @@ export default function LiteHomePage() {
           <p className="home-empty">沒有符合搜尋條件的專案。</p>
         )}
 
-        <button className="lite-full-version-link" onClick={() => navigate('/home')}>
-          需要更完整的功能？前往完整版 →
-        </button>
+        <div className="lite-promo-banner">
+          <div className="lite-promo-title">需要更完整的規劃工具？</div>
+          <ul className="lite-promo-list">
+            {FULL_VERSION_BENEFITS.map((benefit) => (
+              <li key={benefit}>
+                <CheckIcon size={14} />
+                <span>{benefit}</span>
+              </li>
+            ))}
+          </ul>
+          <button className="lite-promo-cta" onClick={() => navigate('/home')}>
+            前往完整版 →
+          </button>
+        </div>
       </main>
 
       {showNewProject && (

@@ -136,8 +136,8 @@ export default function EditorPage() {
   function centerView() {
     if (!naturalSize || !canvasAreaRef.current) return
     const rect = canvasAreaRef.current.getBoundingClientRect()
-    const scale = rect.width / naturalSize.width
-    const tx = 0
+    const scale = Math.min(rect.width / naturalSize.width, rect.height / naturalSize.height)
+    const tx = (rect.width - naturalSize.width * scale) / 2
     const ty = (rect.height - naturalSize.height * scale) / 2
     setTransform({ scale, tx, ty })
   }

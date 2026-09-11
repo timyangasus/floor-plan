@@ -45,10 +45,11 @@ function buildTemplate(id: string, pings: number, shape: TemplateShape, roomCoun
     depthMeters = side
     ;[cols, rows] = squareLikeGrid(roomCount)
   } else {
-    widthMeters = Math.sqrt(areaM2 / RECT_ASPECT_RATIO)
+    // Landscape orientation: wider than deep, rooms arranged in a row.
+    widthMeters = Math.sqrt(areaM2 * RECT_ASPECT_RATIO)
     depthMeters = areaM2 / widthMeters
-    cols = 1
-    rows = roomCount
+    cols = roomCount
+    rows = 1
   }
 
   const shapeLabel = shape === 'square' ? '方形' : '長型'
