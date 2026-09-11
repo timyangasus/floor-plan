@@ -152,3 +152,34 @@
   background: var(--surface);
   color: var(--text-muted);
 }
+
+.fc-signal-readout {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 2px solid;
+  border-radius: 999px;
+  padding: 8px 16px;
+  box-shadow: var(--shadow);
+  z-index: 30;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.fc-signal-readout-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.fc-signal-readout-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}

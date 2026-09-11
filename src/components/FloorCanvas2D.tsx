@@ -126,6 +126,7 @@ export default function FloorCanvas2D({
   const [calibrationFirstPoint, setCalibrationFirstPoint] = useState<Point | null>(null)
   const [calibrationSecondPoint, setCalibrationSecondPoint] = useState<Point | null>(null)
   const [wallDrawPoints, setWallDrawPoints] = useState<Point[]>([])
+  const [liveDragClientId, setLiveDragClientId] = useState<string | null>(null)
 
   useEffect(() => {
     if (mode !== 'draw-wall') setWallDrawPoints([])
@@ -271,6 +272,7 @@ export default function FloorCanvas2D({
     }
     draggingDeviceId.current = null
     draggingClientId.current = null
+    setLiveDragClientId(null)
     panState.current = null
     activeDragPointerId.current = null
     try {
@@ -298,6 +300,7 @@ export default function FloorCanvas2D({
     e.stopPropagation()
     dragMoved.current = false
     draggingClientId.current = clientId
+    setLiveDragClientId(clientId)
     activeDragPointerId.current = e.pointerId
     onClientDragStart(clientId)
     ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
@@ -376,6 +379,19 @@ export default function FloorCanvas2D({
       return model ? { id: d.id, x: d.x, y: d.y, txPowerTier: model.txPowerTier } : null
     })
     .filter((c): c is { id: string; x: number; y: number; txPowerTier: number } => c !== null)
+
+  function getClientConnection(client: TestClient) {
+    const clientType = getClientType(client.clientTypeId)
+    const connection = bestRouterConnection(client, routerCandidates, walls, pxPerMeter, band, clientType.sensitivityBonusDb)
+    if (!connection) return null
+    const router = routerCandidates.find((r) => r.id === connection.routerId)
+    if (!router) return null
+    const [cr, cg, cb] = strengthToColor(signalToStrength(connection.dbm))
+    return { connection, router, color: `rgb(${cr}, ${cg}, ${cb})` }
+  }
+
+  const liveDragClient = liveDragClientId ? clients.find((c) => c.id === liveDragClientId) ?? null : null
+  const liveDragResult = liveDragClient ? getClientConnection(liveDragClient) : null
 
   return (
     <div
@@ -472,37 +488,20 @@ export default function FloorCanvas2D({
               <circle cx={calibrationSecondPoint.x} cy={calibrationSecondPoint.y} r={9} fill="#2563eb" stroke="#fff" strokeWidth={2.5} />
             )}
             {clients.map((client) => {
-              const clientType = getClientType(client.clientTypeId)
-              const connection = bestRouterConnection(
-                client,
-                routerCandidates,
-                walls,
-                pxPerMeter,
-                band,
-                clientType.sensitivityBonusDb,
-              )
-              const router = connection ? routerCandidates.find((r) => r.id === connection.routerId) : null
-              if (!connection || !router) return null
-              const midX = (client.x + router.x) / 2
-              const midY = (client.y + router.y) / 2
+              const result = getClientConnection(client)
+              if (!result) return null
+              const { router, color } = result
               return (
-                <g key={client.id}>
-                  <line
-                    x1={client.x}
-                    y1={client.y}
-                    x2={router.x}
-                    y2={router.y}
-                    stroke="var(--accent)"
-                    strokeWidth={2}
-                    strokeOpacity={0.7}
-                  />
-                  <g transform={`translate(${midX - 30}, ${midY - 10})`}>
-                    <rect width={60} height={16} rx={4} fill="rgba(15,23,42,0.75)" />
-                    <text x={30} y={12} textAnchor="middle" fontSize={9} fill="#fff">
-                      {connection.distanceMeters.toFixed(1)}m {connection.dbm.toFixed(0)}dBm
-                    </text>
-                  </g>
-                </g>
+                <line
+                  key={client.id}
+                  x1={client.x}
+                  y1={client.y}
+                  x2={router.x}
+                  y2={router.y}
+                  stroke={color}
+                  strokeWidth={3}
+                  strokeOpacity={0.85}
+                />
               )
             })}
           </svg>
@@ -576,6 +575,15 @@ export default function FloorCanvas2D({
           </div>
         )}
       </div>
+
+      {liveDragResult && (
+        <div className="fc-signal-readout" style={{ borderColor: liveDragResult.color }}>
+          <span className="fc-signal-readout-dot" style={{ background: liveDragResult.color }} />
+          <span className="fc-signal-readout-text">
+            {liveDragResult.connection.distanceMeters.toFixed(1)} m · {liveDragResult.connection.dbm.toFixed(0)} dBm
+          </span>
+        </div>
+      )}
     </div>
   )
 }
