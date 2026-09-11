@@ -433,6 +433,9 @@ export default function EditorPage() {
     if (!floorId || !wallDrawMaterialId) return
     const created = await createWall(floorId, points, wallDrawMaterialId)
     setWalls((prev) => [...prev, created])
+    // Each new wall may use a different material, so the next one (still in
+    // draw-wall mode, per the "stay on tool" design) must re-prompt for it.
+    setWallDrawMaterialId(null)
   }
 
   async function handleDeleteWall() {
