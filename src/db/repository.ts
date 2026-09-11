@@ -134,6 +134,15 @@ export async function updateFloorScale(floorId: string, scalePxPerMeter: number)
   await db.put('floors', floor)
 }
 
+export async function updateFloorTemplate(floorId: string, templateId: string): Promise<void> {
+  const db = await getDb()
+  const floor = await db.get('floors', floorId)
+  if (!floor) return
+  floor.templateId = templateId
+  floor.scalePxPerMeter = LITE_PX_PER_METER
+  await db.put('floors', floor)
+}
+
 // --- Devices ---
 
 export async function listDevices(floorId: string): Promise<Device[]> {

@@ -344,6 +344,8 @@ export default function FloorCanvas2D({
     const withModels = devices
       .map((d) => ({ d, model: getRouterModel(d.modelId) }))
       .filter((x) => x.model)
+    // Lite templates reserve a label strip above the room; the heatmap must not tint it.
+    const roomTop = template ? getLiteCanvasSize(template).labelMarginTop : 0
 
     const imageData = ctx.createImageData(naturalSize.width, naturalSize.height)
     for (let y = 0; y < naturalSize.height; y += step) {
@@ -361,21 +363,22 @@ export default function FloorCanvas2D({
         }
         const strength = signalToStrength(dbm)
         const [r, g, b] = strengthToColor(strength)
-        const alpha = withModels.length > 0 ? Math.round(120 + strength * 60) : 0
+        const alphaBase = withModels.length > 0 ? Math.round(120 + strength * 60) : 0
 
         for (let yy = 0; yy < step && y + yy < naturalSize.height; yy++) {
           for (let xx = 0; xx < step && x + xx < naturalSize.width; xx++) {
-            const idx = ((y + yy) * naturalSize.width + (x + xx)) * 4
+            const py = y + yy
+            const idx = (py * naturalSize.width + (x + xx)) * 4
             imageData.data[idx] = r
             imageData.data[idx + 1] = g
             imageData.data[idx + 2] = b
-            imageData.data[idx + 3] = alpha
+            imageData.data[idx + 3] = py >= roomTop ? alphaBase : 0
           }
         }
       }
     }
     ctx.putImageData(imageData, 0, 0)
-  }, [devices, walls, naturalSize, band, scalePxPerMeter])
+  }, [devices, walls, naturalSize, band, scalePxPerMeter, template])
 
   const lastDrawPoint = wallDrawPoints[wallDrawPoints.length - 1]
   const wallControlsFlip = (() => {

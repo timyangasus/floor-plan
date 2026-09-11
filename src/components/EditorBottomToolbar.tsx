@@ -8,6 +8,7 @@ interface Props {
   onOpenWallMaterial: () => void
   onAddClient: () => void
   onOpenTopology: () => void
+  onChangeLayout: () => void
   liteMode?: boolean
 }
 
@@ -17,6 +18,7 @@ export default function EditorBottomToolbar({
   onOpenWallMaterial,
   onAddClient,
   onOpenTopology,
+  onChangeLayout,
   liteMode = false,
 }: Props) {
   return (
@@ -46,6 +48,11 @@ export default function EditorBottomToolbar({
       <button onClick={onAddClient} aria-label="用戶端體驗">
         <WifiIcon />
       </button>
+      {liteMode && (
+        <button onClick={onChangeLayout} aria-label="選擇格局">
+          <GridIcon />
+        </button>
+      )}
       {!liteMode && (
         <button onClick={onOpenTopology} aria-label="Mesh 拓撲">
           <NetworkIcon />

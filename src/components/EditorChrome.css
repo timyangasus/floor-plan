@@ -94,7 +94,9 @@
   bottom: calc(16px + var(--safe-bottom));
   transform: translateX(-50%);
   display: flex;
+  justify-content: center;
   gap: 6px;
+  min-width: 294px;
   background: var(--surface);
   padding: 6px;
   border-radius: 999px;

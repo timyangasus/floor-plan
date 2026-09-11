@@ -13,6 +13,7 @@ import EditorLayersSheet from '../components/EditorLayersSheet'
 import ProjectSettingsModal from '../components/ProjectSettingsModal'
 import ScaleCalibrationModal from '../components/ScaleCalibrationModal'
 import WallMaterialSheet from '../components/WallMaterialSheet'
+import LiteTemplatePickerModal from '../components/LiteTemplatePickerModal'
 import ClientInspectorSheet from '../components/ClientInspectorSheet'
 import DeviceInspectorSheet from '../components/DeviceInspectorSheet'
 import {
@@ -36,6 +37,7 @@ import {
   updateClient,
   updateDevice,
   updateFloorScale,
+  updateFloorTemplate,
 } from '../db/repository'
 import type { Band, Device, Floor, MeshGroupLabel, Project, RouterModel, TestClient, Wall } from '../types'
 import type { ViewMode } from './EditorPage.types'
@@ -45,7 +47,7 @@ import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
 import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
 import { getClientType } from '../data/clientTypes'
-import { getLiteTemplate } from '../data/liteTemplates'
+import { getLiteTemplate, LITE_PX_PER_METER } from '../data/liteTemplates'
 import { bestRouterConnection, estimateRateMbps } from '../lib/signalModel'
 import { RulerIcon, TrashIcon } from '../components/icons'
 import './EditorPage.css'
@@ -81,6 +83,7 @@ export default function EditorPage() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [catalogOpen, setCatalogOpen] = useState(false)
   const [wallMaterialOpen, setWallMaterialOpen] = useState(false)
+  const [layoutPickerOpen, setLayoutPickerOpen] = useState(false)
   const [calibrationPending, setCalibrationPending] = useState<{
     a: { x: number; y: number }
     b: { x: number; y: number }
@@ -136,7 +139,8 @@ export default function EditorPage() {
   function centerView() {
     if (!naturalSize || !canvasAreaRef.current) return
     const rect = canvasAreaRef.current.getBoundingClientRect()
-    const scale = Math.min(rect.width / naturalSize.width, rect.height / naturalSize.height)
+    let scale = Math.min(rect.width / naturalSize.width, rect.height / naturalSize.height)
+    if (liteTemplate?.shape === 'square') scale *= 0.85
     const tx = (rect.width - naturalSize.width * scale) / 2
     const ty = (rect.height - naturalSize.height * scale) / 2
     setTransform({ scale, tx, ty })
@@ -378,6 +382,13 @@ export default function EditorPage() {
     setMode('draw-wall')
   }
 
+  async function handleChangeLayout(templateId: string) {
+    if (!floorId) return
+    await updateFloorTemplate(floorId, templateId)
+    setFloor((prev) => (prev ? { ...prev, templateId, scalePxPerMeter: LITE_PX_PER_METER } : prev))
+    setLayoutPickerOpen(false)
+  }
+
   async function handleWallComplete(points: { x: number; y: number }[]) {
     if (!floorId || !wallDrawMaterialId) return
     const created = await createWall(floorId, points, wallDrawMaterialId)
@@ -587,6 +598,7 @@ export default function EditorPage() {
             onOpenWallMaterial={() => setWallMaterialOpen(true)}
             onAddClient={handleAddClient}
             onOpenTopology={() => navigate(`/project/${projectId}/topology`)}
+            onChangeLayout={() => setLayoutPickerOpen(true)}
             liteMode={liteMode}
           />
         )}
@@ -627,6 +639,16 @@ export default function EditorPage() {
 
       {wallMaterialOpen && (
         <WallMaterialSheet onClose={() => setWallMaterialOpen(false)} onPick={handlePickWallMaterial} />
+      )}
+
+      {layoutPickerOpen && (
+        <LiteTemplatePickerModal
+          onClose={() => setLayoutPickerOpen(false)}
+          onPick={handleChangeLayout}
+          withName={false}
+          title="選擇格局"
+          confirmLabel="套用"
+        />
       )}
 
       {selectedClient && (

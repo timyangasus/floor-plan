@@ -54,8 +54,8 @@ export default function LiteHomePage() {
     setFloorsByProject(Object.fromEntries(entries))
   }
 
-  async function handleCreate(name: string, templateId: string) {
-    const project = await createLiteProject(name, templateId)
+  async function handleCreate(templateId: string, name?: string) {
+    const project = await createLiteProject(name || '我的家', templateId)
     setShowNewProject(false)
     await refresh()
     const floors = await listFloors(project.id)
@@ -124,7 +124,7 @@ export default function LiteHomePage() {
       </main>
 
       {showNewProject && (
-        <LiteTemplatePickerModal onClose={() => setShowNewProject(false)} onCreate={handleCreate} />
+        <LiteTemplatePickerModal onClose={() => setShowNewProject(false)} onPick={handleCreate} />
       )}
     </div>
   )

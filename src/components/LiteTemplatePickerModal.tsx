@@ -5,35 +5,48 @@ import './LiteTemplatePickerModal.css'
 
 interface Props {
   onClose: () => void
-  onCreate: (name: string, templateId: string) => void
+  onPick: (templateId: string, name?: string) => void
+  withName?: boolean
+  title?: string
+  confirmLabel?: string
 }
 
-export default function LiteTemplatePickerModal({ onClose, onCreate }: Props) {
+export default function LiteTemplatePickerModal({
+  onClose,
+  onPick,
+  withName = true,
+  title = '新增專案',
+  confirmLabel = '建立',
+}: Props) {
   const [name, setName] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
-  function handleCreate() {
+  function handleConfirm() {
     if (!selectedId) return
-    onCreate(name.trim() || '我的家', selectedId)
+    onPick(selectedId, withName ? name.trim() || '我的家' : undefined)
   }
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>新增專案</h2>
+          <h2>{title}</h2>
           <button className="modal-close" onClick={onClose} aria-label="關閉">
             ×
           </button>
         </div>
 
-        <label className="modal-label">專案名稱</label>
-        <input
-          className="modal-input"
-          placeholder="例如：我的家"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        {withName && (
+          <>
+            <label className="modal-label">專案名稱</label>
+            <input
+              className="modal-input"
+              placeholder="例如：我的家"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </>
+        )}
 
         <label className="modal-label">選擇最接近的格局</label>
         <div className="lite-template-grid">
@@ -55,8 +68,8 @@ export default function LiteTemplatePickerModal({ onClose, onCreate }: Props) {
           <button className="btn btn-secondary" onClick={onClose}>
             取消
           </button>
-          <button className="btn btn-primary" disabled={!selectedId} onClick={handleCreate}>
-            建立
+          <button className="btn btn-primary" disabled={!selectedId} onClick={handleConfirm}>
+            {confirmLabel}
           </button>
         </div>
       </div>
