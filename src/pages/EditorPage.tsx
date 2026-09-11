@@ -665,6 +665,10 @@ export default function EditorPage() {
               if (mode === 'place' && m !== 'place') setPendingModel(null)
               if (mode === 'draw-wall' && m !== 'draw-wall') setWallDrawMaterialId(null)
               setMode(m)
+              // First-time use (no walls/devices placed yet on this floor): open the
+              // picker immediately, since there's nothing on the canvas to tap yet.
+              if (m === 'draw-wall' && walls.length === 0) setWallMaterialOpen(true)
+              if (m === 'place' && devices.length === 0) setCatalogOpen(true)
             }}
             onAddClient={handleAddClient}
             onOpenTopology={() => navigate(`/project/${projectId}/topology`)}

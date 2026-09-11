@@ -563,26 +563,32 @@ export default function FloorCanvas2D({
               />
             )}
             {(mode === 'select' || mode === 'calibrate') &&
-              calibrationLines.map((line) => (
-                <g
-                  key={line.id}
-                  style={{ pointerEvents: 'auto', cursor: 'pointer' }}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={() => onEditCalibration?.(line)}
-                >
-                  <line
-                    x1={line.a.x}
-                    y1={line.a.y}
-                    x2={line.b.x}
-                    y2={line.b.y}
-                    stroke={CALIBRATION_COLOR}
-                    strokeWidth={10}
-                    strokeLinecap="round"
-                  />
-                  <circle cx={line.a.x} cy={line.a.y} r={9} fill={CALIBRATION_COLOR} stroke="#fff" strokeWidth={2.5} />
-                  <circle cx={line.b.x} cy={line.b.y} r={9} fill={CALIBRATION_COLOR} stroke="#fff" strokeWidth={2.5} />
-                </g>
-              ))}
+              calibrationLines.map((line) => {
+                // While the first point of a NEW line is already placed, a tap
+                // near an existing line must land the second point instead of
+                // opening that line's edit sheet — let it pass through.
+                const editable = !(mode === 'calibrate' && calibrationFirstPoint)
+                return (
+                  <g
+                    key={line.id}
+                    style={editable ? { pointerEvents: 'auto', cursor: 'pointer' } : { pointerEvents: 'none' }}
+                    onPointerDown={editable ? (e) => e.stopPropagation() : undefined}
+                    onClick={editable ? () => onEditCalibration?.(line) : undefined}
+                  >
+                    <line
+                      x1={line.a.x}
+                      y1={line.a.y}
+                      x2={line.b.x}
+                      y2={line.b.y}
+                      stroke={CALIBRATION_COLOR}
+                      strokeWidth={10}
+                      strokeLinecap="round"
+                    />
+                    <circle cx={line.a.x} cy={line.a.y} r={9} fill={CALIBRATION_COLOR} stroke="#fff" strokeWidth={2.5} />
+                    <circle cx={line.b.x} cy={line.b.y} r={9} fill={CALIBRATION_COLOR} stroke="#fff" strokeWidth={2.5} />
+                  </g>
+                )
+              })}
             {mode !== 'calibrate' &&
               clients.map((client) => {
                 const result = getClientConnection(client)
