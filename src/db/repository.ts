@@ -1,6 +1,6 @@
 import { getDb } from './db'
 import { createId } from '../lib/id'
-import type { Device, Floor, MeshGroupLabel, Project, TestClient, Wall } from '../types'
+import type { CalibrationLine, Device, Floor, MeshGroupLabel, Project, TestClient, Wall } from '../types'
 import { LITE_PX_PER_METER } from '../data/liteTemplates'
 
 // --- Projects ---
@@ -29,7 +29,7 @@ export async function createProject(name: string, firstFloorImage: Blob | null):
     order: 0,
     imageBlob: firstFloorImage,
     scalePxPerMeter: null,
-    calibrationLine: null,
+    calibrationLines: [],
     templateId: null,
   }
   await db.put('floors', floor)
@@ -50,7 +50,7 @@ export async function createLiteProject(name: string, templateId: string): Promi
     order: 0,
     imageBlob: null,
     scalePxPerMeter: LITE_PX_PER_METER,
-    calibrationLine: null,
+    calibrationLines: [],
     templateId,
   }
   await db.put('floors', floor)
@@ -121,7 +121,7 @@ export async function addFloor(projectId: string, name: string, imageBlob: Blob 
     order: existing.length,
     imageBlob,
     scalePxPerMeter: null,
-    calibrationLine: null,
+    calibrationLines: [],
     templateId: null,
   }
   await db.put('floors', floor)
@@ -129,16 +129,32 @@ export async function addFloor(projectId: string, name: string, imageBlob: Blob 
   return floor
 }
 
-export async function updateFloorScale(
+export async function addCalibrationLine(
   floorId: string,
+  line: { a: { x: number; y: number }; b: { x: number; y: number }; meters: number },
   scalePxPerMeter: number,
-  calibrationLine: { a: { x: number; y: number }; b: { x: number; y: number } } | null,
+): Promise<CalibrationLine> {
+  const db = await getDb()
+  const floor = await db.get('floors', floorId)
+  if (!floor) throw new Error('floor not found')
+  const newLine: CalibrationLine = { id: createId(), ...line }
+  floor.calibrationLines = [...(floor.calibrationLines ?? []), newLine]
+  floor.scalePxPerMeter = scalePxPerMeter
+  await db.put('floors', floor)
+  return newLine
+}
+
+export async function updateCalibrationLineMeters(
+  floorId: string,
+  lineId: string,
+  meters: number,
+  scalePxPerMeter: number,
 ): Promise<void> {
   const db = await getDb()
   const floor = await db.get('floors', floorId)
   if (!floor) return
+  floor.calibrationLines = (floor.calibrationLines ?? []).map((l) => (l.id === lineId ? { ...l, meters } : l))
   floor.scalePxPerMeter = scalePxPerMeter
-  floor.calibrationLine = calibrationLine
   await db.put('floors', floor)
 }
 

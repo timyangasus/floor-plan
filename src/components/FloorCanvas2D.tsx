@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Band, Device, TestClient, Wall } from '../types'
+import type { Band, CalibrationLine, Device, TestClient, Wall } from '../types'
 import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
 import { getClientType } from '../data/clientTypes'
@@ -18,6 +18,8 @@ import { RouterIcon, PhoneIcon, CheckIcon, CloseIcon, UndoIcon } from './icons'
 import './FloorCanvas2D.css'
 
 export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate' | 'draw-wall'
+
+const CALIBRATION_COLOR = '#e6007e'
 
 interface Point {
   x: number
@@ -59,8 +61,8 @@ interface Props {
   scalePxPerMeter: number | null
   onCalibratePoints: (a: Point, b: Point) => void
   calibrationPending: boolean
-  calibrationLine?: { a: Point; b: Point } | null
-  onEditCalibration?: () => void
+  calibrationLines?: CalibrationLine[]
+  onEditCalibration?: (line: CalibrationLine) => void
   onLiveSignalChange?: (info: { distanceMeters: number; dbm: number; color: string } | null) => void
 }
 
@@ -122,7 +124,7 @@ export default function FloorCanvas2D({
   scalePxPerMeter,
   onCalibratePoints,
   calibrationPending,
-  calibrationLine = null,
+  calibrationLines = [],
   onEditCalibration,
   onLiveSignalChange,
 }: Props) {
@@ -487,22 +489,23 @@ export default function FloorCanvas2D({
             height={naturalSize.height}
             viewBox={`0 0 ${naturalSize.width} ${naturalSize.height}`}
           >
-            {walls.map((wall) => {
-              const material = getWallMaterial(wall.materialId)
-              const points = wall.points.map((p) => `${p.x},${p.y}`).join(' ')
-              const selected = wall.id === selectedWallId
-              return (
-                <polyline
-                  key={wall.id}
-                  points={points}
-                  fill="none"
-                  stroke={selected ? '#ef4444' : material?.color ?? '#888'}
-                  strokeWidth={selected ? 13 : 10}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )
-            })}
+            {mode !== 'calibrate' &&
+              walls.map((wall) => {
+                const material = getWallMaterial(wall.materialId)
+                const points = wall.points.map((p) => `${p.x},${p.y}`).join(' ')
+                const selected = wall.id === selectedWallId
+                return (
+                  <polyline
+                    key={wall.id}
+                    points={points}
+                    fill="none"
+                    stroke={selected ? '#ef4444' : material?.color ?? '#888'}
+                    strokeWidth={selected ? 13 : 10}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                )
+              })}
             {wallDrawPoints.length > 0 && (
               <>
                 <polyline
@@ -525,36 +528,52 @@ export default function FloorCanvas2D({
                 y1={calibrationFirstPoint.y}
                 x2={calibrationSecondPoint.x}
                 y2={calibrationSecondPoint.y}
-                stroke="#2563eb"
+                stroke={CALIBRATION_COLOR}
                 strokeWidth={10}
                 strokeLinecap="round"
               />
             )}
             {calibrationFirstPoint && (
-              <circle cx={calibrationFirstPoint.x} cy={calibrationFirstPoint.y} r={9} fill="#2563eb" stroke="#fff" strokeWidth={2.5} />
+              <circle
+                cx={calibrationFirstPoint.x}
+                cy={calibrationFirstPoint.y}
+                r={9}
+                fill={CALIBRATION_COLOR}
+                stroke="#fff"
+                strokeWidth={2.5}
+              />
             )}
             {calibrationSecondPoint && (
-              <circle cx={calibrationSecondPoint.x} cy={calibrationSecondPoint.y} r={9} fill="#2563eb" stroke="#fff" strokeWidth={2.5} />
+              <circle
+                cx={calibrationSecondPoint.x}
+                cy={calibrationSecondPoint.y}
+                r={9}
+                fill={CALIBRATION_COLOR}
+                stroke="#fff"
+                strokeWidth={2.5}
+              />
             )}
-            {mode === 'select' && calibrationLine && (
-              <g
-                style={{ pointerEvents: 'auto', cursor: 'pointer' }}
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={onEditCalibration}
-              >
-                <line
-                  x1={calibrationLine.a.x}
-                  y1={calibrationLine.a.y}
-                  x2={calibrationLine.b.x}
-                  y2={calibrationLine.b.y}
-                  stroke="#2563eb"
-                  strokeWidth={10}
-                  strokeLinecap="round"
-                />
-                <circle cx={calibrationLine.a.x} cy={calibrationLine.a.y} r={9} fill="#2563eb" stroke="#fff" strokeWidth={2.5} />
-                <circle cx={calibrationLine.b.x} cy={calibrationLine.b.y} r={9} fill="#2563eb" stroke="#fff" strokeWidth={2.5} />
-              </g>
-            )}
+            {(mode === 'select' || mode === 'calibrate') &&
+              calibrationLines.map((line) => (
+                <g
+                  key={line.id}
+                  style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={() => onEditCalibration?.(line)}
+                >
+                  <line
+                    x1={line.a.x}
+                    y1={line.a.y}
+                    x2={line.b.x}
+                    y2={line.b.y}
+                    stroke={CALIBRATION_COLOR}
+                    strokeWidth={10}
+                    strokeLinecap="round"
+                  />
+                  <circle cx={line.a.x} cy={line.a.y} r={9} fill={CALIBRATION_COLOR} stroke="#fff" strokeWidth={2.5} />
+                  <circle cx={line.b.x} cy={line.b.y} r={9} fill={CALIBRATION_COLOR} stroke="#fff" strokeWidth={2.5} />
+                </g>
+              ))}
             {clients.map((client) => {
               const result = getClientConnection(client)
               if (!result) return null

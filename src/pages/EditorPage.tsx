@@ -17,6 +17,7 @@ import LiteTemplatePickerModal from '../components/LiteTemplatePickerModal'
 import ClientInspectorSheet from '../components/ClientInspectorSheet'
 import DeviceInspectorSheet from '../components/DeviceInspectorSheet'
 import {
+  addCalibrationLine,
   addFloor,
   assignDeviceGroup,
   createClient,
@@ -34,12 +35,12 @@ import {
   renameProject,
   replaceDevicesForFloor,
   setDeviceCap,
+  updateCalibrationLineMeters,
   updateClient,
   updateDevice,
-  updateFloorScale,
   updateFloorTemplate,
 } from '../db/repository'
-import type { Band, Device, Floor, MeshGroupLabel, Project, RouterModel, TestClient, Wall } from '../types'
+import type { Band, CalibrationLine, Device, Floor, MeshGroupLabel, Project, RouterModel, TestClient, Wall } from '../types'
 import type { ViewMode } from './EditorPage.types'
 import { useObjectUrl } from '../lib/useObjectUrl'
 import { saveLastFloor } from '../lib/lastFloor'
@@ -91,8 +92,10 @@ export default function EditorPage() {
   const [wallMaterialOpen, setWallMaterialOpen] = useState(false)
   const [layoutPickerOpen, setLayoutPickerOpen] = useState(false)
   const [calibrationPending, setCalibrationPending] = useState<{
+    id?: string
     a: { x: number; y: number }
     b: { x: number; y: number }
+    initialMeters?: number
   } | null>(null)
   const [theme, setTheme] = useState<ThemeMode>('system')
 
@@ -287,15 +290,37 @@ export default function EditorPage() {
     const dy = calibrationPending.a.y - calibrationPending.b.y
     const pixelDistance = Math.sqrt(dx * dx + dy * dy)
     const scalePxPerMeter = pixelDistance / meters
-    await updateFloorScale(floorId, scalePxPerMeter, calibrationPending)
-    setFloor((prev) => (prev ? { ...prev, scalePxPerMeter, calibrationLine: calibrationPending } : prev))
+
+    if (calibrationPending.id) {
+      const lineId = calibrationPending.id
+      await updateCalibrationLineMeters(floorId, lineId, meters, scalePxPerMeter)
+      setFloor((prev) =>
+        prev
+          ? {
+              ...prev,
+              scalePxPerMeter,
+              calibrationLines: (prev.calibrationLines ?? []).map((l) =>
+                l.id === lineId ? { ...l, meters } : l,
+              ),
+            }
+          : prev,
+      )
+    } else {
+      const newLine = await addCalibrationLine(
+        floorId,
+        { a: calibrationPending.a, b: calibrationPending.b, meters },
+        scalePxPerMeter,
+      )
+      setFloor((prev) =>
+        prev ? { ...prev, scalePxPerMeter, calibrationLines: [...(prev.calibrationLines ?? []), newLine] } : prev,
+      )
+    }
     setCalibrationPending(null)
     setMode('select')
   }
 
-  function handleEditCalibration() {
-    if (!floor?.calibrationLine) return
-    setCalibrationPending(floor.calibrationLine)
+  function handleEditCalibration(line: CalibrationLine) {
+    setCalibrationPending({ id: line.id, a: line.a, b: line.b, initialMeters: line.meters })
   }
 
   function calibrationPixelDistance() {
@@ -511,7 +536,7 @@ export default function EditorPage() {
             scalePxPerMeter={floor.scalePxPerMeter}
             onCalibratePoints={handleCalibratePoints}
             calibrationPending={calibrationPending !== null}
-            calibrationLine={floor.calibrationLine}
+            calibrationLines={floor.calibrationLines}
             onEditCalibration={handleEditCalibration}
             onLiveSignalChange={setLiveSignal}
           />
@@ -711,6 +736,7 @@ export default function EditorPage() {
       {calibrationPending && (
         <ScaleCalibrationModal
           pixelDistance={calibrationPixelDistance()}
+          initialMeters={calibrationPending.initialMeters}
           onCancel={() => {
             setCalibrationPending(null)
           }}

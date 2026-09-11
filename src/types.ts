@@ -20,16 +20,24 @@ export interface Project {
   kind: 'full' | 'lite'
 }
 
+export interface CalibrationLine {
+  id: string
+  a: { x: number; y: number }
+  b: { x: number; y: number }
+  /** The real-world distance the user entered for this specific line, so re-editing can prefill it. */
+  meters: number
+}
+
 export interface Floor {
   id: string
   projectId: string
   name: string
   order: number
   imageBlob: Blob | null
-  /** pixels per meter, measured against the stored floor plan image's natural size */
+  /** pixels per meter, derived from the most recently created/edited calibration line */
   scalePxPerMeter: number | null
-  /** The two points last used to derive scalePxPerMeter, kept so the calibration line can be redrawn and re-edited. */
-  calibrationLine: { a: { x: number; y: number }; b: { x: number; y: number } } | null
+  /** All calibration reference lines drawn on this floor; scalePxPerMeter tracks whichever was touched last. */
+  calibrationLines: CalibrationLine[]
   /** Set for lite floors: id of the preset LiteTemplate this floor renders instead of imageBlob. */
   templateId: string | null
 }

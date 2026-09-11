@@ -3,12 +3,13 @@ import './EditorChrome.css'
 
 interface Props {
   pixelDistance: number
+  initialMeters?: number
   onCancel: () => void
   onConfirm: (meters: number) => void
 }
 
-export default function ScaleCalibrationModal({ pixelDistance, onCancel, onConfirm }: Props) {
-  const [meters, setMeters] = useState('1')
+export default function ScaleCalibrationModal({ pixelDistance, initialMeters, onCancel, onConfirm }: Props) {
+  const [meters, setMeters] = useState(() => (initialMeters !== undefined ? String(initialMeters) : '1'))
 
   function handleConfirm() {
     const value = parseFloat(meters)
