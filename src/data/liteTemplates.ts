@@ -27,13 +27,21 @@ function squareLikeGrid(roomCount: number): [number, number] {
       return [2, 2]
     case 6:
       return [3, 2]
+    case 8:
+      return [4, 2]
     default:
       return [Math.ceil(Math.sqrt(roomCount)), Math.ceil(Math.sqrt(roomCount))]
   }
 }
 
-function buildTemplate(id: string, pings: number, shape: TemplateShape, roomCount: number): LiteTemplate {
-  const areaM2 = pings * PING_TO_SQM
+function buildTemplate(
+  id: string,
+  rangeLabel: string,
+  representativePings: number,
+  shape: TemplateShape,
+  roomCount: number,
+): LiteTemplate {
+  const areaM2 = representativePings * PING_TO_SQM
   let widthMeters: number
   let depthMeters: number
   let cols: number
@@ -55,8 +63,8 @@ function buildTemplate(id: string, pings: number, shape: TemplateShape, roomCoun
   const shapeLabel = shape === 'square' ? '方形' : '長型'
   return {
     id,
-    label: `${pings} 坪 · ${shapeLabel}`,
-    pings,
+    label: `${rangeLabel} 坪 · ${shapeLabel}`,
+    pings: representativePings,
     shape,
     widthMeters: Math.round(widthMeters * 10) / 10,
     depthMeters: Math.round(depthMeters * 10) / 10,
@@ -66,14 +74,14 @@ function buildTemplate(id: string, pings: number, shape: TemplateShape, roomCoun
 }
 
 export const LITE_TEMPLATES: LiteTemplate[] = [
-  buildTemplate('s-square', 10, 'square', 1),
-  buildTemplate('s-rect', 10, 'rect', 2),
-  buildTemplate('m-square', 20, 'square', 2),
-  buildTemplate('m-rect', 20, 'rect', 3),
-  buildTemplate('l-square', 30, 'square', 4),
-  buildTemplate('l-rect', 30, 'rect', 4),
-  buildTemplate('xl-square', 45, 'square', 6),
-  buildTemplate('xl-rect', 45, 'rect', 6),
+  buildTemplate('s-square', '15–30', 22.5, 'square', 2),
+  buildTemplate('s-rect', '15–30', 22.5, 'rect', 3),
+  buildTemplate('m-square', '30–50', 40, 'square', 4),
+  buildTemplate('m-rect', '30–50', 40, 'rect', 4),
+  buildTemplate('l-square', '50–70', 60, 'square', 6),
+  buildTemplate('l-rect', '50–70', 60, 'rect', 6),
+  buildTemplate('xl-square', '70–100', 85, 'square', 8),
+  buildTemplate('xl-rect', '70–100', 85, 'rect', 8),
 ]
 
 export function getLiteTemplate(id: string): LiteTemplate | undefined {
