@@ -521,7 +521,7 @@ export default function EditorPage() {
 
         {view === '2d' && (
           <div className="editor-bottom-panels">
-            {mode === 'select' && (
+            {mode === 'select' && floor.scalePxPerMeter === null && (
               <button className="scale-pill-btn" onClick={() => setMode('calibrate')}>
                 <RulerIcon size={16} />
                 設定比例尺
