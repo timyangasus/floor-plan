@@ -432,7 +432,7 @@ export default function FloorCanvas2D({
                   points={points}
                   fill="none"
                   stroke={selected ? '#ef4444' : material?.color ?? '#888'}
-                  strokeWidth={selected ? 10 : 7}
+                  strokeWidth={selected ? 13 : 10}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -444,13 +444,13 @@ export default function FloorCanvas2D({
                   points={wallDrawPoints.map((p) => `${p.x},${p.y}`).join(' ')}
                   fill="none"
                   stroke="var(--accent)"
-                  strokeWidth={7}
-                  strokeDasharray="14 8"
+                  strokeWidth={10}
+                  strokeDasharray="16 9"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 {wallDrawPoints.map((p, i) => (
-                  <circle key={i} cx={p.x} cy={p.y} r={8} fill="var(--accent)" />
+                  <circle key={i} cx={p.x} cy={p.y} r={9} fill="var(--accent)" />
                 ))}
               </>
             )}
@@ -460,16 +460,16 @@ export default function FloorCanvas2D({
                 y1={calibrationFirstPoint.y}
                 x2={calibrationSecondPoint.x}
                 y2={calibrationSecondPoint.y}
-                stroke="#1e3a8a"
-                strokeWidth={7}
+                stroke="#2563eb"
+                strokeWidth={10}
                 strokeLinecap="round"
               />
             )}
             {calibrationFirstPoint && (
-              <circle cx={calibrationFirstPoint.x} cy={calibrationFirstPoint.y} r={8} fill="#1e3a8a" stroke="#fff" strokeWidth={2} />
+              <circle cx={calibrationFirstPoint.x} cy={calibrationFirstPoint.y} r={9} fill="#2563eb" stroke="#fff" strokeWidth={2.5} />
             )}
             {calibrationSecondPoint && (
-              <circle cx={calibrationSecondPoint.x} cy={calibrationSecondPoint.y} r={8} fill="#1e3a8a" stroke="#fff" strokeWidth={2} />
+              <circle cx={calibrationSecondPoint.x} cy={calibrationSecondPoint.y} r={9} fill="#2563eb" stroke="#fff" strokeWidth={2.5} />
             )}
             {clients.map((client) => {
               const clientType = getClientType(client.clientTypeId)
