@@ -1,0 +1,49 @@
+.lite-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: var(--bg);
+}
+
+.lite-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.lite-back {
+  border: none;
+  background: transparent;
+  color: var(--text);
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.lite-header-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.lite-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px calc(24px + var(--safe-bottom));
+}
+
+.lite-placeholder {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+}

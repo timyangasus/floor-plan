@@ -12,6 +12,7 @@ interface MoreItem {
 const MORE_ITEMS: MoreItem[] = [
   { key: 'app-settings', label: '應用程式設定', sub: '主題, Face ID & 密碼, 語言選項...' },
   { key: 'floor-plan', label: 'Floor Plan', highlight: true },
+  { key: 'floor-plan-lite', label: 'Floor Plan Lite', highlight: true },
   { key: 'about', label: '關於' },
   { key: 'support', label: '華碩支援' },
   { key: 'insight', label: '軟體洞察' },
@@ -27,6 +28,10 @@ export default function RouterEntryPage() {
   function handleMoreClick(key: string) {
     if (key === 'floor-plan') {
       navigate('/home')
+      return
+    }
+    if (key === 'floor-plan-lite') {
+      navigate('/lite')
       return
     }
     setDrawerOpen(false)
@@ -176,6 +181,7 @@ function MoreIcon({ itemKey }: { itemKey: string }) {
     case 'app-settings':
       return <GearGlyph />
     case 'floor-plan':
+    case 'floor-plan-lite':
       return <FloorPlanGlyph />
     case 'about':
       return <InfoGlyph />
