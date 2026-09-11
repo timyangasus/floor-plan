@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Band, Device, MeshGroupLabel, RouterModel } from '../types'
 import { getChainSpec, getSupportedBands } from '../data/routerCatalog'
-import { RotateIcon, RouterIcon, TrashIcon, CloseIcon } from './icons'
+import { RouterIcon, TrashIcon, CloseIcon } from './icons'
 import AntennaPatternChart from './AntennaPatternChart'
 import './EditorChrome.css'
 
@@ -12,7 +12,6 @@ interface Props {
   model: RouterModel | null | undefined
   onClose: () => void
   onDelete: () => void
-  onRotate: () => void
   onRename: (name: string) => void
   onChangeHeight: (heightMeters: number) => void
   onChangeGroup: (groupLabel: MeshGroupLabel | null) => void
@@ -24,7 +23,6 @@ export default function DeviceInspectorSheet({
   model,
   onClose,
   onDelete,
-  onRotate,
   onRename,
   onChangeHeight,
   onChangeGroup,
@@ -46,9 +44,6 @@ export default function DeviceInspectorSheet({
         <div className="modal-header">
           <h2>編輯裝置</h2>
           <div className="modal-header-actions">
-            <button className="modal-close" onClick={onRotate} aria-label="旋轉">
-              <RotateIcon size={18} />
-            </button>
             <button className="modal-close" onClick={onDelete} aria-label="刪除">
               <TrashIcon size={18} />
             </button>

@@ -46,7 +46,7 @@ import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
 import { getClientType } from '../data/clientTypes'
 import { bestRouterConnection, estimateRateMbps } from '../lib/signalModel'
-import { TrashIcon } from '../components/icons'
+import { RulerIcon, TrashIcon } from '../components/icons'
 import './EditorPage.css'
 
 interface HistoryState {
@@ -193,17 +193,6 @@ export default function EditorPage() {
     }
     const device = devices.find((d) => d.id === id)
     if (device) await updateDevice(device)
-  }
-
-  async function handleRotateSelected() {
-    if (!selectedDeviceId) return
-    const device = devices.find((d) => d.id === selectedDeviceId)
-    if (!device) return
-    const prevSnapshot = devices
-    const updated = { ...device, rotation: (device.rotation + 45) % 360 }
-    await updateDevice(updated)
-    setDevices((prev) => prev.map((d) => (d.id === updated.id ? updated : d)))
-    pushHistory(prevSnapshot)
   }
 
   async function handleDeleteSelected() {
@@ -462,8 +451,6 @@ export default function EditorPage() {
         onLayers={() => setLayersOpen(true)}
         view={view}
         onViewChange={setView}
-        showScaleButton={mode === 'select'}
-        onSetScale={() => setMode('calibrate')}
       />
 
       <div className="editor-canvas-area" ref={canvasAreaRef}>
@@ -533,6 +520,13 @@ export default function EditorPage() {
 
         {view === '2d' && (
           <div className="editor-bottom-panels">
+            {mode === 'select' && (
+              <button className="scale-pill-btn" onClick={() => setMode('calibrate')}>
+                <RulerIcon size={16} />
+                設定比例尺
+              </button>
+            )}
+
             {selectedDevice && mode === 'place' && (
               <div className="device-inspector">
                 <span className="device-inspector-name">
@@ -644,7 +638,6 @@ export default function EditorPage() {
           model={selectedModel}
           onClose={() => setSelectedDeviceId(null)}
           onDelete={handleDeleteSelected}
-          onRotate={handleRotateSelected}
           onRename={handleRenameDevice}
           onChangeHeight={handleChangeDeviceHeight}
           onChangeGroup={handleChangeDeviceGroup}

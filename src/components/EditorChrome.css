@@ -11,20 +11,20 @@
 }
 
 .editor-topbar-group,
-.editor-topbar .view-toggle,
-.editor-topbar .scale-pill-btn {
+.editor-topbar .view-toggle {
   pointer-events: auto;
 }
 
 .scale-pill-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   border: none;
   background: var(--accent);
   color: var(--accent-contrast);
   border-radius: var(--radius-md);
-  padding: 8px 14px;
+  padding: 10px 14px;
   font-size: 13px;
   font-weight: 700;
   box-shadow: var(--shadow);
