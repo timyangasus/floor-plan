@@ -175,8 +175,7 @@
 }
 
 .re-traffic-pulse-wrap {
-  transform-box: fill-box;
-  transform-origin: center;
+  transform-origin: 0 0;
   animation: re-traffic-pulse 1.8s ease-out infinite;
 }
 

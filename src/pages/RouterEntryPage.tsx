@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './RouterEntryPage.css'
 
@@ -468,33 +468,79 @@ function RouterProductGlyph() {
   )
 }
 
+const TRAFFIC_POINTS = 36
+const TRAFFIC_TICK_MS = 350
+const CHART_W = 320
+const CHART_H = 110
+const BASELINE_Y = 104
+const PEAK_Y = 14
+
+function nextTrafficValue(prev: number): number {
+  const drift = (Math.random() - 0.45) * 26
+  return Math.max(4, Math.min(96, prev + drift))
+}
+
+function useLiveTrafficValues() {
+  const [values, setValues] = useState<number[]>(() => {
+    const initial: number[] = []
+    let v = 8
+    for (let i = 0; i < TRAFFIC_POINTS; i++) {
+      v = i < TRAFFIC_POINTS - 12 ? 6 + Math.random() * 4 : nextTrafficValue(v)
+      initial.push(v)
+    }
+    return initial
+  })
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setValues((prev) => {
+        const next = nextTrafficValue(prev[prev.length - 1])
+        return [...prev.slice(1), next]
+      })
+    }, TRAFFIC_TICK_MS)
+    return () => clearInterval(id)
+  }, [])
+
+  return values
+}
+
+function valueToPoint(value: number, index: number, count: number): [number, number] {
+  const x = (index / (count - 1)) * CHART_W
+  const y = BASELINE_Y - (value / 100) * (BASELINE_Y - PEAK_Y)
+  return [x, y]
+}
+
 function TrafficChart() {
+  const values = useLiveTrafficValues()
+  const points = values.map((v, i) => valueToPoint(v, i, values.length))
+  const linePath = points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ')
+  const areaPath = `${linePath} L${CHART_W},${CHART_H} L0,${CHART_H} Z`
+  const [lastX, lastY] = points[points.length - 1]
+
   return (
-    <svg className="re-traffic-chart" viewBox="0 0 320 110" preserveAspectRatio="none">
+    <svg className="re-traffic-chart" viewBox={`0 0 ${CHART_W} ${CHART_H}`} preserveAspectRatio="none">
       <defs>
         <linearGradient id="re-traffic-fill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#5eead4" stopOpacity="0.85" />
           <stop offset="100%" stopColor="#5eead4" stopOpacity="0.05" />
         </linearGradient>
       </defs>
-      <path
-        className="re-traffic-area"
-        d="M0,104 L210,104 L222,20 L236,20 L248,78 L256,70 L264,86 L276,60 L288,74 L296,66 L320,58 L320,110 L0,110 Z"
-        fill="url(#re-traffic-fill)"
-      />
+      <path className="re-traffic-area" d={areaPath} fill="url(#re-traffic-fill)" />
       <path
         className="re-traffic-line"
-        d="M0,104 L210,104 L222,20 L236,20 L248,78 L256,70 L264,86 L276,60 L288,74 L296,66 L320,58"
+        d={linePath}
         fill="none"
         stroke="#14b8a6"
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <g className="re-traffic-pulse-wrap">
-        <circle cx="320" cy="58" r="4" fill="#14b8a6" />
+      <g transform={`translate(${lastX}, ${lastY})`}>
+        <g className="re-traffic-pulse-wrap">
+          <circle r="4" fill="#14b8a6" />
+        </g>
       </g>
-      <circle cx="320" cy="58" r="3.5" fill="#14b8a6" stroke="#fff" strokeWidth="1.5" />
+      <circle cx={lastX} cy={lastY} r="3.5" fill="#14b8a6" stroke="#fff" strokeWidth="1.5" />
     </svg>
   )
 }
