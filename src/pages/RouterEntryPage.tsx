@@ -478,10 +478,12 @@ function TrafficChart() {
         </linearGradient>
       </defs>
       <path
+        className="re-traffic-area"
         d="M0,104 L210,104 L222,20 L236,20 L248,78 L256,70 L264,86 L276,60 L288,74 L296,66 L320,58 L320,110 L0,110 Z"
         fill="url(#re-traffic-fill)"
       />
       <path
+        className="re-traffic-line"
         d="M0,104 L210,104 L222,20 L236,20 L248,78 L256,70 L264,86 L276,60 L288,74 L296,66 L320,58"
         fill="none"
         stroke="#14b8a6"
@@ -489,6 +491,10 @@ function TrafficChart() {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+      <g className="re-traffic-pulse-wrap">
+        <circle cx="320" cy="58" r="4" fill="#14b8a6" />
+      </g>
+      <circle cx="320" cy="58" r="3.5" fill="#14b8a6" stroke="#fff" strokeWidth="1.5" />
     </svg>
   )
 }
