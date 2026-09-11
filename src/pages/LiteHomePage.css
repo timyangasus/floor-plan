@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: max(50px, calc(14px + var(--safe-top))) 16px 14px;
+  padding: max(56px, calc(26px + var(--safe-top))) 16px 14px;
   border-bottom: 1px solid var(--border);
 }
 
