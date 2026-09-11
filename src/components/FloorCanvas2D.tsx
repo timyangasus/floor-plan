@@ -574,23 +574,24 @@ export default function FloorCanvas2D({
                   <circle cx={line.b.x} cy={line.b.y} r={9} fill={CALIBRATION_COLOR} stroke="#fff" strokeWidth={2.5} />
                 </g>
               ))}
-            {clients.map((client) => {
-              const result = getClientConnection(client)
-              if (!result) return null
-              const { router, color } = result
-              return (
-                <line
-                  key={client.id}
-                  x1={client.x}
-                  y1={client.y}
-                  x2={router.x}
-                  y2={router.y}
-                  stroke={color}
-                  strokeWidth={3}
-                  strokeOpacity={0.85}
-                />
-              )
-            })}
+            {mode !== 'calibrate' &&
+              clients.map((client) => {
+                const result = getClientConnection(client)
+                if (!result) return null
+                const { router, color } = result
+                return (
+                  <line
+                    key={client.id}
+                    x1={client.x}
+                    y1={client.y}
+                    x2={router.x}
+                    y2={router.y}
+                    stroke={color}
+                    strokeWidth={3}
+                    strokeOpacity={0.85}
+                  />
+                )
+              })}
           </svg>
         )}
 
