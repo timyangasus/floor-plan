@@ -363,6 +363,12 @@ export default function FloorCanvas2D({
   }, [devices, walls, naturalSize, band, scalePxPerMeter])
 
   const lastDrawPoint = wallDrawPoints[wallDrawPoints.length - 1]
+  const wallControlsFlip = (() => {
+    if (!lastDrawPoint || !containerRef.current) return false
+    const containerWidth = containerRef.current.clientWidth
+    const screenX = lastDrawPoint.x * transform.scale + transform.tx
+    return screenX > containerWidth - 140
+  })()
   const pxPerMeter = scalePxPerMeter ?? 60
   const routerCandidates = devices
     .map((d) => {
@@ -550,8 +556,10 @@ export default function FloorCanvas2D({
             style={{
               left: lastDrawPoint.x,
               top: lastDrawPoint.y,
-              transform: `translate(12px, -50%) scale(${1 / transform.scale})`,
-              transformOrigin: 'left center',
+              transform: wallControlsFlip
+                ? `translate(calc(-100% - 12px), -50%) scale(${1 / transform.scale})`
+                : `translate(12px, -50%) scale(${1 / transform.scale})`,
+              transformOrigin: wallControlsFlip ? 'right center' : 'left center',
             }}
           >
             {wallDrawPoints.length >= 2 && (
