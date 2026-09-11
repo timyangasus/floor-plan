@@ -45,6 +45,7 @@ import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
 import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
 import { getClientType } from '../data/clientTypes'
+import { getLiteTemplate } from '../data/liteTemplates'
 import { bestRouterConnection, estimateRateMbps } from '../lib/signalModel'
 import { RulerIcon, TrashIcon } from '../components/icons'
 import './EditorPage.css'
@@ -91,6 +92,8 @@ export default function EditorPage() {
   const canvasAreaRef = useRef<HTMLDivElement>(null)
 
   const imageUrl = useObjectUrl(floor?.imageBlob ?? null)
+  const liteMode = !!floor?.templateId
+  const liteTemplate = floor?.templateId ? getLiteTemplate(floor.templateId) ?? null : null
 
   useEffect(() => {
     setTheme(loadTheme())
@@ -441,7 +444,7 @@ export default function EditorPage() {
 
   return (
     <div className="editor-page">
-      <AppTopNav projectId={project.id} theme={theme} onToggleTheme={toggleTheme} />
+      <AppTopNav projectId={project.id} theme={theme} onToggleTheme={toggleTheme} liteMode={liteMode} />
 
       <div className="editor-body">
       <EditorTopBar
@@ -449,12 +452,14 @@ export default function EditorPage() {
         onLayers={() => setLayersOpen(true)}
         view={view}
         onViewChange={setView}
+        liteMode={liteMode}
       />
 
       <div className="editor-canvas-area" ref={canvasAreaRef}>
         {view === '2d' ? (
           <FloorCanvas2D
             imageUrl={imageUrl}
+            template={liteTemplate}
             naturalSize={naturalSize}
             onNaturalSize={setNaturalSize}
             devices={devices}
@@ -579,6 +584,7 @@ export default function EditorPage() {
             onOpenWallMaterial={() => setWallMaterialOpen(true)}
             onAddClient={handleAddClient}
             onOpenTopology={() => navigate(`/project/${projectId}/topology`)}
+            liteMode={liteMode}
           />
         )}
       </div>
@@ -641,6 +647,7 @@ export default function EditorPage() {
           onChangeHeight={handleChangeDeviceHeight}
           onChangeGroup={handleChangeDeviceGroup}
           onChangeCap={handleChangeDeviceCap}
+          hideMesh={liteMode}
         />
       )}
 

@@ -3,6 +3,9 @@ import type { Band, Device, TestClient, Wall } from '../types'
 import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
 import { getClientType } from '../data/clientTypes'
+import type { LiteTemplate } from '../data/liteTemplates'
+import { LITE_PX_PER_METER } from '../data/liteTemplates'
+import LiteFloorPlanSvg from './LiteFloorPlanSvg'
 import {
   bestRouterConnection,
   bestSignalDbm,
@@ -29,6 +32,7 @@ interface Transform {
 
 interface Props {
   imageUrl: string | null
+  template?: LiteTemplate | null
   naturalSize: { width: number; height: number } | null
   onNaturalSize: (size: { width: number; height: number }) => void
   devices: Device[]
@@ -88,6 +92,7 @@ function distanceToSegment(p: Point, a: Point, b: Point): number {
 
 export default function FloorCanvas2D({
   imageUrl,
+  template = null,
   naturalSize,
   onNaturalSize,
   devices,
@@ -127,6 +132,15 @@ export default function FloorCanvas2D({
   const [calibrationSecondPoint, setCalibrationSecondPoint] = useState<Point | null>(null)
   const [wallDrawPoints, setWallDrawPoints] = useState<Point[]>([])
   const [liveDragClientId, setLiveDragClientId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (template) {
+      onNaturalSize({
+        width: template.widthMeters * LITE_PX_PER_METER,
+        height: template.depthMeters * LITE_PX_PER_METER,
+      })
+    }
+  }, [template])
 
   useEffect(() => {
     if (mode !== 'draw-wall') setWallDrawPoints([])
@@ -413,17 +427,21 @@ export default function FloorCanvas2D({
           height: naturalSize?.height ?? 0,
         }}
       >
-        {imageUrl && (
-          <img
-            className="fc-image"
-            src={imageUrl}
-            alt="floor plan"
-            draggable={false}
-            onLoad={(e) => {
-              const img = e.currentTarget
-              onNaturalSize({ width: img.naturalWidth, height: img.naturalHeight })
-            }}
-          />
+        {template ? (
+          <LiteFloorPlanSvg className="fc-image" template={template} />
+        ) : (
+          imageUrl && (
+            <img
+              className="fc-image"
+              src={imageUrl}
+              alt="floor plan"
+              draggable={false}
+              onLoad={(e) => {
+                const img = e.currentTarget
+                onNaturalSize({ width: img.naturalWidth, height: img.naturalHeight })
+              }}
+            />
+          )
         )}
 
         <canvas

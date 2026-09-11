@@ -1,12 +1,4 @@
-.lite-page {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  background: var(--bg);
-}
-
-.lite-header {
+.lite-home-header {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -33,17 +25,16 @@
   color: var(--text);
 }
 
-.lite-main {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px calc(24px + var(--safe-bottom));
-}
-
-.lite-placeholder {
-  color: var(--text-muted);
-  font-size: 14px;
+.lite-full-version-link {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
   text-align: center;
+  padding: 10px;
+  cursor: pointer;
 }

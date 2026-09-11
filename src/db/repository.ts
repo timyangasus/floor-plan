@@ -1,6 +1,7 @@
 import { getDb } from './db'
 import { createId } from '../lib/id'
 import type { Device, Floor, MeshGroupLabel, Project, TestClient, Wall } from '../types'
+import { LITE_PX_PER_METER } from '../data/liteTemplates'
 
 // --- Projects ---
 
@@ -18,7 +19,7 @@ export async function getProject(id: string): Promise<Project | undefined> {
 export async function createProject(name: string, firstFloorImage: Blob | null): Promise<Project> {
   const db = await getDb()
   const now = Date.now()
-  const project: Project = { id: createId(), name, createdAt: now, updatedAt: now }
+  const project: Project = { id: createId(), name, createdAt: now, updatedAt: now, kind: 'full' }
   await db.put('projects', project)
 
   const floor: Floor = {
@@ -28,6 +29,27 @@ export async function createProject(name: string, firstFloorImage: Blob | null):
     order: 0,
     imageBlob: firstFloorImage,
     scalePxPerMeter: null,
+    templateId: null,
+  }
+  await db.put('floors', floor)
+
+  return project
+}
+
+export async function createLiteProject(name: string, templateId: string): Promise<Project> {
+  const db = await getDb()
+  const now = Date.now()
+  const project: Project = { id: createId(), name, createdAt: now, updatedAt: now, kind: 'lite' }
+  await db.put('projects', project)
+
+  const floor: Floor = {
+    id: createId(),
+    projectId: project.id,
+    name: '1F',
+    order: 0,
+    imageBlob: null,
+    scalePxPerMeter: LITE_PX_PER_METER,
+    templateId,
   }
   await db.put('floors', floor)
 
@@ -97,6 +119,7 @@ export async function addFloor(projectId: string, name: string, imageBlob: Blob 
     order: existing.length,
     imageBlob,
     scalePxPerMeter: null,
+    templateId: null,
   }
   await db.put('floors', floor)
   await touchProject(projectId)

@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import type { Floor, Project } from '../types'
 import { useObjectUrl } from '../lib/useObjectUrl'
+import { getLiteTemplate } from '../data/liteTemplates'
+import LiteFloorPlanSvg from './LiteFloorPlanSvg'
 import './ProjectCard.css'
 
 interface Props {
@@ -13,6 +15,7 @@ export default function ProjectCard({ project, floors, onDelete }: Props) {
   const navigate = useNavigate()
   const thumbFloor = floors[0]
   const thumbUrl = useObjectUrl(thumbFloor?.imageBlob ?? null)
+  const thumbTemplate = thumbFloor?.templateId ? getLiteTemplate(thumbFloor.templateId) ?? null : null
 
   function open() {
     if (!thumbFloor) return
@@ -29,7 +32,9 @@ export default function ProjectCard({ project, floors, onDelete }: Props) {
   return (
     <div className="project-card" onClick={open} role="button" tabIndex={0}>
       <div className="project-card-thumb">
-        {thumbUrl ? (
+        {thumbTemplate ? (
+          <LiteFloorPlanSvg template={thumbTemplate} />
+        ) : thumbUrl ? (
           <img src={thumbUrl} alt={project.name} />
         ) : (
           <div className="project-card-thumb-empty" />

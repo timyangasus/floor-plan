@@ -4,7 +4,7 @@ import HomePage from './pages/HomePage'
 import EditorPage from './pages/EditorPage'
 import TopologyPage from './pages/TopologyPage'
 import RouterEntryPage from './pages/RouterEntryPage'
-import FloorPlanLitePage from './pages/FloorPlanLitePage'
+import LiteHomePage from './pages/LiteHomePage'
 import { applyTheme, loadTheme } from './lib/theme'
 import './App.css'
 
@@ -18,7 +18,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<RouterEntryPage />} />
         <Route path="/home" element={<HomePage />} />
-        <Route path="/lite" element={<FloorPlanLitePage />} />
+        <Route path="/lite" element={<LiteHomePage />} />
         <Route path="/project/:projectId/floor/:floorId" element={<EditorPage />} />
         <Route path="/project/:projectId/topology" element={<TopologyPage />} />
       </Routes>

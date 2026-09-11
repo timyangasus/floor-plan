@@ -16,6 +16,7 @@ interface Props {
   onChangeHeight: (heightMeters: number) => void
   onChangeGroup: (groupLabel: MeshGroupLabel | null) => void
   onChangeCap: (isCap: boolean) => void
+  hideMesh?: boolean
 }
 
 export default function DeviceInspectorSheet({
@@ -27,6 +28,7 @@ export default function DeviceInspectorSheet({
   onChangeHeight,
   onChangeGroup,
   onChangeCap,
+  hideMesh = false,
 }: Props) {
   const fallbackName = model?.name ?? device.modelId
   const [name, setName] = useState(device.name ?? fallbackName)
@@ -93,31 +95,35 @@ export default function DeviceInspectorSheet({
           />
         </div>
 
-        <label className="modal-label">Mesh 群組</label>
-        <div className="device-mesh-row">
-          <select
-            className="modal-input"
-            value={device.groupLabel ?? ''}
-            onChange={(e) => onChangeGroup(e.target.value ? (e.target.value as MeshGroupLabel) : null)}
-          >
-            <option value="">無</option>
-            {GROUP_LABELS.map((g) => (
-              <option key={g} value={g}>
-                {g}
-              </option>
-            ))}
-          </select>
-          <select
-            className="modal-input"
-            disabled={!device.groupLabel}
-            value={device.isCap ? 'CAP' : ''}
-            onChange={(e) => onChangeCap(e.target.value === 'CAP')}
-          >
-            <option value="">角色…</option>
-            <option value="CAP">CAP</option>
-          </select>
-        </div>
-        <p className="modal-dropzone-hint">CAP 為主節點，每組只能有一個。</p>
+        {!hideMesh && (
+          <>
+            <label className="modal-label">Mesh 群組</label>
+            <div className="device-mesh-row">
+              <select
+                className="modal-input"
+                value={device.groupLabel ?? ''}
+                onChange={(e) => onChangeGroup(e.target.value ? (e.target.value as MeshGroupLabel) : null)}
+              >
+                <option value="">無</option>
+                {GROUP_LABELS.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="modal-input"
+                disabled={!device.groupLabel}
+                value={device.isCap ? 'CAP' : ''}
+                onChange={(e) => onChangeCap(e.target.value === 'CAP')}
+              >
+                <option value="">角色…</option>
+                <option value="CAP">CAP</option>
+              </select>
+            </div>
+            <p className="modal-dropzone-hint">CAP 為主節點，每組只能有一個。</p>
+          </>
+        )}
 
         <div className="drawer-divider" />
 

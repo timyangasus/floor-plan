@@ -16,6 +16,8 @@ export interface Project {
   name: string
   createdAt: number
   updatedAt: number
+  /** 'lite' projects are built from a preset template floor plan instead of an uploaded image. */
+  kind: 'full' | 'lite'
 }
 
 export interface Floor {
@@ -26,6 +28,8 @@ export interface Floor {
   imageBlob: Blob | null
   /** pixels per meter, measured against the stored floor plan image's natural size */
   scalePxPerMeter: number | null
+  /** Set for lite floors: id of the preset LiteTemplate this floor renders instead of imageBlob. */
+  templateId: string | null
 }
 
 export type Band = '2.4' | '5' | '6'

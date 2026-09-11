@@ -9,21 +9,23 @@ interface Props {
   projectId?: string
   theme: ThemeMode
   onToggleTheme: () => void
+  liteMode?: boolean
 }
 
-export default function AppTopNav({ projectId, theme, onToggleTheme }: Props) {
+export default function AppTopNav({ projectId, theme, onToggleTheme, liteMode = false }: Props) {
   const navigate = useNavigate()
   const location = useLocation()
   const [showAbout, setShowAbout] = useState(false)
 
+  const homePath = liteMode ? '/lite' : '/home'
   const onTopology = location.pathname.endsWith('/topology')
-  const onOverview = location.pathname === '/home'
+  const onOverview = location.pathname === homePath
   const onEditor = /^\/project\/[^/]+\/floor\//.test(location.pathname)
 
   function goToFloorEditor() {
     const last = loadLastFloor()
     if (last) navigate(`/project/${last.projectId}/floor/${last.floorId}`)
-    else navigate('/home')
+    else navigate(homePath)
   }
 
   return (
@@ -35,7 +37,7 @@ export default function AppTopNav({ projectId, theme, onToggleTheme }: Props) {
           </button>
           <button
             className={`app-top-nav-btn app-top-nav-logo ${onOverview ? 'active' : ''}`}
-            onClick={() => navigate('/home')}
+            onClick={() => navigate(homePath)}
             aria-label="所有樓層總覽"
           >
             ▲
@@ -47,14 +49,16 @@ export default function AppTopNav({ projectId, theme, onToggleTheme }: Props) {
           >
             <GridIcon />
           </button>
-          <button
-            className={`app-top-nav-btn ${onTopology ? 'active' : ''}`}
-            onClick={() => projectId && navigate(`/project/${projectId}/topology`)}
-            disabled={!projectId}
-            aria-label="Mesh 拓撲"
-          >
-            <NetworkIcon />
-          </button>
+          {!liteMode && (
+            <button
+              className={`app-top-nav-btn ${onTopology ? 'active' : ''}`}
+              onClick={() => projectId && navigate(`/project/${projectId}/topology`)}
+              disabled={!projectId}
+              aria-label="Mesh 拓撲"
+            >
+              <NetworkIcon />
+            </button>
+          )}
         </div>
 
         <div className="app-top-nav-right">

@@ -1,38 +1,34 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import ProjectCard from '../components/ProjectCard'
-import NewProjectModal from '../components/NewProjectModal'
-import { createProject, deleteProject, listFloors, listProjects } from '../db/repository'
+import LiteTemplatePickerModal from '../components/LiteTemplatePickerModal'
+import { createLiteProject, deleteProject, listFloors, listProjects } from '../db/repository'
 import type { Floor, Project } from '../types'
 import { timeGreeting } from '../lib/greeting'
-import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
-import { useNavigate } from 'react-router-dom'
-import AppTopNav from '../components/AppTopNav'
-import './HomePage.css'
+import { ArrowLeftIcon } from '../components/icons'
+import '../pages/HomePage.css'
+import './LiteHomePage.css'
 
-export default function HomePage() {
+export default function LiteHomePage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [floorsByProject, setFloorsByProject] = useState<Record<string, Floor[]>>({})
   const [search, setSearch] = useState('')
   const [showNewProject, setShowNewProject] = useState(false)
-  const [theme, setTheme] = useState<ThemeMode>('system')
   const navigate = useNavigate()
 
   useEffect(() => {
-    setTheme(loadTheme())
     refresh()
   }, [])
 
   async function refresh() {
-    const list = (await listProjects()).filter((p) => p.kind !== 'lite')
+    const list = (await listProjects()).filter((p) => p.kind === 'lite')
     setProjects(list)
-    const entries = await Promise.all(
-      list.map(async (p) => [p.id, await listFloors(p.id)] as const),
-    )
+    const entries = await Promise.all(list.map(async (p) => [p.id, await listFloors(p.id)] as const))
     setFloorsByProject(Object.fromEntries(entries))
   }
 
-  async function handleCreate(name: string, image: File | null) {
-    const project = await createProject(name, image)
+  async function handleCreate(name: string, templateId: string) {
+    const project = await createLiteProject(name, templateId)
     setShowNewProject(false)
     await refresh()
     const floors = await listFloors(project.id)
@@ -44,13 +40,6 @@ export default function HomePage() {
     await refresh()
   }
 
-  function toggleTheme() {
-    const next: ThemeMode = theme === 'dark' ? 'light' : theme === 'light' ? 'system' : 'dark'
-    setTheme(next)
-    saveTheme(next)
-    applyTheme(next)
-  }
-
   const filtered = useMemo(
     () => projects.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())),
     [projects, search],
@@ -58,11 +47,16 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
-      <AppTopNav theme={theme} onToggleTheme={toggleTheme} />
+      <header className="lite-home-header">
+        <button className="lite-back" onClick={() => navigate('/')} aria-label="返回 Router App 首頁">
+          <ArrowLeftIcon />
+        </button>
+        <div className="lite-header-title">Floor Plan Lite</div>
+      </header>
 
       <main className="home-main">
         <h1 className="home-greeting">{timeGreeting()}</h1>
-        <p className="home-subtitle">{projects.length} 個平面圖專案</p>
+        <p className="home-subtitle">{projects.length} 個簡易專案</p>
 
         <input
           className="home-search"
@@ -90,10 +84,14 @@ export default function HomePage() {
         {filtered.length === 0 && projects.length > 0 && (
           <p className="home-empty">沒有符合搜尋條件的專案。</p>
         )}
+
+        <button className="lite-full-version-link" onClick={() => navigate('/home')}>
+          需要更完整的功能？前往完整版 →
+        </button>
       </main>
 
       {showNewProject && (
-        <NewProjectModal onClose={() => setShowNewProject(false)} onCreate={handleCreate} />
+        <LiteTemplatePickerModal onClose={() => setShowNewProject(false)} onCreate={handleCreate} />
       )}
     </div>
   )
