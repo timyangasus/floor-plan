@@ -9,7 +9,7 @@ const GROUP_LABELS: MeshGroupLabel[] = ['A', 'B', 'C', 'D', 'E']
 
 interface Props {
   device: Device
-  model: RouterModel | undefined
+  model: RouterModel | null | undefined
   onClose: () => void
   onDelete: () => void
   onRotate: () => void
