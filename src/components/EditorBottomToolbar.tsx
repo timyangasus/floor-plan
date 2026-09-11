@@ -5,7 +5,6 @@ import './EditorChrome.css'
 interface Props {
   mode: CanvasMode
   onModeChange: (m: CanvasMode) => void
-  onOpenWallMaterial: () => void
   onAddClient: () => void
   onOpenTopology: () => void
   onChangeLayout: () => void
@@ -15,7 +14,6 @@ interface Props {
 export default function EditorBottomToolbar({
   mode,
   onModeChange,
-  onOpenWallMaterial,
   onAddClient,
   onOpenTopology,
   onChangeLayout,
@@ -36,7 +34,7 @@ export default function EditorBottomToolbar({
       {!liteMode && (
         <button
           className={mode === 'draw-wall' ? 'active' : ''}
-          onClick={onOpenWallMaterial}
+          onClick={() => onModeChange('draw-wall')}
           aria-label="牆面材質"
         >
           <GridIcon />

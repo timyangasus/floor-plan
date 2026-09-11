@@ -179,7 +179,11 @@ export default function EditorPage() {
   }
 
   async function handlePlaceAt(x: number, y: number) {
-    if (!pendingModel || !floorId) return
+    if (!pendingModel) {
+      setCatalogOpen(true)
+      return
+    }
+    if (!floorId) return
     const prevSnapshot = devices
     const created = await placeDevice(floorId, pendingModel.id, x, y)
     setDevices((prev) => [...prev, created])
@@ -517,6 +521,8 @@ export default function EditorPage() {
             selectedWallId={selectedWallId}
             onSelectWall={selectWall}
             onWallComplete={handleWallComplete}
+            wallMaterialReady={wallDrawMaterialId !== null}
+            onRequestWallMaterial={() => setWallMaterialOpen(true)}
             clients={clients}
             selectedClientId={selectedClientId}
             onSelectClient={selectClient}
@@ -563,11 +569,19 @@ export default function EditorPage() {
               <div className="calibration-hint">在平面圖上點兩下，標記一段已知實際距離的兩個點</div>
             )}
 
+            {mode === 'place' && !pendingModel && (
+              <div className="calibration-hint">在平面圖上點擊選擇裝置型號</div>
+            )}
+
             {mode === 'place' && pendingModel && (
               <div className="calibration-hint">在平面圖上點擊放置「{pendingModel.name}」</div>
             )}
 
-            {mode === 'draw-wall' && (
+            {mode === 'draw-wall' && !wallDrawMaterialId && (
+              <div className="calibration-hint">在平面圖上點擊選擇牆面材質</div>
+            )}
+
+            {mode === 'draw-wall' && wallDrawMaterialId && (
               <div className="calibration-hint">在平面圖上點擊新增頂點，繪製牆面路徑，畫好後點選 ✓ 確認</div>
             )}
 
@@ -649,10 +663,9 @@ export default function EditorPage() {
             mode={mode}
             onModeChange={(m) => {
               if (mode === 'place' && m !== 'place') setPendingModel(null)
+              if (mode === 'draw-wall' && m !== 'draw-wall') setWallDrawMaterialId(null)
               setMode(m)
-              if (m === 'place') setCatalogOpen(true)
             }}
-            onOpenWallMaterial={() => setWallMaterialOpen(true)}
             onAddClient={handleAddClient}
             onOpenTopology={() => navigate(`/project/${projectId}/topology`)}
             onChangeLayout={() => setLayoutPickerOpen(true)}
@@ -695,7 +708,13 @@ export default function EditorPage() {
       )}
 
       {wallMaterialOpen && (
-        <WallMaterialSheet onClose={() => setWallMaterialOpen(false)} onPick={handlePickWallMaterial} />
+        <WallMaterialSheet
+          onClose={() => {
+            setWallMaterialOpen(false)
+            if (!wallDrawMaterialId) setMode('select')
+          }}
+          onPick={handlePickWallMaterial}
+        />
       )}
 
       {layoutPickerOpen && (

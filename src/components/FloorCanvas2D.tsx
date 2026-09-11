@@ -42,6 +42,8 @@ interface Props {
   selectedWallId: string | null
   onSelectWall: (id: string | null) => void
   onWallComplete: (points: Point[]) => void
+  wallMaterialReady: boolean
+  onRequestWallMaterial: () => void
   clients: TestClient[]
   selectedClientId: string | null
   onSelectClient: (id: string | null) => void
@@ -105,6 +107,8 @@ export default function FloorCanvas2D({
   selectedWallId,
   onSelectWall,
   onWallComplete,
+  wallMaterialReady,
+  onRequestWallMaterial,
   clients,
   selectedClientId,
   onSelectClient,
@@ -215,6 +219,10 @@ export default function FloorCanvas2D({
       return
     }
     if (mode === 'draw-wall') {
+      if (!wallMaterialReady) {
+        onRequestWallMaterial()
+        return
+      }
       setWallDrawPoints((prev) => {
         if (prev.length === 0) return [point]
         const last = prev[prev.length - 1]
