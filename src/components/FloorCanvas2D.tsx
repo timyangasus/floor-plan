@@ -147,13 +147,6 @@ export default function FloorCanvas2D({
   const [liveDragClientId, setLiveDragClientId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (template) {
-      const { width, height } = getLiteCanvasSize(template)
-      onNaturalSize({ width, height })
-    }
-  }, [template])
-
-  useEffect(() => {
     if (mode !== 'draw-wall') setWallDrawPoints([])
     if (mode !== 'calibrate') {
       setCalibrationFirstPoint(null)

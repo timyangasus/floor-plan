@@ -48,7 +48,7 @@ import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
 import { getRouterModel } from '../data/routerCatalog'
 import { getWallMaterial } from '../data/wallMaterials'
 import { getClientType } from '../data/clientTypes'
-import { getLiteTemplate, LITE_PX_PER_METER } from '../data/liteTemplates'
+import { getLiteCanvasSize, getLiteTemplate, LITE_PX_PER_METER } from '../data/liteTemplates'
 import {
   bestRouterConnection,
   clientSignalQualityColor,
@@ -107,6 +107,13 @@ export default function EditorPage() {
   const liteMode = !!floor?.templateId
   const liteTemplate = floor?.templateId ? getLiteTemplate(floor.templateId) ?? null : null
 
+  // Lite floors have a fixed, known size — compute it directly instead of
+  // routing through a child-component effect + callback, which raced with
+  // load()'s own state updates on fast successive floor switches.
+  useEffect(() => {
+    setNaturalSize(liteTemplate ? getLiteCanvasSize(liteTemplate) : null)
+  }, [liteTemplate])
+
   useEffect(() => {
     setTheme(loadTheme())
     load()
@@ -133,7 +140,6 @@ export default function EditorPage() {
     setDevices(d)
     setWalls(w)
     setClients(c)
-    setNaturalSize(null)
     setHistory({ past: [], future: [] })
     setSelectedDeviceId(null)
     setSelectedWallId(null)
