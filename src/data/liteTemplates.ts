@@ -90,6 +90,33 @@ export function getLiteTemplate(id: string): LiteTemplate | undefined {
   return LITE_TEMPLATES.find((t) => t.id === id)
 }
 
+/** Templates that ship with a pre-populated 2-device demo layout when a new project is created. */
+export const LITE_DEMO_TEMPLATE_IDS = ['m-square', 'm-rect']
+
+export const LITE_DEFAULT_TEMPLATE_ID = 'm-square'
+
+/**
+ * Two sensible device spots (opposite rooms on the grid, e.g. main router + Mesh
+ * node) for a "ready-made effect" demo layout, in the same content-space
+ * coordinates used by placed devices (room grid + label header offset).
+ */
+export function getLiteDefaultDevicePositions(template: LiteTemplate): { x: number; y: number }[] {
+  const width = template.widthMeters * LITE_PX_PER_METER
+  const planHeight = template.depthMeters * LITE_PX_PER_METER
+  const cellW = width / template.cols
+  const cellH = planHeight / template.rows
+  const { labelMarginTop } = getLiteCanvasSize(template)
+  const roomCount = template.cols * template.rows
+
+  function roomCenter(i: number) {
+    const c = i % template.cols
+    const r = Math.floor(i / template.cols)
+    return { x: c * cellW + cellW / 2, y: r * cellH + cellH / 2 + labelMarginTop }
+  }
+
+  return [roomCenter(0), roomCenter(roomCount - 1)]
+}
+
 /**
  * Reserves a small strip above the drawn floor plan for the ping-range caption, so the
  * label never overlaps the plan itself. Both LiteFloorPlanSvg and FloorCanvas2D (for the

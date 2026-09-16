@@ -1,7 +1,14 @@
 import { getDb } from './db'
 import { createId } from '../lib/id'
 import type { CalibrationLine, Device, Floor, MeshGroupLabel, Project, TestClient, Wall } from '../types'
-import { LITE_PX_PER_METER } from '../data/liteTemplates'
+import {
+  getLiteDefaultDevicePositions,
+  getLiteTemplate,
+  LITE_DEMO_TEMPLATE_IDS,
+  LITE_PX_PER_METER,
+} from '../data/liteTemplates'
+
+const LITE_DEMO_MODEL_ID = 'zenwifi-xt9'
 
 // --- Projects ---
 
@@ -54,6 +61,15 @@ export async function createLiteProject(name: string, templateId: string): Promi
     templateId,
   }
   await db.put('floors', floor)
+
+  if (LITE_DEMO_TEMPLATE_IDS.includes(templateId)) {
+    const template = getLiteTemplate(templateId)
+    if (template) {
+      for (const pos of getLiteDefaultDevicePositions(template)) {
+        await placeDevice(floor.id, LITE_DEMO_MODEL_ID, pos.x, pos.y)
+      }
+    }
+  }
 
   return project
 }

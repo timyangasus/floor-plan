@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LITE_TEMPLATES } from '../data/liteTemplates'
+import { LITE_DEFAULT_TEMPLATE_ID, LITE_TEMPLATES } from '../data/liteTemplates'
 import LiteFloorPlanSvg from './LiteFloorPlanSvg'
 import './LiteTemplatePickerModal.css'
 
@@ -19,7 +19,7 @@ export default function LiteTemplatePickerModal({
   confirmLabel = '建立',
 }: Props) {
   const [name, setName] = useState('')
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(withName ? LITE_DEFAULT_TEMPLATE_ID : null)
 
   function handleConfirm() {
     if (!selectedId) return
