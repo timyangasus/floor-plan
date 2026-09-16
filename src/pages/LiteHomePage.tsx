@@ -3,35 +3,34 @@ import { useNavigate } from 'react-router-dom'
 import ProjectCard from '../components/ProjectCard'
 import LiteTemplatePickerModal from '../components/LiteTemplatePickerModal'
 import { createLiteProject, deleteProject, listFloors, listProjects } from '../db/repository'
+import { LITE_DEFAULT_TEMPLATE_ID } from '../data/liteTemplates'
 import type { Floor, Project } from '../types'
 import { timeGreeting } from '../lib/greeting'
+import { hasSeededLiteDefault, markLiteDefaultSeeded } from '../lib/liteSeed'
 import { ArrowLeftIcon } from '../components/icons'
 import '../pages/HomePage.css'
 import './LiteHomePage.css'
 
 function WifiHouseIllustration() {
   return (
-    <svg className="lite-promo-illustration" viewBox="0 0 100 90" width="72" height="65">
-      <path d="M30 40 a28 28 0 0 1 40 0" stroke="#fff" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.9" />
-      <path d="M38 48 a16 16 0 0 1 24 0" stroke="#fff" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.9" />
-      <circle cx="50" cy="56" r="3.5" fill="#fff" />
+    <svg className="lite-promo-illustration" viewBox="0 0 100 100" width="76" height="76">
+      <circle cx="50" cy="52" r="46" fill="rgba(255,255,255,0.14)" />
+      <circle cx="50" cy="52" r="35" fill="rgba(255,255,255,0.12)" />
+      <path d="M31 45 a27 27 0 0 1 38 0" stroke="#fff" strokeWidth="4.5" fill="none" strokeLinecap="round" opacity="0.5" />
+      <path d="M38 52 a17 17 0 0 1 24 0" stroke="#fff" strokeWidth="4.5" fill="none" strokeLinecap="round" opacity="0.9" />
+      <circle cx="50" cy="59" r="3.4" fill="#fff" />
+      <path d="M17 71 L50 44 L83 71 Z" fill="#fff" />
       <path
-        d="M16 66 L50 40 L84 66"
+        d="M26 68 L26 89 L74 89 L74 68"
         stroke="#fff"
         strokeWidth="5"
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path
-        d="M24 62 L24 84 L76 84 L76 62"
-        stroke="#fff"
-        strokeWidth="5"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <rect x="43" y="68" width="14" height="16" fill="#fff" opacity="0.9" />
+      <rect x="44" y="75" width="12" height="14" rx="1.5" fill="#4338ca" />
+      <rect x="31" y="75" width="9" height="9" rx="1.5" fill="#4338ca" opacity="0.85" />
+      <rect x="60" y="75" width="9" height="9" rx="1.5" fill="#4338ca" opacity="0.85" />
     </svg>
   )
 }
@@ -48,7 +47,15 @@ export default function LiteHomePage() {
   }, [])
 
   async function refresh() {
-    const list = (await listProjects()).filter((p) => p.kind === 'lite')
+    let list = (await listProjects()).filter((p) => p.kind === 'lite')
+
+    // First-time use: seed one ready-made project so the list isn't empty on arrival.
+    if (list.length === 0 && !hasSeededLiteDefault()) {
+      markLiteDefaultSeeded()
+      await createLiteProject('我的家', LITE_DEFAULT_TEMPLATE_ID)
+      list = (await listProjects()).filter((p) => p.kind === 'lite')
+    }
+
     setProjects(list)
     const entries = await Promise.all(list.map(async (p) => [p.id, await listFloors(p.id)] as const))
     setFloorsByProject(Object.fromEntries(entries))
