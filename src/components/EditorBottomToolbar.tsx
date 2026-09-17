@@ -5,7 +5,6 @@ import './EditorChrome.css'
 interface Props {
   mode: CanvasMode
   onModeChange: (m: CanvasMode) => void
-  onAddClient: () => void
   onOpenTopology: () => void
   onChangeLayout: () => void
   liteMode?: boolean
@@ -14,7 +13,6 @@ interface Props {
 export default function EditorBottomToolbar({
   mode,
   onModeChange,
-  onAddClient,
   onOpenTopology,
   onChangeLayout,
   liteMode = false,
@@ -43,7 +41,7 @@ export default function EditorBottomToolbar({
       <button className={mode === 'place' ? 'active' : ''} onClick={() => onModeChange('place')} aria-label="放置裝置">
         <RouterIcon />
       </button>
-      <button onClick={onAddClient} aria-label="用戶端體驗">
+      <button className={mode === 'client' ? 'active' : ''} onClick={() => onModeChange('client')} aria-label="用戶端體驗">
         <WifiIcon />
       </button>
       {liteMode && (

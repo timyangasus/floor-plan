@@ -18,7 +18,7 @@ import {
 import { RouterIcon, PhoneIcon, CheckIcon, CloseIcon, UndoIcon, TrashIcon } from './icons'
 import './FloorCanvas2D.css'
 
-export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate' | 'draw-wall'
+export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate' | 'draw-wall' | 'client'
 
 const CALIBRATION_COLOR = '#e6007e'
 
@@ -335,7 +335,7 @@ export default function FloorCanvas2D({
   }
 
   function handleClientPointerDown(e: React.PointerEvent, clientId: string) {
-    if (mode !== 'select' && mode !== 'place') return
+    if (mode !== 'select' && mode !== 'place' && mode !== 'client') return
     if (activeDragPointerId.current !== null) return
     e.stopPropagation()
     dragMoved.current = false

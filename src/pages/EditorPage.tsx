@@ -658,6 +658,13 @@ export default function EditorPage() {
               </button>
             )}
 
+            {mode === 'client' && (
+              <button className="scale-pill-btn" onClick={handleAddClient}>
+                加入行動裝置
+                <PlusIcon size={16} />
+              </button>
+            )}
+
 
             <EditorSideControls
               onZoomIn={() => zoomBy(1.2)}
@@ -683,7 +690,6 @@ export default function EditorPage() {
               if (m === 'draw-wall' && walls.length === 0) setWallMaterialOpen(true)
               if (m === 'place' && devices.length === 0) setCatalogOpen(true)
             }}
-            onAddClient={handleAddClient}
             onOpenTopology={() => navigate(`/project/${projectId}/topology`)}
             onChangeLayout={() => setLayoutPickerOpen(true)}
             liteMode={liteMode}
