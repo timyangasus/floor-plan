@@ -8,6 +8,7 @@ import type { Floor, Project } from '../types'
 import { timeGreeting } from '../lib/greeting'
 import { hasSeededLiteDefault, markLiteDefaultSeeded } from '../lib/liteSeed'
 import { ArrowLeftIcon } from '../components/icons'
+import VersionSwitchButton from '../components/VersionSwitchButton'
 import '../pages/HomePage.css'
 import './LiteHomePage.css'
 
@@ -91,6 +92,7 @@ export default function LiteHomePage() {
           <ArrowLeftIcon />
         </button>
         <div className="lite-header-title">Floor Plan Lite</div>
+        <VersionSwitchButton liteMode />
       </header>
 
       <main className="home-main lite-home-main">

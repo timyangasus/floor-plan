@@ -4,6 +4,7 @@ import { ArrowLeftIcon, GridIcon, NetworkIcon, HelpIcon, MonitorIcon, HomeIcon }
 import type { ThemeMode } from '../lib/theme'
 import { loadLastFloor } from '../lib/lastFloor'
 import DesktopHintModal from './DesktopHintModal'
+import VersionSwitchButton from './VersionSwitchButton'
 import './AppTopNav.css'
 
 interface Props {
@@ -64,6 +65,7 @@ export default function AppTopNav({ projectId, liteMode = false }: Props) {
         </div>
 
         <div className="app-top-nav-right">
+          <VersionSwitchButton liteMode={liteMode} />
           {liteMode && (
             <button
               className="app-top-nav-btn app-top-nav-btn-notif"
