@@ -193,18 +193,17 @@ export default function EditorPage() {
   }
 
   async function handlePlaceAt(x: number, y: number) {
-    if (!pendingModel) {
-      setCatalogOpen(true)
-      return
-    }
+    // Model must already be chosen via the toolbar icon/button — tapping the
+    // floor plan itself no longer opens that picker.
+    if (!pendingModel) return
     if (!floorId) return
     const prevSnapshot = devices
     const created = await placeDevice(floorId, pendingModel.id, x, y)
     setDevices((prev) => [...prev, created])
     pushHistory(prevSnapshot)
     // Placing just drops the router on the plan — it doesn't select it or
-    // open its settings. Double-tapping the placed router (same gesture as
-    // any other device) is what opens the edit sheet.
+    // open its settings. Tapping the placed router (same gesture as any
+    // other device) is what opens the edit sheet.
     // Lite mode has no visible "select" tool to switch back to manually, so
     // placement must return to the idle/select state on its own.
     if (liteMode) setMode('select')
@@ -602,10 +601,6 @@ export default function EditorPage() {
               <div className="calibration-hint">在平面圖上點兩下，標記一段已知實際距離的兩個點</div>
             )}
 
-            {mode === 'place' && !pendingModel && (
-              <div className="calibration-hint">在平面圖上點擊選擇裝置型號</div>
-            )}
-
             {mode === 'place' && pendingModel && (
               <div className="calibration-hint">在平面圖上點擊放置「{pendingModel.name}」</div>
             )}
@@ -648,6 +643,13 @@ export default function EditorPage() {
             {mode === 'draw-wall' && !wallDrawMaterialId && (
               <button className="scale-pill-btn" onClick={() => setWallMaterialOpen(true)}>
                 選擇牆面材質
+                <PlusIcon size={16} />
+              </button>
+            )}
+
+            {mode === 'place' && !pendingModel && (
+              <button className="scale-pill-btn" onClick={() => setCatalogOpen(true)}>
+                選擇 Router
                 <PlusIcon size={16} />
               </button>
             )}
