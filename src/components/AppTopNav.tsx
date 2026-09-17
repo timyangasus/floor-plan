@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeftIcon, GridIcon, NetworkIcon, HelpIcon, MonitorIcon } from './icons'
+import { ArrowLeftIcon, GridIcon, NetworkIcon, HelpIcon, MonitorIcon, HomeIcon } from './icons'
 import type { ThemeMode } from '../lib/theme'
 import { loadLastFloor } from '../lib/lastFloor'
 import DesktopHintModal from './DesktopHintModal'
@@ -42,7 +42,7 @@ export default function AppTopNav({ projectId, theme, onToggleTheme, liteMode = 
             onClick={() => navigate(homePath)}
             aria-label="所有樓層總覽"
           >
-            ▲
+            <HomeIcon />
           </button>
           <button
             className={`app-top-nav-btn ${onEditor ? 'active' : ''}`}

@@ -98,6 +98,7 @@ export default function EditorPage() {
     initialMeters?: number
   } | null>(null)
   const [theme, setTheme] = useState<ThemeMode>('system')
+  const [showDemoHint, setShowDemoHint] = useState(false)
 
   const [history, setHistory] = useState<HistoryState>({ past: [], future: [] })
   const dragSnapshotRef = useRef<Device[] | null>(null)
@@ -118,6 +119,13 @@ export default function EditorPage() {
     setTheme(loadTheme())
     load()
   }, [projectId, floorId])
+
+  useEffect(() => {
+    if (!project?.isSample) return
+    setShowDemoHint(true)
+    const timer = setTimeout(() => setShowDemoHint(false), 5000)
+    return () => clearTimeout(timer)
+  }, [project?.id, project?.isSample])
 
   async function load() {
     if (!projectId || !floorId) return
@@ -569,6 +577,10 @@ export default function EditorPage() {
         {view === '2d' && (
           <div className="editor-top-panels">
             {mode !== 'calibrate' && mode !== 'pan' && <WifiLegend band={band} onBandChange={setBand} />}
+
+            {showDemoHint && mode === 'select' && (
+              <div className="calibration-hint">可拖移平面圖上的 router 查看 WiFi 訊號強度</div>
+            )}
 
             {floor.scalePxPerMeter === null && mode === 'select' && (
               <div className="calibration-hint">請先設定平面圖比例尺，覆蓋範圍才會準確。</div>
