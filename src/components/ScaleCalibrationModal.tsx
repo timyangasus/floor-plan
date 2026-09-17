@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { TrashIcon } from './icons'
 import './EditorChrome.css'
 
 interface Props {
@@ -6,9 +7,10 @@ interface Props {
   initialMeters?: number
   onCancel: () => void
   onConfirm: (meters: number) => void
+  onDelete?: () => void
 }
 
-export default function ScaleCalibrationModal({ pixelDistance, initialMeters, onCancel, onConfirm }: Props) {
+export default function ScaleCalibrationModal({ pixelDistance, initialMeters, onCancel, onConfirm, onDelete }: Props) {
   const [meters, setMeters] = useState(() => (initialMeters !== undefined ? String(initialMeters) : '1'))
 
   function handleConfirm() {
@@ -40,6 +42,12 @@ export default function ScaleCalibrationModal({ pixelDistance, initialMeters, on
           onChange={(e) => setMeters(e.target.value)}
         />
         <div className="modal-actions">
+          {onDelete && (
+            <button className="btn btn-danger modal-actions-delete" onClick={onDelete}>
+              <TrashIcon size={16} />
+              刪除線段
+            </button>
+          )}
           <button className="btn btn-secondary" onClick={onCancel}>
             取消
           </button>

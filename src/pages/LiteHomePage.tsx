@@ -114,7 +114,7 @@ export default function LiteHomePage() {
               />
             )}
 
-            <button className="home-add-tile lite-add-tile" onClick={() => setShowNewProject(true)}>
+            <button className="home-add-tile" onClick={() => setShowNewProject(true)}>
               <span className="home-add-icon">+</span>
               <span>新增專案</span>
             </button>

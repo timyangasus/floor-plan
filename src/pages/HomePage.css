@@ -54,10 +54,10 @@
 }
 
 .home-add-tile {
-  border: 1.5px dashed var(--border);
+  border: 1.5px dashed var(--accent);
   border-radius: var(--radius-lg);
   background: transparent;
-  color: var(--text-muted);
+  color: var(--accent);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -70,7 +70,7 @@
 
 .home-add-icon {
   font-size: 22px;
-  color: var(--text-faint);
+  color: var(--accent);
 }
 
 .home-empty {

@@ -23,10 +23,21 @@ export async function getProject(id: string): Promise<Project | undefined> {
   return db.get('projects', id)
 }
 
-export async function createProject(name: string, firstFloorImage: Blob | null): Promise<Project> {
+export async function createProject(
+  name: string,
+  firstFloorImage: Blob | null,
+  options?: { isSample?: boolean },
+): Promise<Project> {
   const db = await getDb()
   const now = Date.now()
-  const project: Project = { id: createId(), name, createdAt: now, updatedAt: now, kind: 'full' }
+  const project: Project = {
+    id: createId(),
+    name,
+    createdAt: now,
+    updatedAt: now,
+    kind: 'full',
+    ...(options?.isSample ? { isSample: true } : {}),
+  }
   await db.put('projects', project)
 
   const floor: Floor = {
@@ -183,6 +194,30 @@ export async function updateCalibrationLineMeters(
   floor.calibrationLines = (floor.calibrationLines ?? []).map((l) => (l.id === lineId ? { ...l, meters } : l))
   floor.scalePxPerMeter = scalePxPerMeter
   await db.put('floors', floor)
+}
+
+/**
+ * Deletes a calibration line. Since scalePxPerMeter only tracks a derived
+ * number (not which line produced it), falls back to re-deriving it from
+ * whichever line is left, or null if none remain.
+ */
+export async function deleteCalibrationLine(floorId: string, lineId: string): Promise<number | null> {
+  const db = await getDb()
+  const floor = await db.get('floors', floorId)
+  if (!floor) return null
+  const remaining = (floor.calibrationLines ?? []).filter((l) => l.id !== lineId)
+  floor.calibrationLines = remaining
+
+  let scalePxPerMeter: number | null = null
+  const fallback = remaining[remaining.length - 1]
+  if (fallback) {
+    const dx = fallback.a.x - fallback.b.x
+    const dy = fallback.a.y - fallback.b.y
+    scalePxPerMeter = Math.sqrt(dx * dx + dy * dy) / fallback.meters
+  }
+  floor.scalePxPerMeter = scalePxPerMeter
+  await db.put('floors', floor)
+  return scalePxPerMeter
 }
 
 export async function updateFloorTemplate(floorId: string, templateId: string): Promise<void> {

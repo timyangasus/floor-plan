@@ -27,15 +27,6 @@
   color: var(--text);
 }
 
-.lite-add-tile {
-  border: 1.5px dashed var(--accent);
-  color: var(--accent);
-}
-
-.lite-add-tile .home-add-icon {
-  color: var(--accent);
-}
-
 .lite-home-main {
   display: flex;
   flex-direction: column;

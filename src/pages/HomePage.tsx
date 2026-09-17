@@ -5,6 +5,8 @@ import { createProject, deleteProject, listFloors, listProjects } from '../db/re
 import type { Floor, Project } from '../types'
 import { timeGreeting } from '../lib/greeting'
 import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
+import { loadSampleFloorPlan } from '../lib/sampleFloorPlan'
+import { hasSeededFullDefault, markFullDefaultSeeded } from '../lib/fullSeed'
 import { useNavigate } from 'react-router-dom'
 import AppTopNav from '../components/AppTopNav'
 import './HomePage.css'
@@ -23,7 +25,16 @@ export default function HomePage() {
   }, [])
 
   async function refresh() {
-    const list = (await listProjects()).filter((p) => p.kind !== 'lite')
+    let list = (await listProjects()).filter((p) => p.kind !== 'lite')
+
+    // First-time use: seed one clearly-labeled sample project so the list isn't empty on arrival.
+    if (list.length === 0 && !hasSeededFullDefault()) {
+      markFullDefaultSeeded()
+      const sampleImage = await loadSampleFloorPlan()
+      await createProject('三房兩廳居家範例', sampleImage, { isSample: true })
+      list = (await listProjects()).filter((p) => p.kind !== 'lite')
+    }
+
     setProjects(list)
     const entries = await Promise.all(
       list.map(async (p) => [p.id, await listFloors(p.id)] as const),
@@ -56,6 +67,11 @@ export default function HomePage() {
     [projects, search],
   )
 
+  // The sample project always leads, with "新增專案" right after it, so both
+  // stay put regardless of how other projects get created/reordered.
+  const sampleProject = filtered.find((p) => p.isSample)
+  const otherProjects = filtered.filter((p) => !p.isSample)
+
   return (
     <div className="home-page">
       <AppTopNav theme={theme} onToggleTheme={toggleTheme} />
@@ -72,7 +88,20 @@ export default function HomePage() {
         />
 
         <div className="home-grid">
-          {filtered.map((project) => (
+          {sampleProject && (
+            <ProjectCard
+              project={sampleProject}
+              floors={floorsByProject[sampleProject.id] ?? []}
+              onDelete={handleDelete}
+            />
+          )}
+
+          <button className="home-add-tile" onClick={() => setShowNewProject(true)}>
+            <span className="home-add-icon">+</span>
+            <span>新增專案</span>
+          </button>
+
+          {otherProjects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
@@ -80,11 +109,6 @@ export default function HomePage() {
               onDelete={handleDelete}
             />
           ))}
-
-          <button className="home-add-tile" onClick={() => setShowNewProject(true)}>
-            <span className="home-add-icon">+</span>
-            <span>新增專案</span>
-          </button>
         </div>
 
         {filtered.length === 0 && projects.length > 0 && (

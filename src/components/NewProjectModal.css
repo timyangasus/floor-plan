@@ -85,3 +85,10 @@
   gap: 10px;
   margin-top: 20px;
 }
+
+.modal-actions-delete {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+}

@@ -22,6 +22,7 @@ import {
   assignDeviceGroup,
   createClient,
   createWall,
+  deleteCalibrationLine,
   deleteClient,
   deleteDevice,
   deleteWall,
@@ -341,6 +342,23 @@ export default function EditorPage() {
     setCalibrationPending({ id: line.id, a: line.a, b: line.b, initialMeters: line.meters })
   }
 
+  async function handleDeleteCalibration() {
+    if (!calibrationPending?.id || !floorId) return
+    const lineId = calibrationPending.id
+    const scalePxPerMeter = await deleteCalibrationLine(floorId, lineId)
+    setFloor((prev) =>
+      prev
+        ? {
+            ...prev,
+            scalePxPerMeter,
+            calibrationLines: (prev.calibrationLines ?? []).filter((l) => l.id !== lineId),
+          }
+        : prev,
+    )
+    setCalibrationPending(null)
+    setMode('select')
+  }
+
   function calibrationPixelDistance() {
     if (!calibrationPending) return 0
     const dx = calibrationPending.a.x - calibrationPending.b.x
@@ -578,7 +596,7 @@ export default function EditorPage() {
           <div className="editor-top-panels">
             {mode !== 'calibrate' && mode !== 'pan' && <WifiLegend band={band} onBandChange={setBand} />}
 
-            {showDemoHint && mode === 'select' && (
+            {showDemoHint && liteMode && mode === 'select' && (
               <div className="calibration-hint">可拖移平面圖上的 router 查看 WiFi 訊號強度</div>
             )}
 
@@ -785,6 +803,7 @@ export default function EditorPage() {
             setCalibrationPending(null)
           }}
           onConfirm={handleConfirmCalibration}
+          onDelete={calibrationPending.id ? handleDeleteCalibration : undefined}
         />
       )}
     </div>
