@@ -55,7 +55,7 @@ import {
   clientSignalQualityLabel,
   estimateRateMbps,
 } from '../lib/signalModel'
-import { RulerIcon, TrashIcon, PlusIcon } from '../components/icons'
+import { RulerIcon, PlusIcon } from '../components/icons'
 import './EditorPage.css'
 
 interface HistoryState {
@@ -203,13 +203,9 @@ export default function EditorPage() {
     setDevices((prev) => [...prev, created])
     pushHistory(prevSnapshot)
     setSelectedDeviceId(created.id)
-  }
-
-  function finishPlacing() {
-    setPendingModel(null)
-    setSelectedDeviceId(null)
     // Lite mode has no visible "select" tool to switch back to manually, so
-    // placement must return to the idle/select state on its own.
+    // placement must return to the idle/select state on its own — placing is
+    // itself the completed action, there's no separate "finish" step.
     if (liteMode) setMode('select')
   }
 
@@ -655,22 +651,6 @@ export default function EditorPage() {
               </button>
             )}
 
-            {selectedDevice && mode === 'place' && (
-              <div className="device-inspector">
-                <span className="device-inspector-name">
-                  {selectedDevice.name ?? selectedModel?.name ?? selectedDevice.modelId}
-                </span>
-                <div className="device-inspector-actions">
-                  <button className="icon-btn" onClick={handleDeleteSelected} aria-label="刪除">
-                    <TrashIcon />
-                  </button>
-                  <button className="btn btn-primary" onClick={finishPlacing}>
-                    完成
-                  </button>
-                </div>
-              </div>
-            )}
-
 
             <EditorSideControls
               onZoomIn={() => zoomBy(1.2)}
@@ -768,7 +748,7 @@ export default function EditorPage() {
         />
       )}
 
-      {selectedDevice && mode !== 'place' && (
+      {selectedDevice && (
         <DeviceInspectorSheet
           device={selectedDevice}
           model={selectedModel}
