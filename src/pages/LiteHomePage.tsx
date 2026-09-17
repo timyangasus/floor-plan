@@ -13,7 +13,7 @@ import './LiteHomePage.css'
 
 function WifiHouseIllustration() {
   return (
-    <svg className="lite-promo-illustration" viewBox="0 0 100 100" width="76" height="76">
+    <svg className="lite-promo-illustration" viewBox="0 0 100 100" width="52" height="52">
       <circle cx="50" cy="52" r="46" fill="rgba(255,255,255,0.14)" />
       <circle cx="50" cy="52" r="35" fill="rgba(255,255,255,0.12)" />
       <path d="M31 45 a27 27 0 0 1 38 0" stroke="#fff" strokeWidth="4.5" fill="none" strokeLinecap="round" opacity="0.5" />
@@ -139,7 +139,11 @@ export default function LiteHomePage() {
           <div className="lite-promo-text">
             <div className="lite-promo-title">格局訊號，一眼就懂</div>
             <div className="lite-promo-subtitle">選擇坪數與格局，立即找到適合你的 Mesh 配置</div>
-            <div className="lite-promo-cta">更多設定請至 Web 版 ASUS Floor Plan</div>
+            <div className="lite-promo-cta">
+              更多設定請至
+              <br />
+              ASUS Floor Plan Web 版
+            </div>
           </div>
         </div>
       </main>

@@ -46,6 +46,21 @@
   cursor: default;
 }
 
+.app-top-nav-btn-notif {
+  position: relative;
+}
+
+.app-top-nav-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #f59e0b;
+  border: 1.5px solid var(--surface);
+}
+
 .app-top-nav-lang {
   font-size: 11px;
   color: var(--text-faint);

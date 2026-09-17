@@ -66,12 +66,13 @@ export default function AppTopNav({ projectId, theme, onToggleTheme, liteMode = 
         <div className="app-top-nav-right">
           {liteMode && (
             <button
-              className="app-top-nav-btn"
+              className="app-top-nav-btn app-top-nav-btn-notif"
               onClick={() => setShowDesktopHint(true)}
               aria-label="電腦版提供更多功能"
               title="電腦版提供更多功能"
             >
               <MonitorIcon />
+              <span className="app-top-nav-dot" />
             </button>
           )}
           <button className="app-top-nav-btn" onClick={onToggleTheme} aria-label="切換主題">
