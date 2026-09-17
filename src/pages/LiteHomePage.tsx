@@ -98,7 +98,7 @@ export default function LiteHomePage() {
       <main className="home-main lite-home-main">
         <div className="lite-home-content">
           <h1 className="home-greeting">{timeGreeting()}</h1>
-          <p className="home-subtitle">{projects.length} 個簡易專案</p>
+          {otherProjects.length > 0 && <p className="home-subtitle">{projects.length} 個簡易專案</p>}
 
           <input
             className="home-search"
@@ -116,7 +116,10 @@ export default function LiteHomePage() {
               />
             )}
 
-            <button className="home-add-tile" onClick={() => setShowNewProject(true)}>
+            <button
+              className={`home-add-tile ${otherProjects.length === 0 ? 'home-add-tile-hint' : ''}`}
+              onClick={() => setShowNewProject(true)}
+            >
               <span className="home-add-icon">+</span>
               <span>新增專案</span>
             </button>
