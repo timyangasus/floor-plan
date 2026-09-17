@@ -204,6 +204,10 @@ export default function EditorPage() {
     // Placing just drops the router on the plan — it doesn't select it or
     // open its settings. Tapping the placed router (same gesture as any
     // other device) is what opens the edit sheet.
+    // Each new router may be a different model, so the next one (still in
+    // place mode, per the "stay on tool" design) must re-prompt for it —
+    // same reasoning as clearing the wall material after each wall.
+    setPendingModel(null)
     // Lite mode has no visible "select" tool to switch back to manually, so
     // placement must return to the idle/select state on its own.
     if (liteMode) setMode('select')
