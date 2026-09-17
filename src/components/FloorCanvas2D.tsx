@@ -9,6 +9,7 @@ import LiteFloorPlanSvg from './LiteFloorPlanSvg'
 import {
   bestRouterConnection,
   bestSignalDbm,
+  clientSignalQualityColor,
   distanceInMeters,
   signalToStrength,
   strengthToColor,
@@ -428,8 +429,7 @@ export default function FloorCanvas2D({
     if (!connection) return null
     const router = routerCandidates.find((r) => r.id === connection.routerId)
     if (!router) return null
-    const [cr, cg, cb] = strengthToColor(signalToStrength(connection.dbm))
-    return { connection, router, color: `rgb(${cr}, ${cg}, ${cb})` }
+    return { connection, router, color: clientSignalQualityColor(connection.dbm) }
   }
 
   const liveDragClient = liveDragClientId ? clients.find((c) => c.id === liveDragClientId) ?? null : null
