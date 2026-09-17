@@ -56,7 +56,7 @@ import {
   clientSignalQualityLabel,
   estimateRateMbps,
 } from '../lib/signalModel'
-import { RulerIcon, TrashIcon } from '../components/icons'
+import { RulerIcon, TrashIcon, PlusIcon } from '../components/icons'
 import './EditorPage.css'
 
 interface HistoryState {
@@ -616,10 +616,6 @@ export default function EditorPage() {
               <div className="calibration-hint">在平面圖上點擊放置「{pendingModel.name}」</div>
             )}
 
-            {mode === 'draw-wall' && !wallDrawMaterialId && (
-              <div className="calibration-hint">在平面圖上點擊選擇牆面材質</div>
-            )}
-
             {mode === 'draw-wall' && wallDrawMaterialId && (
               <div className="calibration-hint">在平面圖上點擊新增頂點，繪製牆面路徑，畫好後點選 ✓ 確認</div>
             )}
@@ -652,6 +648,13 @@ export default function EditorPage() {
               <button className="scale-pill-btn" onClick={() => setMode('calibrate')}>
                 <RulerIcon size={16} />
                 設定比例尺
+              </button>
+            )}
+
+            {mode === 'draw-wall' && !wallDrawMaterialId && (
+              <button className="scale-pill-btn" onClick={() => setWallMaterialOpen(true)}>
+                選擇牆面材質
+                <PlusIcon size={16} />
               </button>
             )}
 
