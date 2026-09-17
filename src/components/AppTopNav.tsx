@@ -13,7 +13,7 @@ interface Props {
   liteMode?: boolean
 }
 
-export default function AppTopNav({ projectId, theme, onToggleTheme, liteMode = false }: Props) {
+export default function AppTopNav({ projectId, liteMode = false }: Props) {
   const navigate = useNavigate()
   const location = useLocation()
   const [showAbout, setShowAbout] = useState(false)
@@ -75,9 +75,6 @@ export default function AppTopNav({ projectId, theme, onToggleTheme, liteMode = 
               <span className="app-top-nav-dot" />
             </button>
           )}
-          <button className="app-top-nav-btn" onClick={onToggleTheme} aria-label="切換主題">
-            {theme === 'dark' ? '🌙' : theme === 'light' ? '☀️' : '🌓'}
-          </button>
           <button className="app-top-nav-btn" onClick={() => setShowAbout(true)} aria-label="說明">
             <HelpIcon />
           </button>
