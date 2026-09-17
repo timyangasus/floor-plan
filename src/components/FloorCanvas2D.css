@@ -126,6 +126,22 @@
   gap: 6px;
 }
 
+.fc-wall-delete-btn {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: none;
+  background: var(--danger);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.35);
+  touch-action: none;
+}
+
 .fc-wall-btn {
   width: 32px;
   height: 32px;

@@ -47,7 +47,6 @@ import { useObjectUrl } from '../lib/useObjectUrl'
 import { saveLastFloor } from '../lib/lastFloor'
 import { applyTheme, loadTheme, saveTheme, type ThemeMode } from '../lib/theme'
 import { getRouterModel } from '../data/routerCatalog'
-import { getWallMaterial } from '../data/wallMaterials'
 import { getClientType } from '../data/clientTypes'
 import { getLiteCanvasSize, getLiteTemplate, LITE_PX_PER_METER } from '../data/liteTemplates'
 import {
@@ -492,8 +491,6 @@ export default function EditorPage() {
 
   const selectedDevice = devices.find((d) => d.id === selectedDeviceId) ?? null
   const selectedModel = selectedDevice ? getRouterModel(selectedDevice.modelId) : null
-  const selectedWall = walls.find((w) => w.id === selectedWallId) ?? null
-  const selectedWallMaterial = selectedWall ? getWallMaterial(selectedWall.materialId) : null
   const selectedClient = clients.find((c) => c.id === selectedClientId) ?? null
 
   const routerCandidates = devices
@@ -555,9 +552,9 @@ export default function EditorPage() {
             walls={walls}
             selectedWallId={selectedWallId}
             onSelectWall={selectWall}
+            onDeleteWall={handleDeleteWall}
             onWallComplete={handleWallComplete}
             wallMaterialReady={wallDrawMaterialId !== null}
-            onRequestWallMaterial={() => setWallMaterialOpen(true)}
             clients={clients}
             selectedClientId={selectedClientId}
             onSelectClient={selectClient}
@@ -674,19 +671,6 @@ export default function EditorPage() {
               </div>
             )}
 
-            {selectedWall && (
-              <div className="device-inspector">
-                <span className="device-inspector-name">
-                  {selectedWallMaterial?.name ?? selectedWall.materialId}
-                  {selectedWallMaterial && `・${selectedWallMaterial.dbAt5GHz} dB`}
-                </span>
-                <div className="device-inspector-actions">
-                  <button className="icon-btn" onClick={handleDeleteWall} aria-label="刪除">
-                    <TrashIcon />
-                  </button>
-                </div>
-              </div>
-            )}
 
             <EditorSideControls
               onZoomIn={() => zoomBy(1.2)}

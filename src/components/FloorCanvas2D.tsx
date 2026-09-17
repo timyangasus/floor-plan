@@ -14,7 +14,7 @@ import {
   strengthToColor,
   wallAttenuationBetween,
 } from '../lib/signalModel'
-import { RouterIcon, PhoneIcon, CheckIcon, CloseIcon, UndoIcon } from './icons'
+import { RouterIcon, PhoneIcon, CheckIcon, CloseIcon, UndoIcon, TrashIcon } from './icons'
 import './FloorCanvas2D.css'
 
 export type CanvasMode = 'select' | 'pan' | 'place' | 'calibrate' | 'draw-wall'
@@ -41,9 +41,9 @@ interface Props {
   walls: Wall[]
   selectedWallId: string | null
   onSelectWall: (id: string | null) => void
+  onDeleteWall: () => void
   onWallComplete: (points: Point[]) => void
   wallMaterialReady: boolean
-  onRequestWallMaterial: () => void
   clients: TestClient[]
   selectedClientId: string | null
   onSelectClient: (id: string | null) => void
@@ -106,9 +106,9 @@ export default function FloorCanvas2D({
   walls,
   selectedWallId,
   onSelectWall,
+  onDeleteWall,
   onWallComplete,
   wallMaterialReady,
-  onRequestWallMaterial,
   clients,
   selectedClientId,
   onSelectClient,
@@ -182,11 +182,28 @@ export default function FloorCanvas2D({
     activePointerIds.current.delete(e.pointerId)
   }
 
+  function findClosestWallId(point: Point): string | null {
+    const toleranceContent = WALL_HIT_TOLERANCE_PX / transform.scale
+    let closestId: string | null = null
+    let closestDist = toleranceContent
+    for (const wall of walls) {
+      for (let i = 0; i < wall.points.length - 1; i++) {
+        const d = distanceToSegment(point, wall.points[i], wall.points[i + 1])
+        if (d < closestDist) {
+          closestDist = d
+          closestId = wall.id
+        }
+      }
+    }
+    return closestId
+  }
+
   function handleBackgroundPointerDown(e: React.PointerEvent) {
     if (
       (e.target as HTMLElement).closest('.fc-device') ||
       (e.target as HTMLElement).closest('.fc-client') ||
-      (e.target as HTMLElement).closest('.fc-wall-controls')
+      (e.target as HTMLElement).closest('.fc-wall-controls') ||
+      (e.target as HTMLElement).closest('.fc-wall-delete-btn')
     )
       return
 
@@ -212,10 +229,19 @@ export default function FloorCanvas2D({
       return
     }
     if (mode === 'draw-wall') {
-      if (!wallMaterialReady) {
-        onRequestWallMaterial()
-        return
+      // Not mid-way through a new wall — tapping an existing one selects it
+      // (to delete) instead of starting a fresh vertex on top of it.
+      if (wallDrawPoints.length === 0) {
+        const closestId = findClosestWallId(point)
+        if (closestId) {
+          onSelectWall(closestId)
+          return
+        }
       }
+      onSelectWall(null)
+      // Material must already be chosen via the toolbar icon/button — tapping
+      // the floor plan itself no longer opens that picker.
+      if (!wallMaterialReady) return
       setWallDrawPoints((prev) => {
         if (prev.length === 0) return [point]
         const last = prev[prev.length - 1]
@@ -230,18 +256,7 @@ export default function FloorCanvas2D({
       if (activeDragPointerId.current !== null) return
 
       if (mode === 'select') {
-        const toleranceContent = WALL_HIT_TOLERANCE_PX / transform.scale
-        let closestId: string | null = null
-        let closestDist = toleranceContent
-        for (const wall of walls) {
-          for (let i = 0; i < wall.points.length - 1; i++) {
-            const d = distanceToSegment(point, wall.points[i], wall.points[i + 1])
-            if (d < closestDist) {
-              closestDist = d
-              closestId = wall.id
-            }
-          }
-        }
+        const closestId = findClosestWallId(point)
         if (closestId) {
           onSelectWall(closestId)
           onSelectDevice(null)
@@ -600,6 +615,31 @@ export default function FloorCanvas2D({
               })}
           </svg>
         )}
+
+        {(mode === 'select' || mode === 'draw-wall') &&
+          (() => {
+            const selectedWall = walls.find((w) => w.id === selectedWallId)
+            if (!selectedWall) return null
+            const first = selectedWall.points[0]
+            const last = selectedWall.points[selectedWall.points.length - 1]
+            const midX = (first.x + last.x) / 2
+            const midY = (first.y + last.y) / 2
+            return (
+              <button
+                className="fc-wall-delete-btn"
+                style={{
+                  left: midX,
+                  top: midY,
+                  transform: `translate(-50%, -50%) scale(${1 / transform.scale})`,
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={onDeleteWall}
+                aria-label="刪除牆面"
+              >
+                <TrashIcon size={16} />
+              </button>
+            )
+          })()}
 
         {devices.map((device) => {
           const model = getRouterModel(device.modelId)
