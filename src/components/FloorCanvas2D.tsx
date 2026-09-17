@@ -656,6 +656,7 @@ export default function FloorCanvas2D({
 
         {clients.map((client) => {
           const selected = client.id === selectedClientId
+          const connectionResult = getClientConnection(client)
           return (
             <div
               key={client.id}
@@ -667,7 +668,10 @@ export default function FloorCanvas2D({
               }}
               onPointerDown={(e) => handleClientPointerDown(e, client.id)}
             >
-              <div className="fc-client-dot">
+              <div
+                className="fc-client-dot"
+                style={connectionResult ? { background: connectionResult.color } : undefined}
+              >
                 <PhoneIcon size={14} />
               </div>
             </div>
