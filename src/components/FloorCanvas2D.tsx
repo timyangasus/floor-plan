@@ -228,19 +228,19 @@ export default function FloorCanvas2D({
       return
     }
     if (mode === 'draw-wall') {
-      // Not mid-way through a new wall — tapping an existing one selects it
-      // (to delete) instead of starting a fresh vertex on top of it.
-      if (wallDrawPoints.length === 0) {
-        const closestId = findClosestWallId(point)
-        if (closestId) {
-          onSelectWall(closestId)
-          return
-        }
-      }
-      onSelectWall(null)
       // Material must already be chosen via the toolbar icon/button — tapping
       // the floor plan itself no longer opens that picker.
-      if (!wallMaterialReady) return
+      if (!wallMaterialReady) {
+        // Not actively drawing yet, so tapping an existing wall selects it
+        // (to delete) instead of doing nothing.
+        const closestId = findClosestWallId(point)
+        onSelectWall(closestId)
+        return
+      }
+      // Material is chosen — every tap places a vertex, even one that lands
+      // on an existing wall, so drawing near/through other walls never gets
+      // hijacked into selecting them for deletion.
+      onSelectWall(null)
       setWallDrawPoints((prev) => {
         if (prev.length === 0) return [point]
         const last = prev[prev.length - 1]
