@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeftIcon, GridIcon, NetworkIcon, HelpIcon } from './icons'
+import { ArrowLeftIcon, GridIcon, NetworkIcon, HelpIcon, MonitorIcon } from './icons'
 import type { ThemeMode } from '../lib/theme'
 import { loadLastFloor } from '../lib/lastFloor'
+import DesktopHintModal from './DesktopHintModal'
 import './AppTopNav.css'
 
 interface Props {
@@ -16,6 +17,7 @@ export default function AppTopNav({ projectId, theme, onToggleTheme, liteMode = 
   const navigate = useNavigate()
   const location = useLocation()
   const [showAbout, setShowAbout] = useState(false)
+  const [showDesktopHint, setShowDesktopHint] = useState(false)
 
   const homePath = liteMode ? '/lite' : '/home'
   const onTopology = location.pathname.endsWith('/topology')
@@ -62,6 +64,16 @@ export default function AppTopNav({ projectId, theme, onToggleTheme, liteMode = 
         </div>
 
         <div className="app-top-nav-right">
+          {liteMode && (
+            <button
+              className="app-top-nav-btn"
+              onClick={() => setShowDesktopHint(true)}
+              aria-label="電腦版提供更多功能"
+              title="電腦版提供更多功能"
+            >
+              <MonitorIcon />
+            </button>
+          )}
           <button className="app-top-nav-btn" onClick={onToggleTheme} aria-label="切換主題">
             {theme === 'dark' ? '🌙' : theme === 'light' ? '☀️' : '🌓'}
           </button>
@@ -91,6 +103,8 @@ export default function AppTopNav({ projectId, theme, onToggleTheme, liteMode = 
           </div>
         </div>
       )}
+
+      {showDesktopHint && <DesktopHintModal onClose={() => setShowDesktopHint(false)} />}
     </>
   )
 }
