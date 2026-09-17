@@ -202,10 +202,11 @@ export default function EditorPage() {
     const created = await placeDevice(floorId, pendingModel.id, x, y)
     setDevices((prev) => [...prev, created])
     pushHistory(prevSnapshot)
-    setSelectedDeviceId(created.id)
+    // Placing just drops the router on the plan — it doesn't select it or
+    // open its settings. Double-tapping the placed router (same gesture as
+    // any other device) is what opens the edit sheet.
     // Lite mode has no visible "select" tool to switch back to manually, so
-    // placement must return to the idle/select state on its own — placing is
-    // itself the completed action, there's no separate "finish" step.
+    // placement must return to the idle/select state on its own.
     if (liteMode) setMode('select')
   }
 
