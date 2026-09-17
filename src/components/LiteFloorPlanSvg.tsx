@@ -7,6 +7,10 @@ interface Props {
   showLabel?: boolean
   labelAlign?: 'center' | 'left'
   labelScale?: number
+  // Crop to fill the container edge-to-edge (like object-fit: cover) instead
+  // of letterboxing the whole plan — used for card thumbnails so their layout
+  // matches the full version's photo thumbnails.
+  fill?: boolean
 }
 
 const WALL_COLOR = '#111827'
@@ -145,6 +149,7 @@ export default function LiteFloorPlanSvg({
   showLabel = true,
   labelAlign = 'center',
   labelScale = 1,
+  fill = false,
 }: Props) {
   const w = template.widthMeters * LITE_PX_PER_METER
   const h = template.depthMeters * LITE_PX_PER_METER
@@ -224,7 +229,7 @@ export default function LiteFloorPlanSvg({
       viewBox={`0 0 ${w} ${totalH}`}
       width="100%"
       height="100%"
-      preserveAspectRatio="xMidYMid meet"
+      preserveAspectRatio={fill ? 'xMidYMin slice' : 'xMidYMid meet'}
     >
       {showLabel &&
         (() => {

@@ -36,7 +36,7 @@ export default function ProjectCard({ project, floors, onDelete }: Props) {
         {thumbTemplate ? (
           // The sample card's own badge already conveys its size range, so the
           // plan's internal "XX坪" caption would only collide with it here.
-          <LiteFloorPlanSvg template={thumbTemplate} showLabel={!project.isSample} />
+          <LiteFloorPlanSvg template={thumbTemplate} showLabel={!project.isSample} fill />
         ) : thumbUrl ? (
           <img src={thumbUrl} alt={project.name} />
         ) : (

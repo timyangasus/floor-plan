@@ -11,6 +11,7 @@
 .project-card-thumb {
   position: relative;
   aspect-ratio: 16 / 9;
+  min-height: 0;
   background: var(--surface-alt);
 }
 
