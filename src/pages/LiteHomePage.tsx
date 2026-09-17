@@ -79,6 +79,11 @@ export default function LiteHomePage() {
     [projects, search],
   )
 
+  // The sample project always leads, with "新增專案" right after it, so both
+  // stay put regardless of how other projects get created/reordered.
+  const sampleProject = filtered.find((p) => p.isSample)
+  const otherProjects = filtered.filter((p) => !p.isSample)
+
   return (
     <div className="home-page">
       <header className="lite-home-header">
@@ -101,7 +106,20 @@ export default function LiteHomePage() {
           />
 
           <div className="home-grid">
-            {filtered.map((project) => (
+            {sampleProject && (
+              <ProjectCard
+                project={sampleProject}
+                floors={floorsByProject[sampleProject.id] ?? []}
+                onDelete={handleDelete}
+              />
+            )}
+
+            <button className="home-add-tile lite-add-tile" onClick={() => setShowNewProject(true)}>
+              <span className="home-add-icon">+</span>
+              <span>新增專案</span>
+            </button>
+
+            {otherProjects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
@@ -109,11 +127,6 @@ export default function LiteHomePage() {
                 onDelete={handleDelete}
               />
             ))}
-
-            <button className="home-add-tile lite-add-tile" onClick={() => setShowNewProject(true)}>
-              <span className="home-add-icon">+</span>
-              <span>新增專案</span>
-            </button>
           </div>
 
           {filtered.length === 0 && projects.length > 0 && (
