@@ -44,10 +44,21 @@ export async function createProject(name: string, firstFloorImage: Blob | null):
   return project
 }
 
-export async function createLiteProject(name: string, templateId: string): Promise<Project> {
+export async function createLiteProject(
+  name: string,
+  templateId: string,
+  options?: { isSample?: boolean },
+): Promise<Project> {
   const db = await getDb()
   const now = Date.now()
-  const project: Project = { id: createId(), name, createdAt: now, updatedAt: now, kind: 'lite' }
+  const project: Project = {
+    id: createId(),
+    name,
+    createdAt: now,
+    updatedAt: now,
+    kind: 'lite',
+    ...(options?.isSample ? { isSample: true } : {}),
+  }
   await db.put('projects', project)
 
   const floor: Floor = {

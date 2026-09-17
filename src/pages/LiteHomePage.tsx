@@ -49,10 +49,10 @@ export default function LiteHomePage() {
   async function refresh() {
     let list = (await listProjects()).filter((p) => p.kind === 'lite')
 
-    // First-time use: seed one ready-made project so the list isn't empty on arrival.
+    // First-time use: seed one clearly-labeled sample project so the list isn't empty on arrival.
     if (list.length === 0 && !hasSeededLiteDefault()) {
       markLiteDefaultSeeded()
-      await createLiteProject('我的家', LITE_DEFAULT_TEMPLATE_ID)
+      await createLiteProject('30-50 坪居家範例', LITE_DEFAULT_TEMPLATE_ID, { isSample: true })
       list = (await listProjects()).filter((p) => p.kind === 'lite')
     }
 
@@ -86,10 +86,6 @@ export default function LiteHomePage() {
           <ArrowLeftIcon />
         </button>
         <div className="lite-header-title">Floor Plan Lite</div>
-        <button className="lite-header-add" onClick={() => setShowNewProject(true)}>
-          <span className="lite-header-add-icon">+</span>
-          新增專案
-        </button>
       </header>
 
       <main className="home-main lite-home-main">
@@ -113,23 +109,26 @@ export default function LiteHomePage() {
                 onDelete={handleDelete}
               />
             ))}
+
+            <button className="home-add-tile lite-add-tile" onClick={() => setShowNewProject(true)}>
+              <span className="home-add-icon">+</span>
+              <span>新增專案</span>
+            </button>
           </div>
 
           {filtered.length === 0 && projects.length > 0 && (
             <p className="home-empty">沒有符合搜尋條件的專案。</p>
           )}
-
-          {projects.length === 0 && <p className="home-empty">還沒有簡易專案，點右上角「新增專案」開始。</p>}
         </div>
 
-        <button className="lite-promo-banner" onClick={() => navigate('/home')}>
+        <div className="lite-promo-banner">
           <WifiHouseIllustration />
           <div className="lite-promo-text">
             <div className="lite-promo-title">格局訊號，一眼就懂</div>
             <div className="lite-promo-subtitle">選擇坪數與格局，立即找到適合你的 Mesh 配置</div>
-            <div className="lite-promo-cta">更多設定請至 Web 版 →</div>
+            <div className="lite-promo-cta">更多設定請至 Web 版 ASUS Floor Plan</div>
           </div>
-        </button>
+        </div>
       </main>
 
       {showNewProject && (

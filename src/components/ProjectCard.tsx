@@ -32,6 +32,7 @@ export default function ProjectCard({ project, floors, onDelete }: Props) {
   return (
     <div className="project-card" onClick={open} role="button" tabIndex={0}>
       <div className="project-card-thumb">
+        {project.isSample && <div className="project-card-badge">範例專案</div>}
         {thumbTemplate ? (
           <LiteFloorPlanSvg template={thumbTemplate} />
         ) : thumbUrl ? (
@@ -45,7 +46,9 @@ export default function ProjectCard({ project, floors, onDelete }: Props) {
       </div>
       <div className="project-card-body">
         <div className="project-card-name">{project.name}</div>
-        <div className="project-card-meta">{floors.length} 層樓</div>
+        <div className="project-card-meta">
+          {project.isSample ? `3 房 2 廳｜${floors.length} 層樓` : `${floors.length} 層樓`}
+        </div>
       </div>
     </div>
   )

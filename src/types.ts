@@ -18,6 +18,8 @@ export interface Project {
   updatedAt: number
   /** 'lite' projects are built from a preset template floor plan instead of an uploaded image. */
   kind: 'full' | 'lite'
+  /** Marks the auto-seeded first-time example project, so it's labeled clearly as a sample, not real user data. */
+  isSample?: boolean
 }
 
 export interface CalibrationLine {
