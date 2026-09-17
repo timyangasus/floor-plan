@@ -10,7 +10,7 @@
 
 .project-card-thumb {
   position: relative;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   background: var(--surface-alt);
 }
 
@@ -37,12 +37,13 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  background: rgba(26, 86, 219, 0.14);
-  color: var(--accent);
+  background: var(--accent);
+  color: #fff;
   font-size: 11px;
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 999px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
 }
 
 .project-card-delete {
