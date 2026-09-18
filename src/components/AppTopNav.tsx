@@ -66,23 +66,25 @@ export default function AppTopNav({ projectId, liteMode = false }: Props) {
 
         <div className="app-top-nav-right">
           <VersionSwitchButton liteMode={liteMode} />
-          {liteMode && (
-            <button
-              className="app-top-nav-btn app-top-nav-btn-notif"
-              onClick={() => setShowDesktopHint(true)}
-              aria-label="電腦版提供更多功能"
-              title="電腦版提供更多功能"
-            >
-              <MonitorIcon />
-              <span className="app-top-nav-dot" />
-            </button>
-          )}
           <button className="app-top-nav-btn" onClick={() => setShowAbout(true)} aria-label="說明">
             <HelpIcon />
           </button>
           <span className="app-top-nav-lang">繁中</span>
           <span className="app-top-nav-avatar">A</span>
         </div>
+
+        {liteMode && (
+          <button
+            className="desktop-entry-badge"
+            onClick={() => setShowDesktopHint(true)}
+            aria-label="電腦版提供更多功能"
+            title="電腦版提供更多功能"
+          >
+            <MonitorIcon size={14} />
+            電腦版
+            <span className="desktop-entry-badge-dot" />
+          </button>
+        )}
       </nav>
 
       {showAbout && (
