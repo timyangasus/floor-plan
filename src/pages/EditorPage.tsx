@@ -55,7 +55,7 @@ import {
   clientSignalQualityLabel,
   estimateRateMbps,
 } from '../lib/signalModel'
-import { RulerIcon, PlusIcon } from '../components/icons'
+import { PlusIcon } from '../components/icons'
 import './EditorPage.css'
 
 interface HistoryState {
@@ -206,11 +206,10 @@ export default function EditorPage() {
     // other device) is what opens the edit sheet.
     // Each new router may be a different model, so the next one (still in
     // place mode, per the "stay on tool" design) must re-prompt for it —
-    // same reasoning as clearing the wall material after each wall.
+    // same reasoning as clearing the wall material after each wall. Lite
+    // mode stays on the tool too, so the "選擇 Router +" pill reappears
+    // right away instead of requiring another tap on the toolbar icon.
     setPendingModel(null)
-    // Lite mode has no visible "select" tool to switch back to manually, so
-    // placement must return to the idle/select state on its own.
-    if (liteMode) setMode('select')
   }
 
   function handleMoveDevice(id: string, x: number, y: number) {
@@ -639,8 +638,8 @@ export default function EditorPage() {
           <div className="editor-bottom-panels">
             {mode === 'select' && !liteMode && (
               <button className="scale-pill-btn" onClick={() => setMode('calibrate')}>
-                <RulerIcon size={16} />
-                設定比例尺
+                加入比例尺
+                <PlusIcon size={16} />
               </button>
             )}
 
