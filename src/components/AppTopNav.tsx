@@ -81,7 +81,7 @@ export default function AppTopNav({ projectId, liteMode = false }: Props) {
             title="電腦版提供更多功能"
           >
             <MonitorIcon size={14} />
-            電腦版
+            更多功能
             <span className="desktop-entry-badge-dot" />
           </button>
         )}
