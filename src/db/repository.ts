@@ -84,7 +84,9 @@ export async function createLiteProject(
   }
   await db.put('floors', floor)
 
-  if (LITE_DEMO_TEMPLATE_IDS.includes(templateId)) {
+  // Pre-placed demo devices are only for the one-time seeded sample project —
+  // a user's own new project (even on the same template) starts empty.
+  if (options?.isSample && LITE_DEMO_TEMPLATE_IDS.includes(templateId)) {
     const template = getLiteTemplate(templateId)
     if (template) {
       for (const pos of getLiteDefaultDevicePositions(template)) {
