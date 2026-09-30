@@ -2,11 +2,24 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ProjectCard from '../components/ProjectCard'
 import LiteTemplatePickerModal from '../components/LiteTemplatePickerModal'
-import { createLiteProject, deleteProject, listFloors, listProjects } from '../db/repository'
+import {
+  createClient,
+  createLiteProject,
+  deleteProject,
+  listClients,
+  listDevices,
+  listFloors,
+  listProjects,
+} from '../db/repository'
 import { LITE_DEFAULT_TEMPLATE_ID } from '../data/liteTemplates'
 import type { Floor, Project } from '../types'
 import { timeGreeting } from '../lib/greeting'
-import { hasSeededLiteDefault, markLiteDefaultSeeded } from '../lib/liteSeed'
+import {
+  hasSeededLiteDefault,
+  hasToppedUpSampleClient,
+  markLiteDefaultSeeded,
+  markSampleClientToppedUp,
+} from '../lib/liteSeed'
 import { ArrowLeftIcon } from '../components/icons'
 import VersionSwitchButton from '../components/VersionSwitchButton'
 import '../pages/HomePage.css'
@@ -55,6 +68,23 @@ export default function LiteHomePage() {
       markLiteDefaultSeeded()
       await createLiteProject('30-50 坪居家範例', LITE_DEFAULT_TEMPLATE_ID, { isSample: true })
       list = (await listProjects()).filter((p) => p.kind === 'lite')
+    }
+
+    // One-time top-up for installs seeded before the demo client was added —
+    // drops one in next to the first router so the sample still shows a live
+    // connection, without touching the sample project's other devices.
+    if (!hasToppedUpSampleClient()) {
+      markSampleClientToppedUp()
+      const existingSample = list.find((p) => p.isSample)
+      if (existingSample) {
+        const [sampleFloor] = await listFloors(existingSample.id)
+        if (sampleFloor) {
+          const [devices, clients] = await Promise.all([listDevices(sampleFloor.id), listClients(sampleFloor.id)])
+          if (clients.length === 0 && devices.length > 0) {
+            await createClient(sampleFloor.id, devices[0].x + 65, devices[0].y - 15)
+          }
+        }
+      }
     }
 
     setProjects(list)
