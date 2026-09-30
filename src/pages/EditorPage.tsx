@@ -593,7 +593,7 @@ export default function EditorPage() {
             {mode !== 'calibrate' && mode !== 'pan' && <WifiLegend band={band} onBandChange={setBand} />}
 
             {showDemoHint && liteMode && mode === 'select' && (
-              <div className="calibration-hint">可拖移平面圖上的 router 查看 WiFi 訊號強度</div>
+              <div className="demo-toast">可拖移平面圖上的 router 與行動裝置，查看 WiFi 訊號強度</div>
             )}
 
             {floor.scalePxPerMeter === null && mode === 'select' && (

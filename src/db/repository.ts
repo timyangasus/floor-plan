@@ -89,8 +89,17 @@ export async function createLiteProject(
   if (options?.isSample && LITE_DEMO_TEMPLATE_IDS.includes(templateId)) {
     const template = getLiteTemplate(templateId)
     if (template) {
-      for (const pos of getLiteDefaultDevicePositions(template)) {
+      const positions = getLiteDefaultDevicePositions(template)
+      for (const pos of positions) {
         await placeDevice(floor.id, LITE_DEMO_MODEL_ID, pos.x, pos.y)
+      }
+      // A test client near the first router so the demo shows a live signal
+      // connection right away, matching the "drag the router/client" hint.
+      // Offset up-and-right rather than straight down, so it doesn't sit on
+      // top of the router's name label (which renders just below its icon).
+      const near = positions[0]
+      if (near) {
+        await createClient(floor.id, near.x + 65, near.y - 15)
       }
     }
   }

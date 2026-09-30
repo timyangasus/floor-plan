@@ -258,6 +258,37 @@
   padding: 4px 6px;
 }
 
+@keyframes demo-toast-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  8%,
+  85% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.demo-toast {
+  align-self: center;
+  max-width: 100%;
+  background: rgba(15, 23, 42, 0.85);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  padding: 10px 16px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  animation: demo-toast-fade 5s ease-in-out forwards;
+  pointer-events: none;
+}
+
 .catalog-sheet {
   width: 100%;
   max-width: 460px;
