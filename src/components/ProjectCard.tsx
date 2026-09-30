@@ -32,11 +32,7 @@ export default function ProjectCard({ project, floors, onDelete }: Props) {
   return (
     <div className="project-card" onClick={open} role="button" tabIndex={0}>
       <div className="project-card-thumb">
-        {project.isSample && (
-          <div className={`project-card-badge ${project.kind === 'lite' ? 'project-card-badge-lite' : ''}`}>
-            範例專案
-          </div>
-        )}
+        {project.isSample && <div className="project-card-badge project-card-badge-animated">範例專案</div>}
         {thumbTemplate ? (
           // The sample card's own badge already conveys its size range, so the
           // plan's internal "XX坪" caption would only collide with it here.
